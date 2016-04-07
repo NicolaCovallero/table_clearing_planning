@@ -9,3 +9,5 @@ Now the implementation is at the point to implement the ROS package in order to 
 * For each object:
 * * get some grasping pose and consider only the ones more or less vertical
 * * with a polygonal mesh (or a simple bounxng box of the gripper model) detect what are the objects that obstacle the object to be grasped given  a certain grasping pose
+* sdasdad
+* * * 

@@ -74,9 +74,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setAABBObjects</b> (s
 <tr class="memitem:acf445ca3cfaf0831c4514bc5c4972b99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#acf445ca3cfaf0831c4514bc5c4972b99">assignObjects3DEdges</a> ()</td></tr>
 <tr class="memdesc:acf445ca3cfaf0831c4514bc5c4972b99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign the precomputed 3D edges to each object.  <a href="#acf445ca3cfaf0831c4514bc5c4972b99">More...</a><br/></td></tr>
 <tr class="separator:acf445ca3cfaf0831c4514bc5c4972b99"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad9c22a5de27836d471b539a4cfd9dbd8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#ad9c22a5de27836d471b539a4cfd9dbd8">computeOccludedSides</a> (double density)</td></tr>
-<tr class="memdesc:ad9c22a5de27836d471b539a4cfd9dbd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the occluded sides.  <a href="#ad9c22a5de27836d471b539a4cfd9dbd8">More...</a><br/></td></tr>
-<tr class="separator:ad9c22a5de27836d471b539a4cfd9dbd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8871e68081f72f9dc461c018bf3a3cb1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#a8871e68081f72f9dc461c018bf3a3cb1">computeOccludedSides3D</a> (double density)</td></tr>
+<tr class="memdesc:a8871e68081f72f9dc461c018bf3a3cb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the occluded sides.  <a href="#a8871e68081f72f9dc461c018bf3a3cb1">More...</a><br/></td></tr>
+<tr class="separator:a8871e68081f72f9dc461c018bf3a3cb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad9f737c2c2823a609a503e87d3d0ed6b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#ad9f737c2c2823a609a503e87d3d0ed6b">computeOccludedSides2D</a> (double density)</td></tr>
 <tr class="memdesc:ad9f737c2c2823a609a503e87d3d0ed6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the occluded sides.  <a href="#ad9f737c2c2823a609a503e87d3d0ed6b">More...</a><br/></td></tr>
 <tr class="separator:ad9f737c2c2823a609a503e87d3d0ed6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -146,12 +146,12 @@ boost::shared_ptr<br class="typebreak"/>
 
 </div>
 </div>
-<a class="anchor" id="ad9c22a5de27836d471b539a4cfd9dbd8"></a>
+<a class="anchor" id="a8871e68081f72f9dc461c018bf3a3cb1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void EdgeProcessing::computeOccludedSides </td>
+          <td class="memname">void EdgeProcessing::computeOccludedSides3D </td>
           <td>(</td>
           <td class="paramtype">double&#160;</td>
           <td class="paramname"><em>density</em></td><td>)</td>
@@ -213,8 +213,16 @@ boost::shared_ptr<br class="typebreak"/>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Only depth edges are considered.</p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Only depth edges are considered. This method is slow since it has to compute the edges for the whole original point cloud. It is based on an algorithm that works with organized point clouds. In average it takes 1.45seconds. <a class="el" href="classEdgeProcessing.html#a4645518b144b8185141fe027221e00a2" title="Compute 2D edges for the input point cloud. ">EdgeProcessing::compute2DEdges</a> is based on another method and it takes about 0.1 seconds per object. So in case the objects are 14 the two methods are the same, in case they are too many is better to use this method. This method should used in order to use the <a class="el" href="classEdgeProcessing.html#ad9f737c2c2823a609a503e87d3d0ed6b" title="Compute the occluded sides. ">EdgeProcessing::computeOccludedSides2D</a> method toc ompute the occluded sides. Before to compute the is necessary assigning each edge to each object with the method <a class="el" href="classEdgeProcessing.html#acf445ca3cfaf0831c4514bc5c4972b99" title="Assign the precomputed 3D edges to each object. ">EdgeProcessing::assignObjects3DEdges</a>. <br/>
+ Usage: </p>
+<div class="fragment"><div class="line"><a class="code" href="classEdgeProcessing.html">EdgeProcessing</a> ep;</div>
+<div class="line">ep.setOriginalPointCloud(*cloud);</div>
+<div class="line">ep.setObjects(segmented_objs);</div>
+<div class="line">ep.setPlaneCoefficients(plane_coeff);  </div>
+<div class="line">ep.<a class="code" href="classEdgeProcessing.html#a5ea479981d45b828bccb6b5d9d099553">compute3DEdges</a>();</div>
+<div class="line">ep.<a class="code" href="classEdgeProcessing.html#acf445ca3cfaf0831c4514bc5c4972b99">assignObjects3DEdges</a>();</div>
+<div class="line">ep.<a class="code" href="classEdgeProcessing.html#a8871e68081f72f9dc461c018bf3a3cb1">computeOccludedSides3D</a>(0.01);</div>
+</div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">cloud</td><td>Input point cloud - It has to be organized </td></tr>
   </table>
@@ -248,8 +256,15 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>For each object creates an image and detect the edges with Sobel filter.</p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>For each object creates an image and detect the edges with Sobel filter. It takes about 100 ms per object. <br/>
+ Usage: </p>
+<div class="fragment"><div class="line"><a class="code" href="classEdgeProcessing.html">EdgeProcessing</a> ep;</div>
+<div class="line">ep.setOriginalPointCloud(*cloud);</div>
+<div class="line">ep.setObjects(segmented_objs);</div>
+<div class="line">ep.setPlaneCoefficients(plane_coeff);  </div>
+<div class="line">ep.<a class="code" href="classEdgeProcessing.html#a4645518b144b8185141fe027221e00a2">compute2DEdges</a>();</div>
+<div class="line">ep.<a class="code" href="classEdgeProcessing.html#ad9f737c2c2823a609a503e87d3d0ed6b">computeOccludedSides2D</a>(0.01);</div>
+</div><!-- fragment --> <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">cloud</td><td>Input point cloud - It has to be organized </td></tr>
   </table>
@@ -363,7 +378,7 @@ Here is the call graph for this function:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 7 2016 16:57:15 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Apr 7 2016 17:59:38 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

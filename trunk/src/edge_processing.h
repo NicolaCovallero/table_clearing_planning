@@ -108,7 +108,7 @@ class EdgeProcessing
 
 	/**
 	 * @brief Assign the precomputed 3D edges to each object
-	 * @details [long description]
+	 * @details Assign the precomputed 3D edges to each object
 	 */
 	void assignObjects3DEdges();
 
@@ -117,11 +117,11 @@ class EdgeProcessing
 	 * @details  Compute the occluded sides by projecting the boundary
 	 *  			and occluding edges of the objects up to the table
 	 *  			filling the sides with points with a certain density.
-	 *  			he edges used are the one computed by EdgeProcessing::compute3DEdges
+	 *  			The edges used are the one computed by EdgeProcessing::compute3DEdges
 	 * 
 	 * * @param density density, in meters, of the occluded sides point cloud
 	 */	
-	void computeOccludedSides(double density);
+	void computeOccludedSides3D(double density);
 
 	/**
 	* @brief Compute the occluded sides
@@ -139,7 +139,24 @@ class EdgeProcessing
 
 	/**
 	 * @brief Compute 3D edges for the input point cloud
-	 * @details Only depth edges are considered.
+	 * @details Only depth edges are considered. This method is slow since it has to compute the edges 
+	 * for the whole original point cloud. It is based on an algorithm that works
+	 * with organized point clouds. In average it takes 1.45seconds. EdgeProcessing::compute2DEdges is 
+	 * based on another method and it takes about 0.1 seconds per object. So in case the objects are 14
+	 * the two methods are the same, in case they are too many is better to use this method. This method
+	 * should used in order to use the EdgeProcessing::computeOccludedSides2D method toc ompute the occluded sides.
+	 * Before to compute the is necessary assigning each edge to each object with the method EdgeProcessing::assignObjects3DEdges. 
+	 * \n Usage:
+	 * \code
+	 * EdgeProcessing ep;
+	 * ep.setOriginalPointCloud(*cloud);
+	 * ep.setObjects(segmented_objs);
+	 * ep.setPlaneCoefficients(plane_coeff);  
+	 * ep.compute3DEdges();
+	 * ep.assignObjects3DEdges();
+	 * ep.computeOccludedSides3D(0.01);
+	 * \endcode
+	 * 
 	 * 
 	 * @param cloud Input point cloud - It has to be organized
 	 */
@@ -147,8 +164,17 @@ class EdgeProcessing
 
 	/**
 	 * @brief Compute 2D edges for the input point cloud
-	 * @details For each object creates an image and detect the edges with Sobel filter.
-	 * 
+	 * @details For each object creates an image and detect the edges with Sobel filter. 
+	 * 			It takes about 100 ms per object. 
+	 * \n Usage:
+	 * \code
+	 * EdgeProcessing ep;
+	 * ep.setOriginalPointCloud(*cloud);
+	 * ep.setObjects(segmented_objs);
+	 * ep.setPlaneCoefficients(plane_coeff);  
+	 * ep.compute2DEdges();
+	 * ep.computeOccludedSides2D(0.01);
+	 * \endcode
 	 * @param cloud Input point cloud - It has to be organized
 	 */
 	void compute2DEdges();

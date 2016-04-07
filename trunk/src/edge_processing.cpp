@@ -105,7 +105,7 @@ void EdgeProcessing::assignObjects3DEdges()
 
 }
 
-void EdgeProcessing::computeOccludedSides(double density)
+void EdgeProcessing::computeOccludedSides3D(double density)
 {
 	this->occluded_sides.resize(this->objects.size());
 

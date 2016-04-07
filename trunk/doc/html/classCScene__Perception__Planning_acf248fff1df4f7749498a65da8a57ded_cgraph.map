@@ -1,0 +1,5 @@
+<map id="CScene_Perception_Planning::get_block_predicates" name="CScene_Perception_Planning::get_block_predicates">
+<area shape="rect" id="node2" href="$classCScene__Perception__Planning.html#aa8079637170d424425f383558c19b7a7" title="compute the principal directions of the objects. This is better because the others that use the hulls..." alt="" coords="253,5,451,46"/>
+<area shape="rect" id="node3" href="$classCScene__Perception__Planning.html#a6abe6b697247d3cfd024827b48dacd63" title="Compute the projections of the objects onto the table plane. " alt="" coords="249,70,455,111"/>
+<area shape="rect" id="node4" href="$classCScene__Perception__Planning.html#acef5e2f95b6e1f47bb3ca3bf64ca586a" title="Compute the convex hull of each object considering also the projections of the convex hulls on the pl..." alt="" coords="255,135,449,177"/>
+</map>

@@ -1,0 +1,3 @@
+<map id="CScene_Perception_Planning::computeAABBObjects" name="CScene_Perception_Planning::computeAABBObjects">
+<area shape="rect" id="node2" href="$classCScene__Perception__Planning.html#a7782e8697edae15a01853e26e0f70369" title="compute the principal directions of the objects. This is better because the others that use the hulls..." alt="" coords="248,5,443,46"/>
+</map>

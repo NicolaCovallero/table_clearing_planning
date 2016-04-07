@@ -70,6 +70,13 @@
       .
   as root, and all the associated files will be removed from the system.
 
+  \b IMPORTANT: To install the library follow this sequence of commands:
+
+    - make
+    - sudo make install (or make install)
+
+  Do not compile and install at the same time, and BE SURE to not modify any files after the make command and before the make install command.
+
   \section Customization
 
   To build a new application using these library, first it is necessary to locate if the library

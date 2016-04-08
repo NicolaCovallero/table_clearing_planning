@@ -49,6 +49,40 @@ struct ObjectFull
   uint index_projection; ///< Index of the point cloud that correspond to the index of the first point of the projection
 };
 
+/**
+* @brief     structure to represent the first 2 pricipal directions as a 3D vector and the centroid of 
+*       the object. The principal directions are projected on the plane.
+*/
+struct PrincipalDirections{
+  Eigen::Vector3f dir1,dir2,dir3,dir4; ///< direction of the principal direction (dir1 & dir2) and the orthogonal (dir3 & dir4)
+  Eigen::Vector4f centroid; ///< centroid of the object
+
+  double dir1_limit;
+  double dir3_limit;
+};
+
+/**
+ * @brief Block predicates structure 
+ * 
+ */
+struct BlocksPredicate{
+std::vector<uint> block_dir1,
+                  block_dir2,
+                  block_dir3,
+                  block_dir4;
+};
+// In this way the object is stored in the index of blocks_predicates
+// and for each block_dir# there is the index of the object it is colliding
+// in that principal direction. So to now all the object that block 
+// the object 1 in direction 1 :
+// for (int i = 0; i < this->blocks_predicates[i].block_dir1.size(); ++i)
+// {
+//   /* code */
+// }
+
+
+
+
 // check this
 // http://hamelot.io/programming/using-bullet-only-for-collision-detection/
 // for collision: http://stackoverflow.com/questions/5559482/how-would-i-set-up-collision-using-the-bullet-physics-library
@@ -71,18 +105,6 @@ class CTableClearingPlanning
   typedef pcl::PointXYZRGBA PointT;
   typedef pcl::PointCloud<PointT> PointCloudT;
   typedef boost::shared_ptr<pcl::visualization::PCLVisualizer> Visualizer;
-  /**
-   * @brief     structure to represent the first 2 pricipal directions as a 3D vector and the centroid of 
-   * 			the object. The principal directions are projected on the plane.
-   */
-  struct PrincipalDirections{
-  	Eigen::Vector3f dir1,dir2,dir3,dir4; ///< direction of the principal direction (dir1 & dir2) and the orthogonal (dir3 & dir4)
-  	Eigen::Vector4f centroid; ///< centroid of the object
-
-    double dir1_limit;
-    double dir3_limit;
-  };
-
 
   struct FclMesh
   {
@@ -98,22 +120,7 @@ class CTableClearingPlanning
   double n_objects; ///< number of objects
 
   // ----------- PREDICATES ---------------
-  struct BlocksPredicate{
-    std::vector<uint> block_dir1,
-                      block_dir2,
-                      block_dir3,
-                      block_dir4;
-  };
-  // In this way the object is stored in the index of blocks_predicates
-  // and for each block_dir# there is the index of the object it is colliding
-  // in that principal direction. So to now all the object that block 
-  // the object 1 in direction 1 :
-  // for (int i = 0; i < this->blocks_predicates[i].block_dir1.size(); ++i)
-  // {
-  //   /* code */
-  // }
   std::vector<BlocksPredicate> blocks_predicates;
-
   std::vector<std::vector<uint> > on_top_predicates;  
   // --------------------------------------
 
@@ -475,6 +482,9 @@ class CTableClearingPlanning
     std::vector<ObjectFull> getFullObjects();
 
     std::vector<AABB> getAABBObjects();
+
+    std::vector<BlocksPredicate> getBlockPredicates();
+    std::vector<std::vector<uint> > getOnTopPrediates();  
 
 };
 

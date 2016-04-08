@@ -138,7 +138,7 @@ class EdgeProcessing
 	void computeOccludedSides2D(double density);	 
 
 	/**
-	 * @brief Compute 3D edges for the input point cloud
+	 * @brief Compute 3D edges for the input organized point cloud
 	 * @details Only depth edges are considered. This method is slow since it has to compute the edges 
 	 * for the whole original point cloud. It is based on an algorithm that works
 	 * with organized point clouds. In average it takes 1.45seconds. EdgeProcessing::compute2DEdges is 
@@ -157,13 +157,11 @@ class EdgeProcessing
 	 * ep.computeOccludedSides3D(0.01);
 	 * \endcode
 	 * 
-	 * 
-	 * @param cloud Input point cloud - It has to be organized
 	 */
-	void compute3DEdges(PointCloudTptr cloud);
+	void compute3DEdges();
 
 	/**
-	 * @brief Compute 2D edges for the input point cloud
+	 * @brief Compute 2D edges for the input organized point cloud
 	 * @details For each object creates an image and detect the edges with Sobel filter. 
 	 * 			It takes about 100 ms per object. 
 	 * \n Usage:
@@ -181,13 +179,6 @@ class EdgeProcessing
 
 
 	std::vector<PointCloudT> getObjectsOccludedSides(); 
-
-	/**
-	 * @brief Compute 3D edges for the input point cloud and add to the viewer
-	 * 
-	 * @param cloud Point cloud where look for the edges
-	 */
-	void test(PointCloudTptr cloud);
 
 	/**
 	 * @brief Initialize the viewer

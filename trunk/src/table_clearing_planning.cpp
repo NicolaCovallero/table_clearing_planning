@@ -1756,5 +1756,12 @@ CTableClearingPlanning::getFullObjects()
 std::vector<AABB> CTableClearingPlanning::getAABBObjects()
 {
   return this->aabb_objects;
-
+}
+std::vector<BlocksPredicate> CTableClearingPlanning::getBlockPredicates()
+{
+  return this->blocks_predicates;
+}
+std::vector<std::vector<uint> > CTableClearingPlanning::getOnTopPrediates()
+{
+  return this->on_top_predicates;
 }

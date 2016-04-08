@@ -30,6 +30,7 @@
 #include <iostream>
 #include <stack>
 #include <ctime>
+#include <pcl/common/eigen.h>
 
 /**
  * @brief Axis Aligned Bounding Box
@@ -41,7 +42,6 @@ struct AABB{
   double width; ///< y dimension - dir 3 or 4
   double height; ///< z dimension
 };
-
 
 // tic toc matla b style
 // reference: http://stackoverflow.com/questions/13485266/how-to-have-matlab-tic-toc-in-c

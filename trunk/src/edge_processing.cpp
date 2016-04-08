@@ -207,6 +207,12 @@ void EdgeProcessing::computeOccludedSides2D(double density)
 	this->occluded_sides.resize(0); //the occluded sides might be previously computed, erase them
 	this->occluded_sides.resize(this->objects.size());
 
+	if(!this->original_cloud.isOrganized())
+	{
+		PCL_ERROR("EdgeProcessing::computeOccludedSides2D the cloud is not organized.\n");
+		return;
+	}
+
 	for (uint i = 0; i < this->objects.size(); ++i)
 	{
 		for (uint p = 0; p < this->objects_edges_2d[i].size(); ++p)
@@ -244,12 +250,11 @@ void EdgeProcessing::computeOccludedSides2D(double density)
 }
 
 
-void EdgeProcessing::compute3DEdges(PointCloudTptr cloud)
+void EdgeProcessing::compute3DEdges()
 {
-	this->original_cloud = *cloud;
 	// Create the normal estimation class, and pass the input dataset to it
 	pcl::NormalEstimation<pcl::PointXYZRGBA, pcl::Normal> ne;
-	ne.setInputCloud (cloud);
+	ne.setInputCloud (this->original_cloud.makeShared());
 
 	// Create an empty kdtree representation, and pass it to the normal estimation object.
 	// Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
@@ -267,14 +272,14 @@ void EdgeProcessing::compute3DEdges(PointCloudTptr cloud)
 
 	pcl::OrganizedEdgeFromRGBNormals<pcl::PointXYZRGBA, pcl::Normal, pcl::Label> oed;
   	oed.setInputNormals (normals);
-	oed.setInputCloud (cloud);
+	oed.setInputCloud (this->original_cloud.makeShared());
 	oed.setDepthDisconThreshold (0.02); // 2cm
 	oed.setMaxSearchNeighbors (10); // it was 50
 	pcl::PointCloud<pcl::Label> labels;
 	std::vector<pcl::PointIndices> label_indices;
 	oed.compute (labels, label_indices);
 
-	if(!cloud->isOrganized())
+	if(!this->original_cloud.isOrganized())
 		std::cout << "The cloud is NOT organized\n";
 
 
@@ -285,11 +290,11 @@ void EdgeProcessing::compute3DEdges(PointCloudTptr cloud)
 	// 									    rgb_edges (new pcl::PointCloud<pcl::PointXYZRGBA>)
 
 
-	pcl::copyPointCloud (*cloud, label_indices[0].indices, this->boundary_edges);
-	pcl::copyPointCloud (*cloud, label_indices[1].indices, this->occluding_edges);
-	pcl::copyPointCloud (*cloud, label_indices[2].indices, this->occluded_edges);
-	pcl::copyPointCloud (*cloud, label_indices[3].indices, this->high_curvature_edges);
-	pcl::copyPointCloud (*cloud, label_indices[4].indices, this->rgb_edges);
+	pcl::copyPointCloud (this->original_cloud, label_indices[0].indices, this->boundary_edges);
+	pcl::copyPointCloud (this->original_cloud, label_indices[1].indices, this->occluding_edges);
+	pcl::copyPointCloud (this->original_cloud, label_indices[2].indices, this->occluded_edges);
+	pcl::copyPointCloud (this->original_cloud, label_indices[3].indices, this->high_curvature_edges);
+	pcl::copyPointCloud (this->original_cloud, label_indices[4].indices, this->rgb_edges);
 
 }
 
@@ -369,46 +374,6 @@ EdgeProcessing::getObjectsOccludedSides()
 {
 	return this->occluded_sides;
 }
-
-void EdgeProcessing::test(PointCloudTptr cloud)
-{
-
-	this->compute3DEdges(cloud);
-
-	// visualization of normals
-	//pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb_cloud(cloud);
-	//this->viewer->addPointCloud<pcl::PointXYZRGBA> (cloud, rgb_cloud, "cloud");
-
-
-	pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb_oe1(this->occluding_edges.makeShared());
-	this->viewer->addPointCloud<PointT> (this->occluding_edges.makeShared(), rgb_oe1, "occluding_edges");
-	this->viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0, 1, "occluding_edges"); 
-  	this->viewer->addText("Purple: occluding_edges", 10, 10);
-
-
-	pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb_be(this->boundary_edges.makeShared());
-	this->viewer->addPointCloud<PointT> (this->boundary_edges.makeShared(), rgb_be, "boundary_edges");
-	this->viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0, 0, "boundary_edges"); 
-	this->viewer->addText("Red: boundary edges", 10, 20);
-
-	pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb_oe(this->occluded_edges.makeShared());
-	this->viewer->addPointCloud<PointT> (this->occluded_edges.makeShared(), rgb_oe, "occluded_edges");
-	this->viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, 0, 1, 0, "occluded_edges"); 
-	this->viewer->addText("Green: occluded edges", 10, 30);
-
-
-	// pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb_hce(this->high_curvature_edges.makeShared());
-	// this->viewer->addPointCloud<PointT> (this->high_curvature_edges,makeShared(), rgb_hce, "high_curvature_edges");
-	// this->viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, 0, 0, 1, "high_curvature_edges"); 
-
-	// pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb_re(this->rgb_edges.makeShared());
-	// this->viewer->addPointCloud<PointT> (this->rgb_edges.makeShared(), rgb_re, "rgb_edges");
-	// this->viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR, 1, 1, 1, "rgb_edges"); 
-	// this->viewer->addText("Cyan: rgb edges", 10, 30);
-
-  	return;
-}
-
 
 void EdgeProcessing::viewerInit(boost::shared_ptr<pcl::visualization::PCLVisualizer>& viewer)
 {	

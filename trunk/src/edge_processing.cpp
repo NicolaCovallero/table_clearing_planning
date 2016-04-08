@@ -329,6 +329,9 @@ void EdgeProcessing::compute2DEdges()
 			}
 	    }
 
+	    //remove sides pixels with erosion.
+	    // This is done in order to be sure to keep pixels of 
+	    cv::erode(img,img,cv::Mat());
 	    /// Generate grad_x and grad_y
 	    cv::Mat edges_mat;
 	  	cv::Mat grad_x, grad_y;
@@ -340,7 +343,7 @@ void EdgeProcessing::compute2DEdges()
 
 		/// Gradient X
 		//cv::Scharr( src_gray, grad_x, ddepth, 1, 0, scale, delta, cv::BORDER_DEFAULT );
-		cv::Sobel( img, grad_x, ddepth, 1, 0, 1, scale, delta, cv::BORDER_DEFAULT );
+		cv::Sobel( img, grad_x, ddepth, 1, 0, 1, scale, delta, cv::BORDER_DEFAULT );//cv::BORDER_DEFAULT
 		cv::convertScaleAbs( grad_x, abs_grad_x );
 
 		/// Gradient Y

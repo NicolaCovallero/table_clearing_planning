@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
   //  4) filters -> check this "Radius Outlier Removal"
   //
   tcp.setObjectsPointCloud(segmented_objs);
+  tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
   tcp.setGripperSimpleModel(0.05, 0.07, 0.1, 0.025);
 
@@ -133,6 +134,7 @@ int main(int argc, char *argv[])
   std::vector<pcl::PointCloud<pcl::PointXYZRGBA> > occluded_sides;
   occluded_sides = ep.getObjectsOccludedSides(); 
   tcp.buildFullObjectsCloud(occluded_sides);
+  tcp.voxelizeFullObjects();
   tcp.viewerAddFullObjectsClouds(viewer);
 
 

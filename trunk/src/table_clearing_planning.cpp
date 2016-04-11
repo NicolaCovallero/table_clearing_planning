@@ -1439,6 +1439,65 @@ void CTableClearingPlanning::computePrincipalDirections()
   }
 }
 
+void CTableClearingPlanning::voxelizeObjects(double leaf_size)
+{
+  // Create the filtering object
+  pcl::VoxelGrid<PointT > vox;
+  for (std::vector<PointCloudT>::iterator i = this->objects.begin(); i != this->objects.end(); ++i)
+  {
+    vox.setInputCloud ((*i).makeShared());
+    vox.setLeafSize (leaf_size, leaf_size, leaf_size);
+    vox.filter (*i);
+  }
+}
+
+void CTableClearingPlanning::voxelizeFullObjects(double leaf_size)
+{
+  //check
+  if(this->objects_full.size() == 0)
+  {
+    PCL_ERROR("Impossible voxelizing full objects: there are no full objects built.");
+    return;
+  }
+
+  // Create the filtering object
+  pcl::VoxelGrid<PointT > vox;
+  for (std::vector<ObjectFull>::iterator i = this->objects_full.begin(); i != this->objects_full.end(); ++i)
+  {
+    // we have to get the point cloud of the sides and proejctions and the original one
+    // in order to voxelize them separately to preserve the index
+    PointCloudT tmp,tmp_sides,tmp_projections;
+    for (uint p = 0; p < (*i).index_sides; ++p)
+      tmp.points.push_back((*i).cloud.points[p]);
+
+    vox.setInputCloud (tmp.makeShared());
+    vox.setLeafSize (leaf_size, leaf_size, leaf_size);
+    vox.filter (tmp);
+
+    for (uint p = (*i).index_sides; p < (*i).index_projection; ++p)
+      tmp_sides.points.push_back((*i).cloud.points[p]);
+
+    vox.setInputCloud (tmp_sides.makeShared());
+    vox.setLeafSize (leaf_size, leaf_size, leaf_size);
+    vox.filter (tmp_sides);
+
+    for (uint p = (*i).index_projection; p < (*i).cloud.points.size(); ++p)
+      tmp_projections.points.push_back((*i).cloud.points[p]);
+    
+    vox.setInputCloud (tmp_projections.makeShared());
+    vox.setLeafSize (leaf_size, leaf_size, leaf_size);
+    vox.filter (tmp_projections);
+
+    // reconstruct full voxelized object
+    (*i).cloud.points.resize(0);
+    (*i).cloud = tmp;
+    (*i).index_sides = (*i).cloud.points.size();
+    (*i).cloud += tmp_sides;
+    (*i).index_projection = (*i).cloud.points.size();
+    (*i).cloud += tmp_projections;
+  }
+}
+
 void CTableClearingPlanning::buildFullObjectsCloud(std::vector<PointCloudT>& occluded_sides)
 {
   if(occluded_sides.size() != this->objects.size()) //check they have the correct dimension

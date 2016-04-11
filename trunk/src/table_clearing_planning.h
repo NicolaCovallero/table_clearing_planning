@@ -26,6 +26,7 @@
 // filters
 #include <pcl/filters/crop_hull.h>
 #include <pcl/2d/morphology.h>
+#include <pcl/filters/voxel_grid.h>
 
 // FCL library
 #include "fcl/data_types.h"
@@ -370,27 +371,37 @@ class CTableClearingPlanning
     /**
      * @brief    compute the principal directions of the objects
      *           using the point cloud of the convex hull.
-     *           (The results should be not as good as computePrincipalDirections()   )
-     *           NOT VERSE DETECTION 
+     *           (The results should be not as good as computePrincipalDirections())
      */
     void computePrincipalDirectionsConvexHull();
     void computePrincipalDirectionsConcaveHull();
 
     /**
-     * @brief    compute the principal directions of the objects. This is better
+     * @brief    compute the principal directions of the objects.
+     * @details  This is better
      *           because the others that use the hulls the amount of points of the hulls 
      *           depends on the complexity of the shape, so the principal directions would
      *           be affected by the complexity of the shape and not on the quanrity of points. 
      *           This method also include a verse detection in order to have alway dir3 to
      *           the right of dir1 with respect the top of the table. 
-     *                 dir1
-     *                  ^
-     *                  |
-     *           dir4<----->dir3
-     *                  |
-     *                 dir2
+     * @image html directions.jpg  
      */
     void computePrincipalDirections();
+
+    /**
+     * @brief Voxelize objects
+     * @details Remember that this will affect also the on top predicates
+     * @param leaf_size Leaf size
+     */
+    void voxelizeObjects(double leaf_size = 0.01f);
+
+    /**
+     * @brief Voxelize Full Objects
+     * @details Voxelize Full Objects
+     * 
+     * @param leaf_size Leaf size
+     */
+    void voxelizeFullObjects(double leaf_size = 0.01f);
 
 
     void buildFullObjectsCloud(std::vector<PointCloudT>& occluded_sides);

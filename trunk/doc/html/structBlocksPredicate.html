@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Table Clearing Planning Module: ObjectFull Struct Reference</title>
+<title>Table Clearing Planning Module: BlocksPredicate Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -46,29 +46,33 @@
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<div class="title">ObjectFull Struct Reference</div>  </div>
+<div class="title">BlocksPredicate Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Block predicates structure.  
+ <a href="structBlocksPredicate.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="table__clearing__planning_8h_source.html">table_clearing_planning.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:ab04b7ba5497879dcbf02dfbf5f6936bb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab04b7ba5497879dcbf02dfbf5f6936bb"></a>
-pcl::PointCloud<br class="typebreak"/>
-&lt; pcl::PointXYZRGBA &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structObjectFull.html#ab04b7ba5497879dcbf02dfbf5f6936bb">cloud</a></td></tr>
-<tr class="memdesc:ab04b7ba5497879dcbf02dfbf5f6936bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Point cloud of the object composed of [object + occluded_sides + projection]. It is an unorganized one. <br/></td></tr>
-<tr class="separator:ab04b7ba5497879dcbf02dfbf5f6936bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f56c9cadd8ebf5ffe19410a2d3b716d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f56c9cadd8ebf5ffe19410a2d3b716d"></a>
-uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structObjectFull.html#a8f56c9cadd8ebf5ffe19410a2d3b716d">index_sides</a></td></tr>
-<tr class="memdesc:a8f56c9cadd8ebf5ffe19410a2d3b716d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Index of the point cloud that correspond to the index of the first point of the occluded sides. <br/></td></tr>
-<tr class="separator:a8f56c9cadd8ebf5ffe19410a2d3b716d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a9f7aee420ab09e69aa26ede1797911"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4a9f7aee420ab09e69aa26ede1797911"></a>
-uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structObjectFull.html#a4a9f7aee420ab09e69aa26ede1797911">index_projection</a></td></tr>
-<tr class="memdesc:a4a9f7aee420ab09e69aa26ede1797911"><td class="mdescLeft">&#160;</td><td class="mdescRight">Index of the point cloud that correspond to the index of the first point of the projection. <br/></td></tr>
-<tr class="separator:a4a9f7aee420ab09e69aa26ede1797911"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7761aa5a6de17d093f4ec0b3375ecc3e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7761aa5a6de17d093f4ec0b3375ecc3e"></a>
+std::vector&lt; uint &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>block_dir1</b></td></tr>
+<tr class="separator:a7761aa5a6de17d093f4ec0b3375ecc3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92b7978536742af73e3034cadda69b15"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a92b7978536742af73e3034cadda69b15"></a>
+std::vector&lt; uint &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>block_dir2</b></td></tr>
+<tr class="separator:a92b7978536742af73e3034cadda69b15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6a1c7010c6273179f44d3f5cffa7cd3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af6a1c7010c6273179f44d3f5cffa7cd3"></a>
+std::vector&lt; uint &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>block_dir3</b></td></tr>
+<tr class="separator:af6a1c7010c6273179f44d3f5cffa7cd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fa981cce36ff31fc60b42231bd31e27"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5fa981cce36ff31fc60b42231bd31e27"></a>
+std::vector&lt; uint &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>block_dir4</b></td></tr>
+<tr class="separator:a5fa981cce36ff31fc60b42231bd31e27"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p>Definition at line <a class="el" href="table__clearing__planning_8h_source.html#l00046">46</a> of file <a class="el" href="table__clearing__planning_8h_source.html">table_clearing_planning.h</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8h_source.html#l00069">69</a> of file <a class="el" href="table__clearing__planning_8h_source.html">table_clearing_planning.h</a>.</p>
 </div><hr/>The documentation for this struct was generated from the following file:<ul>
 <li>/home/ncovallero/iri-lab/labrobotica/algorithms/table_clearing_planning/trunk/src/<a class="el" href="table__clearing__planning_8h_source.html">table_clearing_planning.h</a></li>
 </ul>

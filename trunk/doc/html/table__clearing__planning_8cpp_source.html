@@ -322,7 +322,7 @@
 <div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;  this-&gt;aabb_objects.resize(this-&gt;n_objects);</div>
 <div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; n_objects; ++i)</div>
 <div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;  {</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    PrincipalDirections* pd = &amp;(principal_directions_objects[i]);</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <a class="code" href="structPrincipalDirections.html">PrincipalDirections</a>* pd = &amp;(principal_directions_objects[i]);</div>
 <div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    <span class="comment">// we have to compute the transformation</span></div>
 <div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    Eigen::Matrix4f transform;</div>
 <div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    transform(0,0) = pd-&gt;dir1[0]; transform(0,1) = pd-&gt;dir1[1]; transform(0,2) = pd-&gt;dir1[2];</div>
@@ -630,11 +630,11 @@
 <div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;</div>
 <div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160;      <span class="comment">// ----------------------- END EFFECTOR --------------------------------------</span></div>
 <div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;</div>
-<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;      PrincipalDirections* pd = &amp;(principal_directions_objects[obj_idx]);</div>
+<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;      <a class="code" href="structPrincipalDirections.html">PrincipalDirections</a>* pd = &amp;(principal_directions_objects[obj_idx]);</div>
 <div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;      Eigen::Matrix3f rot;</div>
 <div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;      </div>
 <div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;      <span class="comment">// project centroid to the table </span></div>
-<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;      Eigen::Vector3f eigen_point = pd-&gt;centroid.head&lt;3&gt;();</div>
+<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;      Eigen::Vector3f eigen_point = pd-&gt;<a class="code" href="structPrincipalDirections.html#a764f4a0f89de8d7914352b5b08faf043">centroid</a>.head&lt;3&gt;();</div>
 <div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160;      Eigen::Vector3f proj_eigen_point;</div>
 <div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;      pcl::geometry::project(eigen_point,this-&gt;plane_origin,this-&gt;plane_normal,proj_eigen_point);</div>
 <div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;</div>
@@ -677,7 +677,7 @@
 <div class="line"><a name="l00625"></a><span class="lineno">  625</span>&#160;</div>
 <div class="line"><a name="l00626"></a><span class="lineno">  626</span>&#160;</div>
 <div class="line"><a name="l00627"></a><span class="lineno">  627</span>&#160;                rot(0,0) = pd-&gt;dir2[0]; rot(0,1) = pd-&gt;dir2[1]; rot(0,2) = pd-&gt;dir2[2];</div>
-<div class="line"><a name="l00628"></a><span class="lineno">  628</span>&#160;                rot(1,0) = pd-&gt;dir4[0]; rot(1,1) = pd-&gt;dir4[1]; rot(1,2) = pd-&gt;dir4[2];</div>
+<div class="line"><a name="l00628"></a><span class="lineno">  628</span>&#160;                rot(1,0) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[0]; rot(1,1) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[1]; rot(1,2) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[2];</div>
 <div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;                rot(2,0) = this-&gt;plane_normal[0]; rot(2,1) = this-&gt;plane_normal[1]; rot(2,2) = this-&gt;plane_normal[2];</div>
 <div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160;</div>
 <div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;                <span class="keywordflow">break</span>; </div>
@@ -711,7 +711,7 @@
 <div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;                T.setValue(x,y,z);</div>
 <div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;</div>
 <div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160;</div>
-<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;                rot(0,0) = pd-&gt;dir4[0]; rot(0,1) = pd-&gt;dir4[1]; rot(0,2) = pd-&gt;dir4[2];</div>
+<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;                rot(0,0) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[0]; rot(0,1) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[1]; rot(0,2) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[2];</div>
 <div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;                rot(1,0) = pd-&gt;dir2[0]; rot(1,1) = pd-&gt;dir2[1]; rot(1,2) = pd-&gt;dir2[2];</div>
 <div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;                rot(2,0) = -this-&gt;plane_normal[0]; rot(2,1) = -this-&gt;plane_normal[1]; rot(2,2) = -this-&gt;plane_normal[2];</div>
 <div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;</div>
@@ -920,11 +920,11 @@
 <div class="line"><a name="l00868"></a><span class="lineno">  868</span>&#160;</div>
 <div class="line"><a name="l00869"></a><span class="lineno">  869</span>&#160;  <span class="comment">// ----------------------- END EFFECTOR --------------------------------------</span></div>
 <div class="line"><a name="l00870"></a><span class="lineno">  870</span>&#160;</div>
-<div class="line"><a name="l00871"></a><span class="lineno">  871</span>&#160;  PrincipalDirections* pd = &amp;(principal_directions_objects[obj_idx]);</div>
+<div class="line"><a name="l00871"></a><span class="lineno">  871</span>&#160;  <a class="code" href="structPrincipalDirections.html">PrincipalDirections</a>* pd = &amp;(principal_directions_objects[obj_idx]);</div>
 <div class="line"><a name="l00872"></a><span class="lineno">  872</span>&#160;  Eigen::Matrix3f rot;</div>
 <div class="line"><a name="l00873"></a><span class="lineno">  873</span>&#160;  </div>
 <div class="line"><a name="l00874"></a><span class="lineno">  874</span>&#160;  <span class="comment">// project centroid to the table </span></div>
-<div class="line"><a name="l00875"></a><span class="lineno">  875</span>&#160;  Eigen::Vector3f eigen_point = pd-&gt;centroid.head&lt;3&gt;();</div>
+<div class="line"><a name="l00875"></a><span class="lineno">  875</span>&#160;  Eigen::Vector3f eigen_point = pd-&gt;<a class="code" href="structPrincipalDirections.html#a764f4a0f89de8d7914352b5b08faf043">centroid</a>.head&lt;3&gt;();</div>
 <div class="line"><a name="l00876"></a><span class="lineno">  876</span>&#160;  Eigen::Vector3f proj_eigen_point;</div>
 <div class="line"><a name="l00877"></a><span class="lineno">  877</span>&#160;  pcl::geometry::project(eigen_point,this-&gt;plane_origin,this-&gt;plane_normal,proj_eigen_point);</div>
 <div class="line"><a name="l00878"></a><span class="lineno">  878</span>&#160;</div>
@@ -967,7 +967,7 @@
 <div class="line"><a name="l00915"></a><span class="lineno">  915</span>&#160;</div>
 <div class="line"><a name="l00916"></a><span class="lineno">  916</span>&#160;</div>
 <div class="line"><a name="l00917"></a><span class="lineno">  917</span>&#160;            rot(0,0) = pd-&gt;dir2[0]; rot(0,1) = pd-&gt;dir2[1]; rot(0,2) = pd-&gt;dir2[2];</div>
-<div class="line"><a name="l00918"></a><span class="lineno">  918</span>&#160;            rot(1,0) = pd-&gt;dir4[0]; rot(1,1) = pd-&gt;dir4[1]; rot(1,2) = pd-&gt;dir4[2];</div>
+<div class="line"><a name="l00918"></a><span class="lineno">  918</span>&#160;            rot(1,0) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[0]; rot(1,1) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[1]; rot(1,2) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[2];</div>
 <div class="line"><a name="l00919"></a><span class="lineno">  919</span>&#160;            rot(2,0) = this-&gt;plane_normal[0]; rot(2,1) = this-&gt;plane_normal[1]; rot(2,2) = this-&gt;plane_normal[2];</div>
 <div class="line"><a name="l00920"></a><span class="lineno">  920</span>&#160;</div>
 <div class="line"><a name="l00921"></a><span class="lineno">  921</span>&#160;            <span class="keywordflow">break</span>; </div>
@@ -1001,7 +1001,7 @@
 <div class="line"><a name="l00949"></a><span class="lineno">  949</span>&#160;            T.setValue(x,y,z);</div>
 <div class="line"><a name="l00950"></a><span class="lineno">  950</span>&#160;</div>
 <div class="line"><a name="l00951"></a><span class="lineno">  951</span>&#160;</div>
-<div class="line"><a name="l00952"></a><span class="lineno">  952</span>&#160;            rot(0,0) = pd-&gt;dir4[0]; rot(0,1) = pd-&gt;dir4[1]; rot(0,2) = pd-&gt;dir4[2];</div>
+<div class="line"><a name="l00952"></a><span class="lineno">  952</span>&#160;            rot(0,0) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[0]; rot(0,1) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[1]; rot(0,2) = pd-&gt;<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>[2];</div>
 <div class="line"><a name="l00953"></a><span class="lineno">  953</span>&#160;            rot(1,0) = pd-&gt;dir2[0]; rot(1,1) = pd-&gt;dir2[1]; rot(1,2) = pd-&gt;dir2[2];</div>
 <div class="line"><a name="l00954"></a><span class="lineno">  954</span>&#160;            rot(2,0) = -this-&gt;plane_normal[0]; rot(2,1) = -this-&gt;plane_normal[1]; rot(2,2) = -this-&gt;plane_normal[2];</div>
 <div class="line"><a name="l00955"></a><span class="lineno">  955</span>&#160;</div>
@@ -1327,7 +1327,7 @@
 <div class="line"><a name="l01275"></a><span class="lineno"> 1275</span>&#160;  pcl::PCA&lt;PointT&gt; pca_;</div>
 <div class="line"><a name="l01276"></a><span class="lineno"> 1276</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt; this-&gt;convex_hull_objects.size(); ++i)</div>
 <div class="line"><a name="l01277"></a><span class="lineno"> 1277</span>&#160;  {     </div>
-<div class="line"><a name="l01278"></a><span class="lineno"> 1278</span>&#160;    PrincipalDirections prin_dir;</div>
+<div class="line"><a name="l01278"></a><span class="lineno"> 1278</span>&#160;    <a class="code" href="structPrincipalDirections.html">PrincipalDirections</a> prin_dir;</div>
 <div class="line"><a name="l01279"></a><span class="lineno"> 1279</span>&#160;</div>
 <div class="line"><a name="l01280"></a><span class="lineno"> 1280</span>&#160;    Eigen::Matrix3f evecs;</div>
 <div class="line"><a name="l01281"></a><span class="lineno"> 1281</span>&#160;    Eigen::Matrix3f covariance_matrix;</div>
@@ -1355,9 +1355,9 @@
 <div class="line"><a name="l01303"></a><span class="lineno"> 1303</span>&#160;    prin_dir.dir3.normalize();</div>
 <div class="line"><a name="l01304"></a><span class="lineno"> 1304</span>&#160;</div>
 <div class="line"><a name="l01305"></a><span class="lineno"> 1305</span>&#160;    prin_dir.dir2 = - prin_dir.dir1;</div>
-<div class="line"><a name="l01306"></a><span class="lineno"> 1306</span>&#160;    prin_dir.dir4 = - prin_dir.dir3;</div>
+<div class="line"><a name="l01306"></a><span class="lineno"> 1306</span>&#160;    prin_dir.<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a> = - prin_dir.dir3;</div>
 <div class="line"><a name="l01307"></a><span class="lineno"> 1307</span>&#160;    </div>
-<div class="line"><a name="l01308"></a><span class="lineno"> 1308</span>&#160;    pcl::compute3DCentroid(this-&gt;convex_hull_objects[i], prin_dir.centroid);</div>
+<div class="line"><a name="l01308"></a><span class="lineno"> 1308</span>&#160;    pcl::compute3DCentroid(this-&gt;convex_hull_objects[i], prin_dir.<a class="code" href="structPrincipalDirections.html#a764f4a0f89de8d7914352b5b08faf043">centroid</a>);</div>
 <div class="line"><a name="l01309"></a><span class="lineno"> 1309</span>&#160;</div>
 <div class="line"><a name="l01310"></a><span class="lineno"> 1310</span>&#160;    this-&gt;principal_directions_objects.push_back(prin_dir);</div>
 <div class="line"><a name="l01311"></a><span class="lineno"> 1311</span>&#160;</div>
@@ -1384,7 +1384,7 @@
 <div class="line"><a name="l01332"></a><span class="lineno"> 1332</span>&#160;  pcl::PCA&lt;PointT&gt; pca_;</div>
 <div class="line"><a name="l01333"></a><span class="lineno"> 1333</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt; this-&gt;concave_hull_objects.size(); ++i)</div>
 <div class="line"><a name="l01334"></a><span class="lineno"> 1334</span>&#160;  { </div>
-<div class="line"><a name="l01335"></a><span class="lineno"> 1335</span>&#160;    PrincipalDirections prin_dir;</div>
+<div class="line"><a name="l01335"></a><span class="lineno"> 1335</span>&#160;    <a class="code" href="structPrincipalDirections.html">PrincipalDirections</a> prin_dir;</div>
 <div class="line"><a name="l01336"></a><span class="lineno"> 1336</span>&#160;</div>
 <div class="line"><a name="l01337"></a><span class="lineno"> 1337</span>&#160;    Eigen::Matrix3f evecs;</div>
 <div class="line"><a name="l01338"></a><span class="lineno"> 1338</span>&#160;    Eigen::Matrix3f covariance_matrix;</div>
@@ -1412,9 +1412,9 @@
 <div class="line"><a name="l01360"></a><span class="lineno"> 1360</span>&#160;    prin_dir.dir2.normalize();</div>
 <div class="line"><a name="l01361"></a><span class="lineno"> 1361</span>&#160;</div>
 <div class="line"><a name="l01362"></a><span class="lineno"> 1362</span>&#160;    prin_dir.dir2 = - prin_dir.dir1;</div>
-<div class="line"><a name="l01363"></a><span class="lineno"> 1363</span>&#160;    prin_dir.dir4 = - prin_dir.dir3;</div>
+<div class="line"><a name="l01363"></a><span class="lineno"> 1363</span>&#160;    prin_dir.<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a> = - prin_dir.dir3;</div>
 <div class="line"><a name="l01364"></a><span class="lineno"> 1364</span>&#160;</div>
-<div class="line"><a name="l01365"></a><span class="lineno"> 1365</span>&#160;    pcl::compute3DCentroid(this-&gt;concave_hull_objects[i], prin_dir.centroid);</div>
+<div class="line"><a name="l01365"></a><span class="lineno"> 1365</span>&#160;    pcl::compute3DCentroid(this-&gt;concave_hull_objects[i], prin_dir.<a class="code" href="structPrincipalDirections.html#a764f4a0f89de8d7914352b5b08faf043">centroid</a>);</div>
 <div class="line"><a name="l01366"></a><span class="lineno"> 1366</span>&#160;</div>
 <div class="line"><a name="l01367"></a><span class="lineno"> 1367</span>&#160;    principal_directions_objects.push_back(prin_dir);</div>
 <div class="line"><a name="l01368"></a><span class="lineno"> 1368</span>&#160;</div>
@@ -1441,7 +1441,7 @@
 <div class="line"><a name="l01389"></a><span class="lineno"> 1389</span>&#160;  pcl::PCA&lt;PointT&gt; pca_;</div>
 <div class="line"><a name="l01390"></a><span class="lineno"> 1390</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt; this-&gt;objects.size(); ++i)</div>
 <div class="line"><a name="l01391"></a><span class="lineno"> 1391</span>&#160;  { </div>
-<div class="line"><a name="l01392"></a><span class="lineno"> 1392</span>&#160;    PrincipalDirections prin_dir;</div>
+<div class="line"><a name="l01392"></a><span class="lineno"> 1392</span>&#160;    <a class="code" href="structPrincipalDirections.html">PrincipalDirections</a> prin_dir;</div>
 <div class="line"><a name="l01393"></a><span class="lineno"> 1393</span>&#160;</div>
 <div class="line"><a name="l01394"></a><span class="lineno"> 1394</span>&#160;    Eigen::Matrix3f evecs;</div>
 <div class="line"><a name="l01395"></a><span class="lineno"> 1395</span>&#160;    Eigen::Matrix3f covariance_matrix;</div>
@@ -1470,7 +1470,7 @@
 <div class="line"><a name="l01418"></a><span class="lineno"> 1418</span>&#160;    prin_dir.dir2.normalize();</div>
 <div class="line"><a name="l01419"></a><span class="lineno"> 1419</span>&#160;</div>
 <div class="line"><a name="l01420"></a><span class="lineno"> 1420</span>&#160;    prin_dir.dir2 = - prin_dir.dir1;</div>
-<div class="line"><a name="l01421"></a><span class="lineno"> 1421</span>&#160;    prin_dir.dir4 = - prin_dir.dir3;</div>
+<div class="line"><a name="l01421"></a><span class="lineno"> 1421</span>&#160;    prin_dir.<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a> = - prin_dir.dir3;</div>
 <div class="line"><a name="l01422"></a><span class="lineno"> 1422</span>&#160;</div>
 <div class="line"><a name="l01423"></a><span class="lineno"> 1423</span>&#160;    <span class="comment">// knowing the direction1 and the normal plane, if we do the croos product of the dir1 with the</span></div>
 <div class="line"><a name="l01424"></a><span class="lineno"> 1424</span>&#160;    <span class="comment">// plane normal, we should get the second direction (dir3). To check that our computation is correct</span></div>
@@ -1481,365 +1481,436 @@
 <div class="line"><a name="l01429"></a><span class="lineno"> 1429</span>&#160;    <span class="keywordflow">if</span>(!(real_dir3.dot(prin_dir.dir3) &lt; 0))</div>
 <div class="line"><a name="l01430"></a><span class="lineno"> 1430</span>&#160;    {</div>
 <div class="line"><a name="l01431"></a><span class="lineno"> 1431</span>&#160;      prin_dir.dir3 = - prin_dir.dir3;</div>
-<div class="line"><a name="l01432"></a><span class="lineno"> 1432</span>&#160;      prin_dir.dir4 = - prin_dir.dir4;</div>
+<div class="line"><a name="l01432"></a><span class="lineno"> 1432</span>&#160;      prin_dir.<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a> = - prin_dir.<a class="code" href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">dir4</a>;</div>
 <div class="line"><a name="l01433"></a><span class="lineno"> 1433</span>&#160;    }</div>
 <div class="line"><a name="l01434"></a><span class="lineno"> 1434</span>&#160;</div>
-<div class="line"><a name="l01435"></a><span class="lineno"> 1435</span>&#160;    pcl::compute3DCentroid(this-&gt;objects[i], prin_dir.centroid);</div>
+<div class="line"><a name="l01435"></a><span class="lineno"> 1435</span>&#160;    pcl::compute3DCentroid(this-&gt;objects[i], prin_dir.<a class="code" href="structPrincipalDirections.html#a764f4a0f89de8d7914352b5b08faf043">centroid</a>);</div>
 <div class="line"><a name="l01436"></a><span class="lineno"> 1436</span>&#160;</div>
 <div class="line"><a name="l01437"></a><span class="lineno"> 1437</span>&#160;    this-&gt;principal_directions_objects.push_back(prin_dir);</div>
 <div class="line"><a name="l01438"></a><span class="lineno"> 1438</span>&#160;</div>
 <div class="line"><a name="l01439"></a><span class="lineno"> 1439</span>&#160;  }</div>
 <div class="line"><a name="l01440"></a><span class="lineno"> 1440</span>&#160;}</div>
 <div class="line"><a name="l01441"></a><span class="lineno"> 1441</span>&#160;</div>
-<div class="line"><a name="l01442"></a><span class="lineno"> 1442</span>&#160;<span class="keywordtype">void</span> CTableClearingPlanning::buildFullObjectsCloud(std::vector&lt;PointCloudT&gt;&amp; occluded_sides)</div>
+<div class="line"><a name="l01442"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a8ea62df3e2073805823f5ed0eb149435"> 1442</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a8ea62df3e2073805823f5ed0eb149435">CTableClearingPlanning::voxelizeObjects</a>(<span class="keywordtype">double</span> leaf_size)</div>
 <div class="line"><a name="l01443"></a><span class="lineno"> 1443</span>&#160;{</div>
-<div class="line"><a name="l01444"></a><span class="lineno"> 1444</span>&#160;  <span class="keywordflow">if</span>(occluded_sides.size() != this-&gt;objects.size()) <span class="comment">//check they have the correct dimension</span></div>
-<div class="line"><a name="l01445"></a><span class="lineno"> 1445</span>&#160;  {</div>
-<div class="line"><a name="l01446"></a><span class="lineno"> 1446</span>&#160;    PCL_ERROR(<span class="stringliteral">&quot;Impossible composing the full objects cloud, the sizes do not match.\n&quot;</span>);</div>
-<div class="line"><a name="l01447"></a><span class="lineno"> 1447</span>&#160;    <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l01448"></a><span class="lineno"> 1448</span>&#160;  }</div>
-<div class="line"><a name="l01449"></a><span class="lineno"> 1449</span>&#160;  this-&gt;objects_full.resize(this-&gt;n_objects);</div>
-<div class="line"><a name="l01450"></a><span class="lineno"> 1450</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt; n_objects; ++i)</div>
-<div class="line"><a name="l01451"></a><span class="lineno"> 1451</span>&#160;  {</div>
-<div class="line"><a name="l01452"></a><span class="lineno"> 1452</span>&#160;    this-&gt;objects_full[i].cloud = this-&gt;objects[i];</div>
-<div class="line"><a name="l01453"></a><span class="lineno"> 1453</span>&#160;    this-&gt;objects_full[i].cloud += occluded_sides[i];</div>
-<div class="line"><a name="l01454"></a><span class="lineno"> 1454</span>&#160;    this-&gt;objects_full[i].cloud += this-&gt;projections[i];</div>
-<div class="line"><a name="l01455"></a><span class="lineno"> 1455</span>&#160;    this-&gt;objects_full[i].index_sides = this-&gt;objects[i].points.size();</div>
-<div class="line"><a name="l01456"></a><span class="lineno"> 1456</span>&#160;    this-&gt;objects_full[i].index_projection = this-&gt;objects[i].points.size() + occluded_sides[i].points.size();</div>
-<div class="line"><a name="l01457"></a><span class="lineno"> 1457</span>&#160;  }</div>
-<div class="line"><a name="l01458"></a><span class="lineno"> 1458</span>&#160;</div>
-<div class="line"><a name="l01459"></a><span class="lineno"> 1459</span>&#160;}</div>
-<div class="line"><a name="l01460"></a><span class="lineno"> 1460</span>&#160;</div>
-<div class="line"><a name="l01461"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a2cd87120cf1abe06b96c0611cde50edf"> 1461</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a2cd87120cf1abe06b96c0611cde50edf">CTableClearingPlanning::setObjectsPointCloud</a>(std::vector&lt;PointCloudT&gt; &amp;objects)</div>
-<div class="line"><a name="l01462"></a><span class="lineno"> 1462</span>&#160;{</div>
-<div class="line"><a name="l01463"></a><span class="lineno"> 1463</span>&#160;  this-&gt;objects = objects;</div>
-<div class="line"><a name="l01464"></a><span class="lineno"> 1464</span>&#160;  this-&gt;n_objects = objects.size();</div>
-<div class="line"><a name="l01465"></a><span class="lineno"> 1465</span>&#160;  this-&gt;blocks_predicates.resize(this-&gt;n_objects);</div>
-<div class="line"><a name="l01466"></a><span class="lineno"> 1466</span>&#160;}</div>
-<div class="line"><a name="l01467"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f"> 1467</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f">CTableClearingPlanning::setPlaneCoefficients</a>(pcl::ModelCoefficients &amp;plane_coefficients)</div>
-<div class="line"><a name="l01468"></a><span class="lineno"> 1468</span>&#160;{</div>
-<div class="line"><a name="l01469"></a><span class="lineno"> 1469</span>&#160;  this-&gt;plane_coefficients = plane_coefficients;</div>
-<div class="line"><a name="l01470"></a><span class="lineno"> 1470</span>&#160;  <span class="keywordflow">if</span>(! this-&gt;plane_coefficients.values.size() &gt; 0)</div>
-<div class="line"><a name="l01471"></a><span class="lineno"> 1471</span>&#160;  {</div>
-<div class="line"><a name="l01472"></a><span class="lineno"> 1472</span>&#160;    PCL_ERROR(<span class="stringliteral">&quot;Plane model coefficients not set - Exiting from setPlaneCoefficients()&quot;</span>);</div>
-<div class="line"><a name="l01473"></a><span class="lineno"> 1473</span>&#160;    <span class="keywordflow">return</span>; </div>
-<div class="line"><a name="l01474"></a><span class="lineno"> 1474</span>&#160;  }</div>
-<div class="line"><a name="l01475"></a><span class="lineno"> 1475</span>&#160;  this-&gt;plane_normal[0] = this-&gt;plane_coefficients.values[0];</div>
-<div class="line"><a name="l01476"></a><span class="lineno"> 1476</span>&#160;  this-&gt;plane_normal[1] = this-&gt;plane_coefficients.values[1];</div>
-<div class="line"><a name="l01477"></a><span class="lineno"> 1477</span>&#160;  this-&gt;plane_normal[2] = this-&gt;plane_coefficients.values[2];</div>
-<div class="line"><a name="l01478"></a><span class="lineno"> 1478</span>&#160;  this-&gt;plane_normal.normalize();</div>
+<div class="line"><a name="l01444"></a><span class="lineno"> 1444</span>&#160;  <span class="comment">// Create the filtering object</span></div>
+<div class="line"><a name="l01445"></a><span class="lineno"> 1445</span>&#160;  pcl::VoxelGrid&lt;PointT &gt; vox;</div>
+<div class="line"><a name="l01446"></a><span class="lineno"> 1446</span>&#160;  <span class="keywordflow">for</span> (std::vector&lt;PointCloudT&gt;::iterator i = this-&gt;objects.begin(); i != this-&gt;objects.end(); ++i)</div>
+<div class="line"><a name="l01447"></a><span class="lineno"> 1447</span>&#160;  {</div>
+<div class="line"><a name="l01448"></a><span class="lineno"> 1448</span>&#160;    vox.setInputCloud ((*i).makeShared());</div>
+<div class="line"><a name="l01449"></a><span class="lineno"> 1449</span>&#160;    vox.setLeafSize (leaf_size, leaf_size, leaf_size);</div>
+<div class="line"><a name="l01450"></a><span class="lineno"> 1450</span>&#160;    vox.filter (*i);</div>
+<div class="line"><a name="l01451"></a><span class="lineno"> 1451</span>&#160;  }</div>
+<div class="line"><a name="l01452"></a><span class="lineno"> 1452</span>&#160;}</div>
+<div class="line"><a name="l01453"></a><span class="lineno"> 1453</span>&#160;</div>
+<div class="line"><a name="l01454"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a75c00aa680729dd64ef1603699ce2032"> 1454</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a75c00aa680729dd64ef1603699ce2032">CTableClearingPlanning::voxelizeFullObjects</a>(<span class="keywordtype">double</span> leaf_size)</div>
+<div class="line"><a name="l01455"></a><span class="lineno"> 1455</span>&#160;{</div>
+<div class="line"><a name="l01456"></a><span class="lineno"> 1456</span>&#160;  <span class="comment">//check</span></div>
+<div class="line"><a name="l01457"></a><span class="lineno"> 1457</span>&#160;  <span class="keywordflow">if</span>(this-&gt;objects_full.size() == 0)</div>
+<div class="line"><a name="l01458"></a><span class="lineno"> 1458</span>&#160;  {</div>
+<div class="line"><a name="l01459"></a><span class="lineno"> 1459</span>&#160;    PCL_ERROR(<span class="stringliteral">&quot;Impossible voxelizing full objects: there are no full objects built.&quot;</span>);</div>
+<div class="line"><a name="l01460"></a><span class="lineno"> 1460</span>&#160;    <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l01461"></a><span class="lineno"> 1461</span>&#160;  }</div>
+<div class="line"><a name="l01462"></a><span class="lineno"> 1462</span>&#160;</div>
+<div class="line"><a name="l01463"></a><span class="lineno"> 1463</span>&#160;  <span class="comment">// Create the filtering object</span></div>
+<div class="line"><a name="l01464"></a><span class="lineno"> 1464</span>&#160;  pcl::VoxelGrid&lt;PointT &gt; vox;</div>
+<div class="line"><a name="l01465"></a><span class="lineno"> 1465</span>&#160;  <span class="keywordflow">for</span> (std::vector&lt;ObjectFull&gt;::iterator i = this-&gt;objects_full.begin(); i != this-&gt;objects_full.end(); ++i)</div>
+<div class="line"><a name="l01466"></a><span class="lineno"> 1466</span>&#160;  {</div>
+<div class="line"><a name="l01467"></a><span class="lineno"> 1467</span>&#160;    <span class="comment">// we have to get the point cloud of the sides and proejctions and the original one</span></div>
+<div class="line"><a name="l01468"></a><span class="lineno"> 1468</span>&#160;    <span class="comment">// in order to voxelize them separately to preserve the index</span></div>
+<div class="line"><a name="l01469"></a><span class="lineno"> 1469</span>&#160;    PointCloudT tmp,tmp_sides,tmp_projections;</div>
+<div class="line"><a name="l01470"></a><span class="lineno"> 1470</span>&#160;    <span class="keywordflow">for</span> (uint p = 0; p &lt; (*i).index_sides; ++p)</div>
+<div class="line"><a name="l01471"></a><span class="lineno"> 1471</span>&#160;      tmp.points.push_back((*i).cloud.points[p]);</div>
+<div class="line"><a name="l01472"></a><span class="lineno"> 1472</span>&#160;</div>
+<div class="line"><a name="l01473"></a><span class="lineno"> 1473</span>&#160;    vox.setInputCloud (tmp.makeShared());</div>
+<div class="line"><a name="l01474"></a><span class="lineno"> 1474</span>&#160;    vox.setLeafSize (leaf_size, leaf_size, leaf_size);</div>
+<div class="line"><a name="l01475"></a><span class="lineno"> 1475</span>&#160;    vox.filter (tmp);</div>
+<div class="line"><a name="l01476"></a><span class="lineno"> 1476</span>&#160;</div>
+<div class="line"><a name="l01477"></a><span class="lineno"> 1477</span>&#160;    <span class="keywordflow">for</span> (uint p = (*i).index_sides; p &lt; (*i).index_projection; ++p)</div>
+<div class="line"><a name="l01478"></a><span class="lineno"> 1478</span>&#160;      tmp_sides.points.push_back((*i).cloud.points[p]);</div>
 <div class="line"><a name="l01479"></a><span class="lineno"> 1479</span>&#160;</div>
-<div class="line"><a name="l01480"></a><span class="lineno"> 1480</span>&#160;  <span class="comment">//the normal has to be looking for the Kinect, so </span></div>
-<div class="line"><a name="l01481"></a><span class="lineno"> 1481</span>&#160;    <span class="comment">// Eigen::Vector3f kinect_pow(0,0,1);</span></div>
-<div class="line"><a name="l01482"></a><span class="lineno"> 1482</span>&#160;    <span class="comment">// if(this-&gt;plane_normal.dot(kinect_pow) &gt; 0 )</span></div>
-<div class="line"><a name="l01483"></a><span class="lineno"> 1483</span>&#160;    <span class="comment">//   this-&gt;plane_normal = - this-&gt;plane_normal;</span></div>
-<div class="line"><a name="l01484"></a><span class="lineno"> 1484</span>&#160;</div>
-<div class="line"><a name="l01485"></a><span class="lineno"> 1485</span>&#160;  <span class="comment">// set plane origin</span></div>
-<div class="line"><a name="l01486"></a><span class="lineno"> 1486</span>&#160;  this-&gt;plane_origin[0] = 1.0;</div>
-<div class="line"><a name="l01487"></a><span class="lineno"> 1487</span>&#160;  this-&gt;plane_origin[1] = 1.0;</div>
-<div class="line"><a name="l01488"></a><span class="lineno"> 1488</span>&#160;  <span class="comment">// ax+by+cz+d=0 =&gt; z = (ax+by+d)/(-c)</span></div>
-<div class="line"><a name="l01489"></a><span class="lineno"> 1489</span>&#160;  this-&gt;plane_origin[2] = (this-&gt;plane_coefficients.values[0] * this-&gt;plane_origin[0] +</div>
-<div class="line"><a name="l01490"></a><span class="lineno"> 1490</span>&#160;                          this-&gt;plane_coefficients.values[1] * this-&gt;plane_origin[1] +</div>
-<div class="line"><a name="l01491"></a><span class="lineno"> 1491</span>&#160;                          this-&gt;plane_coefficients.values[3]) / (- this-&gt;plane_coefficients.values[2]);</div>
-<div class="line"><a name="l01492"></a><span class="lineno"> 1492</span>&#160;}</div>
-<div class="line"><a name="l01493"></a><span class="lineno"> 1493</span>&#160;</div>
-<div class="line"><a name="l01494"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367"> 1494</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">CTableClearingPlanning::viewerAddPrincipalDirections</a>(Visualizer viewer, uint i)</div>
-<div class="line"><a name="l01495"></a><span class="lineno"> 1495</span>&#160;{</div>
-<div class="line"><a name="l01496"></a><span class="lineno"> 1496</span>&#160;  </div>
-<div class="line"><a name="l01497"></a><span class="lineno"> 1497</span>&#160;  <span class="keywordtype">double</span> length = 0.2;</div>
-<div class="line"><a name="l01498"></a><span class="lineno"> 1498</span>&#160;  viewer-&gt;addText(<span class="stringliteral">&quot; dir1 : red \n dir2 : green \n dir3 : blue \n dir4 : white&quot;</span>,0,100);</div>
-<div class="line"><a name="l01499"></a><span class="lineno"> 1499</span>&#160;  <span class="keywordflow">for</span> (uint d = 1; d &lt;= 4; ++d)</div>
-<div class="line"><a name="l01500"></a><span class="lineno"> 1500</span>&#160;  { </div>
-<div class="line"><a name="l01501"></a><span class="lineno"> 1501</span>&#160;    PointT pd_1,pd_2;</div>
-<div class="line"><a name="l01502"></a><span class="lineno"> 1502</span>&#160;    std::string line_name;</div>
-<div class="line"><a name="l01503"></a><span class="lineno"> 1503</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
-<div class="line"><a name="l01504"></a><span class="lineno"> 1504</span>&#160;</div>
-<div class="line"><a name="l01505"></a><span class="lineno"> 1505</span>&#160;    <span class="keywordflow">switch</span>(d)</div>
-<div class="line"><a name="l01506"></a><span class="lineno"> 1506</span>&#160;    {</div>
-<div class="line"><a name="l01507"></a><span class="lineno"> 1507</span>&#160;      <span class="keywordflow">case</span> 1:</div>
-<div class="line"><a name="l01508"></a><span class="lineno"> 1508</span>&#160;              pd_1.x = this-&gt;principal_directions_objects[i].centroid[0] + this-&gt;principal_directions_objects[i].dir1[0]*length;</div>
-<div class="line"><a name="l01509"></a><span class="lineno"> 1509</span>&#160;              pd_1.y = this-&gt;principal_directions_objects[i].centroid[1] + this-&gt;principal_directions_objects[i].dir1[1]*length;</div>
-<div class="line"><a name="l01510"></a><span class="lineno"> 1510</span>&#160;              pd_1.z = this-&gt;principal_directions_objects[i].centroid[2] + this-&gt;principal_directions_objects[i].dir1[2]*length;</div>
-<div class="line"><a name="l01511"></a><span class="lineno"> 1511</span>&#160;</div>
-<div class="line"><a name="l01512"></a><span class="lineno"> 1512</span>&#160;              pd_2.x = this-&gt;principal_directions_objects[i].centroid[0];</div>
-<div class="line"><a name="l01513"></a><span class="lineno"> 1513</span>&#160;              pd_2.y = this-&gt;principal_directions_objects[i].centroid[1];</div>
-<div class="line"><a name="l01514"></a><span class="lineno"> 1514</span>&#160;              pd_2.z = this-&gt;principal_directions_objects[i].centroid[2];</div>
-<div class="line"><a name="l01515"></a><span class="lineno"> 1515</span>&#160;</div>
-<div class="line"><a name="l01516"></a><span class="lineno"> 1516</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir1_o&quot;</span>;</div>
-<div class="line"><a name="l01517"></a><span class="lineno"> 1517</span>&#160;              convert &lt;&lt; i;</div>
-<div class="line"><a name="l01518"></a><span class="lineno"> 1518</span>&#160;              line_name += convert.str();</div>
+<div class="line"><a name="l01480"></a><span class="lineno"> 1480</span>&#160;    vox.setInputCloud (tmp_sides.makeShared());</div>
+<div class="line"><a name="l01481"></a><span class="lineno"> 1481</span>&#160;    vox.setLeafSize (leaf_size, leaf_size, leaf_size);</div>
+<div class="line"><a name="l01482"></a><span class="lineno"> 1482</span>&#160;    vox.filter (tmp_sides);</div>
+<div class="line"><a name="l01483"></a><span class="lineno"> 1483</span>&#160;</div>
+<div class="line"><a name="l01484"></a><span class="lineno"> 1484</span>&#160;    <span class="keywordflow">for</span> (uint p = (*i).index_projection; p &lt; (*i).cloud.points.size(); ++p)</div>
+<div class="line"><a name="l01485"></a><span class="lineno"> 1485</span>&#160;      tmp_projections.points.push_back((*i).cloud.points[p]);</div>
+<div class="line"><a name="l01486"></a><span class="lineno"> 1486</span>&#160;    </div>
+<div class="line"><a name="l01487"></a><span class="lineno"> 1487</span>&#160;    vox.setInputCloud (tmp_projections.makeShared());</div>
+<div class="line"><a name="l01488"></a><span class="lineno"> 1488</span>&#160;    vox.setLeafSize (leaf_size, leaf_size, leaf_size);</div>
+<div class="line"><a name="l01489"></a><span class="lineno"> 1489</span>&#160;    vox.filter (tmp_projections);</div>
+<div class="line"><a name="l01490"></a><span class="lineno"> 1490</span>&#160;</div>
+<div class="line"><a name="l01491"></a><span class="lineno"> 1491</span>&#160;    <span class="comment">// reconstruct full voxelized object</span></div>
+<div class="line"><a name="l01492"></a><span class="lineno"> 1492</span>&#160;    (*i).cloud.points.resize(0);</div>
+<div class="line"><a name="l01493"></a><span class="lineno"> 1493</span>&#160;    (*i).cloud = tmp;</div>
+<div class="line"><a name="l01494"></a><span class="lineno"> 1494</span>&#160;    (*i).index_sides = (*i).cloud.points.size();</div>
+<div class="line"><a name="l01495"></a><span class="lineno"> 1495</span>&#160;    (*i).cloud += tmp_sides;</div>
+<div class="line"><a name="l01496"></a><span class="lineno"> 1496</span>&#160;    (*i).index_projection = (*i).cloud.points.size();</div>
+<div class="line"><a name="l01497"></a><span class="lineno"> 1497</span>&#160;    (*i).cloud += tmp_projections;</div>
+<div class="line"><a name="l01498"></a><span class="lineno"> 1498</span>&#160;  }</div>
+<div class="line"><a name="l01499"></a><span class="lineno"> 1499</span>&#160;}</div>
+<div class="line"><a name="l01500"></a><span class="lineno"> 1500</span>&#160;</div>
+<div class="line"><a name="l01501"></a><span class="lineno"> 1501</span>&#160;<span class="keywordtype">void</span> CTableClearingPlanning::buildFullObjectsCloud(std::vector&lt;PointCloudT&gt;&amp; occluded_sides)</div>
+<div class="line"><a name="l01502"></a><span class="lineno"> 1502</span>&#160;{</div>
+<div class="line"><a name="l01503"></a><span class="lineno"> 1503</span>&#160;  <span class="keywordflow">if</span>(occluded_sides.size() != this-&gt;objects.size()) <span class="comment">//check they have the correct dimension</span></div>
+<div class="line"><a name="l01504"></a><span class="lineno"> 1504</span>&#160;  {</div>
+<div class="line"><a name="l01505"></a><span class="lineno"> 1505</span>&#160;    PCL_ERROR(<span class="stringliteral">&quot;Impossible composing the full objects cloud, the sizes do not match.\n&quot;</span>);</div>
+<div class="line"><a name="l01506"></a><span class="lineno"> 1506</span>&#160;    <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l01507"></a><span class="lineno"> 1507</span>&#160;  }</div>
+<div class="line"><a name="l01508"></a><span class="lineno"> 1508</span>&#160;  this-&gt;objects_full.resize(this-&gt;n_objects);</div>
+<div class="line"><a name="l01509"></a><span class="lineno"> 1509</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt; n_objects; ++i)</div>
+<div class="line"><a name="l01510"></a><span class="lineno"> 1510</span>&#160;  {</div>
+<div class="line"><a name="l01511"></a><span class="lineno"> 1511</span>&#160;    this-&gt;objects_full[i].cloud = this-&gt;objects[i];</div>
+<div class="line"><a name="l01512"></a><span class="lineno"> 1512</span>&#160;    this-&gt;objects_full[i].cloud += occluded_sides[i];</div>
+<div class="line"><a name="l01513"></a><span class="lineno"> 1513</span>&#160;    this-&gt;objects_full[i].cloud += this-&gt;projections[i];</div>
+<div class="line"><a name="l01514"></a><span class="lineno"> 1514</span>&#160;    this-&gt;objects_full[i].index_sides = this-&gt;objects[i].points.size();</div>
+<div class="line"><a name="l01515"></a><span class="lineno"> 1515</span>&#160;    this-&gt;objects_full[i].index_projection = this-&gt;objects[i].points.size() + occluded_sides[i].points.size();</div>
+<div class="line"><a name="l01516"></a><span class="lineno"> 1516</span>&#160;  }</div>
+<div class="line"><a name="l01517"></a><span class="lineno"> 1517</span>&#160;</div>
+<div class="line"><a name="l01518"></a><span class="lineno"> 1518</span>&#160;}</div>
 <div class="line"><a name="l01519"></a><span class="lineno"> 1519</span>&#160;</div>
-<div class="line"><a name="l01520"></a><span class="lineno"> 1520</span>&#160;              viewer-&gt;addLine&lt;PointT&gt;(pd_1,pd_2,1,0,0,line_name);</div>
-<div class="line"><a name="l01521"></a><span class="lineno"> 1521</span>&#160;      <span class="keywordflow">case</span> 2:</div>
-<div class="line"><a name="l01522"></a><span class="lineno"> 1522</span>&#160;              pd_1.x = this-&gt;principal_directions_objects[i].centroid[0] - this-&gt;principal_directions_objects[i].dir1[0]*length;</div>
-<div class="line"><a name="l01523"></a><span class="lineno"> 1523</span>&#160;              pd_1.y = this-&gt;principal_directions_objects[i].centroid[1] - this-&gt;principal_directions_objects[i].dir1[1]*length;</div>
-<div class="line"><a name="l01524"></a><span class="lineno"> 1524</span>&#160;              pd_1.z = this-&gt;principal_directions_objects[i].centroid[2] - this-&gt;principal_directions_objects[i].dir1[2]*length;</div>
-<div class="line"><a name="l01525"></a><span class="lineno"> 1525</span>&#160;</div>
-<div class="line"><a name="l01526"></a><span class="lineno"> 1526</span>&#160;              pd_2.x = this-&gt;principal_directions_objects[i].centroid[0];</div>
-<div class="line"><a name="l01527"></a><span class="lineno"> 1527</span>&#160;              pd_2.y = this-&gt;principal_directions_objects[i].centroid[1];</div>
-<div class="line"><a name="l01528"></a><span class="lineno"> 1528</span>&#160;              pd_2.z = this-&gt;principal_directions_objects[i].centroid[2];</div>
-<div class="line"><a name="l01529"></a><span class="lineno"> 1529</span>&#160;</div>
-<div class="line"><a name="l01530"></a><span class="lineno"> 1530</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir2_o&quot;</span>;</div>
-<div class="line"><a name="l01531"></a><span class="lineno"> 1531</span>&#160;              convert &lt;&lt; i;</div>
-<div class="line"><a name="l01532"></a><span class="lineno"> 1532</span>&#160;              line_name += convert.str();</div>
-<div class="line"><a name="l01533"></a><span class="lineno"> 1533</span>&#160;</div>
-<div class="line"><a name="l01534"></a><span class="lineno"> 1534</span>&#160;              viewer-&gt;addLine&lt;PointT&gt;(pd_2,pd_1,0,1,0,line_name);</div>
-<div class="line"><a name="l01535"></a><span class="lineno"> 1535</span>&#160;      <span class="keywordflow">case</span> 3:</div>
-<div class="line"><a name="l01536"></a><span class="lineno"> 1536</span>&#160;</div>
-<div class="line"><a name="l01537"></a><span class="lineno"> 1537</span>&#160;              pd_1.x = this-&gt;principal_directions_objects[i].centroid[0] + this-&gt;principal_directions_objects[i].dir3[0]*length;</div>
-<div class="line"><a name="l01538"></a><span class="lineno"> 1538</span>&#160;              pd_1.y = this-&gt;principal_directions_objects[i].centroid[1] + this-&gt;principal_directions_objects[i].dir3[1]*length;</div>
-<div class="line"><a name="l01539"></a><span class="lineno"> 1539</span>&#160;              pd_1.z = this-&gt;principal_directions_objects[i].centroid[2] + this-&gt;principal_directions_objects[i].dir3[2]*length;</div>
-<div class="line"><a name="l01540"></a><span class="lineno"> 1540</span>&#160;</div>
-<div class="line"><a name="l01541"></a><span class="lineno"> 1541</span>&#160;              pd_2.x = this-&gt;principal_directions_objects[i].centroid[0];</div>
-<div class="line"><a name="l01542"></a><span class="lineno"> 1542</span>&#160;              pd_2.y = this-&gt;principal_directions_objects[i].centroid[1];</div>
-<div class="line"><a name="l01543"></a><span class="lineno"> 1543</span>&#160;              pd_2.z = this-&gt;principal_directions_objects[i].centroid[2];</div>
-<div class="line"><a name="l01544"></a><span class="lineno"> 1544</span>&#160;</div>
-<div class="line"><a name="l01545"></a><span class="lineno"> 1545</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir3_o&quot;</span>;</div>
-<div class="line"><a name="l01546"></a><span class="lineno"> 1546</span>&#160;              convert &lt;&lt; i;</div>
-<div class="line"><a name="l01547"></a><span class="lineno"> 1547</span>&#160;              line_name += convert.str();</div>
-<div class="line"><a name="l01548"></a><span class="lineno"> 1548</span>&#160;</div>
-<div class="line"><a name="l01549"></a><span class="lineno"> 1549</span>&#160;              viewer-&gt;addLine&lt;PointT&gt;(pd_1,pd_2,0,0,1,line_name);</div>
-<div class="line"><a name="l01550"></a><span class="lineno"> 1550</span>&#160;      <span class="keywordflow">case</span> 4:</div>
-<div class="line"><a name="l01551"></a><span class="lineno"> 1551</span>&#160;              pd_1.x = this-&gt;principal_directions_objects[i].centroid[0] + this-&gt;principal_directions_objects[i].dir4[0]*length;</div>
-<div class="line"><a name="l01552"></a><span class="lineno"> 1552</span>&#160;              pd_1.y = this-&gt;principal_directions_objects[i].centroid[1] + this-&gt;principal_directions_objects[i].dir4[1]*length;</div>
-<div class="line"><a name="l01553"></a><span class="lineno"> 1553</span>&#160;              pd_1.z = this-&gt;principal_directions_objects[i].centroid[2] + this-&gt;principal_directions_objects[i].dir4[2]*length;</div>
-<div class="line"><a name="l01554"></a><span class="lineno"> 1554</span>&#160;</div>
-<div class="line"><a name="l01555"></a><span class="lineno"> 1555</span>&#160;              pd_2.x = this-&gt;principal_directions_objects[i].centroid[0];</div>
-<div class="line"><a name="l01556"></a><span class="lineno"> 1556</span>&#160;              pd_2.y = this-&gt;principal_directions_objects[i].centroid[1];</div>
-<div class="line"><a name="l01557"></a><span class="lineno"> 1557</span>&#160;              pd_2.z = this-&gt;principal_directions_objects[i].centroid[2];</div>
-<div class="line"><a name="l01558"></a><span class="lineno"> 1558</span>&#160;</div>
-<div class="line"><a name="l01559"></a><span class="lineno"> 1559</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir4_o&quot;</span>;</div>
-<div class="line"><a name="l01560"></a><span class="lineno"> 1560</span>&#160;              convert &lt;&lt; i;</div>
-<div class="line"><a name="l01561"></a><span class="lineno"> 1561</span>&#160;              line_name += convert.str();</div>
-<div class="line"><a name="l01562"></a><span class="lineno"> 1562</span>&#160;</div>
-<div class="line"><a name="l01563"></a><span class="lineno"> 1563</span>&#160;              viewer-&gt;addLine&lt;PointT&gt;(pd_1,pd_2,1,1,1,line_name);</div>
-<div class="line"><a name="l01564"></a><span class="lineno"> 1564</span>&#160;      <span class="keywordflow">default</span>: <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01565"></a><span class="lineno"> 1565</span>&#160;    }</div>
-<div class="line"><a name="l01566"></a><span class="lineno"> 1566</span>&#160;  }</div>
-<div class="line"><a name="l01567"></a><span class="lineno"> 1567</span>&#160;}</div>
-<div class="line"><a name="l01568"></a><span class="lineno"> 1568</span>&#160;</div>
-<div class="line"><a name="l01569"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#aa7ebbec8d9b2d01da431fe6609ba2fbf"> 1569</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">CTableClearingPlanning::viewerAddPrincipalDirections</a>(Visualizer viewer)</div>
-<div class="line"><a name="l01570"></a><span class="lineno"> 1570</span>&#160;{</div>
-<div class="line"><a name="l01571"></a><span class="lineno"> 1571</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; n_objects; ++i)</div>
-<div class="line"><a name="l01572"></a><span class="lineno"> 1572</span>&#160;  {</div>
-<div class="line"><a name="l01573"></a><span class="lineno"> 1573</span>&#160;    this-&gt;<a class="code" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">viewerAddPrincipalDirections</a>(viewer,i);</div>
-<div class="line"><a name="l01574"></a><span class="lineno"> 1574</span>&#160;  }</div>
-<div class="line"><a name="l01575"></a><span class="lineno"> 1575</span>&#160;}</div>
-<div class="line"><a name="l01576"></a><span class="lineno"> 1576</span>&#160;</div>
-<div class="line"><a name="l01577"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a42760538c751780255cc2072bad0ebe7"> 1577</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a42760538c751780255cc2072bad0ebe7">CTableClearingPlanning::cleanPrincipalDirections</a>(Visualizer viewer, uint i)</div>
-<div class="line"><a name="l01578"></a><span class="lineno"> 1578</span>&#160;{</div>
-<div class="line"><a name="l01579"></a><span class="lineno"> 1579</span>&#160;  <span class="keywordflow">for</span> (uint d = 1; d &lt;= 4; ++d)</div>
-<div class="line"><a name="l01580"></a><span class="lineno"> 1580</span>&#160;  { </div>
-<div class="line"><a name="l01581"></a><span class="lineno"> 1581</span>&#160;    PointT pd_1,pd_2;</div>
-<div class="line"><a name="l01582"></a><span class="lineno"> 1582</span>&#160;    std::string line_name;</div>
-<div class="line"><a name="l01583"></a><span class="lineno"> 1583</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
+<div class="line"><a name="l01520"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a2cd87120cf1abe06b96c0611cde50edf"> 1520</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a2cd87120cf1abe06b96c0611cde50edf">CTableClearingPlanning::setObjectsPointCloud</a>(std::vector&lt;PointCloudT&gt; &amp;objects)</div>
+<div class="line"><a name="l01521"></a><span class="lineno"> 1521</span>&#160;{</div>
+<div class="line"><a name="l01522"></a><span class="lineno"> 1522</span>&#160;  this-&gt;objects = objects;</div>
+<div class="line"><a name="l01523"></a><span class="lineno"> 1523</span>&#160;  this-&gt;n_objects = objects.size();</div>
+<div class="line"><a name="l01524"></a><span class="lineno"> 1524</span>&#160;  this-&gt;blocks_predicates.resize(this-&gt;n_objects);</div>
+<div class="line"><a name="l01525"></a><span class="lineno"> 1525</span>&#160;}</div>
+<div class="line"><a name="l01526"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f"> 1526</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f">CTableClearingPlanning::setPlaneCoefficients</a>(pcl::ModelCoefficients &amp;plane_coefficients)</div>
+<div class="line"><a name="l01527"></a><span class="lineno"> 1527</span>&#160;{</div>
+<div class="line"><a name="l01528"></a><span class="lineno"> 1528</span>&#160;  this-&gt;plane_coefficients = plane_coefficients;</div>
+<div class="line"><a name="l01529"></a><span class="lineno"> 1529</span>&#160;  <span class="keywordflow">if</span>(! this-&gt;plane_coefficients.values.size() &gt; 0)</div>
+<div class="line"><a name="l01530"></a><span class="lineno"> 1530</span>&#160;  {</div>
+<div class="line"><a name="l01531"></a><span class="lineno"> 1531</span>&#160;    PCL_ERROR(<span class="stringliteral">&quot;Plane model coefficients not set - Exiting from setPlaneCoefficients()&quot;</span>);</div>
+<div class="line"><a name="l01532"></a><span class="lineno"> 1532</span>&#160;    <span class="keywordflow">return</span>; </div>
+<div class="line"><a name="l01533"></a><span class="lineno"> 1533</span>&#160;  }</div>
+<div class="line"><a name="l01534"></a><span class="lineno"> 1534</span>&#160;  this-&gt;plane_normal[0] = this-&gt;plane_coefficients.values[0];</div>
+<div class="line"><a name="l01535"></a><span class="lineno"> 1535</span>&#160;  this-&gt;plane_normal[1] = this-&gt;plane_coefficients.values[1];</div>
+<div class="line"><a name="l01536"></a><span class="lineno"> 1536</span>&#160;  this-&gt;plane_normal[2] = this-&gt;plane_coefficients.values[2];</div>
+<div class="line"><a name="l01537"></a><span class="lineno"> 1537</span>&#160;  this-&gt;plane_normal.normalize();</div>
+<div class="line"><a name="l01538"></a><span class="lineno"> 1538</span>&#160;</div>
+<div class="line"><a name="l01539"></a><span class="lineno"> 1539</span>&#160;  <span class="comment">//the normal has to be looking for the Kinect, so </span></div>
+<div class="line"><a name="l01540"></a><span class="lineno"> 1540</span>&#160;    <span class="comment">// Eigen::Vector3f kinect_pow(0,0,1);</span></div>
+<div class="line"><a name="l01541"></a><span class="lineno"> 1541</span>&#160;    <span class="comment">// if(this-&gt;plane_normal.dot(kinect_pow) &gt; 0 )</span></div>
+<div class="line"><a name="l01542"></a><span class="lineno"> 1542</span>&#160;    <span class="comment">//   this-&gt;plane_normal = - this-&gt;plane_normal;</span></div>
+<div class="line"><a name="l01543"></a><span class="lineno"> 1543</span>&#160;</div>
+<div class="line"><a name="l01544"></a><span class="lineno"> 1544</span>&#160;  <span class="comment">// set plane origin</span></div>
+<div class="line"><a name="l01545"></a><span class="lineno"> 1545</span>&#160;  this-&gt;plane_origin[0] = 1.0;</div>
+<div class="line"><a name="l01546"></a><span class="lineno"> 1546</span>&#160;  this-&gt;plane_origin[1] = 1.0;</div>
+<div class="line"><a name="l01547"></a><span class="lineno"> 1547</span>&#160;  <span class="comment">// ax+by+cz+d=0 =&gt; z = (ax+by+d)/(-c)</span></div>
+<div class="line"><a name="l01548"></a><span class="lineno"> 1548</span>&#160;  this-&gt;plane_origin[2] = (this-&gt;plane_coefficients.values[0] * this-&gt;plane_origin[0] +</div>
+<div class="line"><a name="l01549"></a><span class="lineno"> 1549</span>&#160;                          this-&gt;plane_coefficients.values[1] * this-&gt;plane_origin[1] +</div>
+<div class="line"><a name="l01550"></a><span class="lineno"> 1550</span>&#160;                          this-&gt;plane_coefficients.values[3]) / (- this-&gt;plane_coefficients.values[2]);</div>
+<div class="line"><a name="l01551"></a><span class="lineno"> 1551</span>&#160;}</div>
+<div class="line"><a name="l01552"></a><span class="lineno"> 1552</span>&#160;</div>
+<div class="line"><a name="l01553"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367"> 1553</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">CTableClearingPlanning::viewerAddPrincipalDirections</a>(Visualizer viewer, uint i)</div>
+<div class="line"><a name="l01554"></a><span class="lineno"> 1554</span>&#160;{</div>
+<div class="line"><a name="l01555"></a><span class="lineno"> 1555</span>&#160;  </div>
+<div class="line"><a name="l01556"></a><span class="lineno"> 1556</span>&#160;  <span class="keywordtype">double</span> length = 0.2;</div>
+<div class="line"><a name="l01557"></a><span class="lineno"> 1557</span>&#160;  viewer-&gt;addText(<span class="stringliteral">&quot; dir1 : red \n dir2 : green \n dir3 : blue \n dir4 : white&quot;</span>,0,100);</div>
+<div class="line"><a name="l01558"></a><span class="lineno"> 1558</span>&#160;  <span class="keywordflow">for</span> (uint d = 1; d &lt;= 4; ++d)</div>
+<div class="line"><a name="l01559"></a><span class="lineno"> 1559</span>&#160;  { </div>
+<div class="line"><a name="l01560"></a><span class="lineno"> 1560</span>&#160;    PointT pd_1,pd_2;</div>
+<div class="line"><a name="l01561"></a><span class="lineno"> 1561</span>&#160;    std::string line_name;</div>
+<div class="line"><a name="l01562"></a><span class="lineno"> 1562</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
+<div class="line"><a name="l01563"></a><span class="lineno"> 1563</span>&#160;</div>
+<div class="line"><a name="l01564"></a><span class="lineno"> 1564</span>&#160;    <span class="keywordflow">switch</span>(d)</div>
+<div class="line"><a name="l01565"></a><span class="lineno"> 1565</span>&#160;    {</div>
+<div class="line"><a name="l01566"></a><span class="lineno"> 1566</span>&#160;      <span class="keywordflow">case</span> 1:</div>
+<div class="line"><a name="l01567"></a><span class="lineno"> 1567</span>&#160;              pd_1.x = this-&gt;principal_directions_objects[i].centroid[0] + this-&gt;principal_directions_objects[i].dir1[0]*length;</div>
+<div class="line"><a name="l01568"></a><span class="lineno"> 1568</span>&#160;              pd_1.y = this-&gt;principal_directions_objects[i].centroid[1] + this-&gt;principal_directions_objects[i].dir1[1]*length;</div>
+<div class="line"><a name="l01569"></a><span class="lineno"> 1569</span>&#160;              pd_1.z = this-&gt;principal_directions_objects[i].centroid[2] + this-&gt;principal_directions_objects[i].dir1[2]*length;</div>
+<div class="line"><a name="l01570"></a><span class="lineno"> 1570</span>&#160;</div>
+<div class="line"><a name="l01571"></a><span class="lineno"> 1571</span>&#160;              pd_2.x = this-&gt;principal_directions_objects[i].centroid[0];</div>
+<div class="line"><a name="l01572"></a><span class="lineno"> 1572</span>&#160;              pd_2.y = this-&gt;principal_directions_objects[i].centroid[1];</div>
+<div class="line"><a name="l01573"></a><span class="lineno"> 1573</span>&#160;              pd_2.z = this-&gt;principal_directions_objects[i].centroid[2];</div>
+<div class="line"><a name="l01574"></a><span class="lineno"> 1574</span>&#160;</div>
+<div class="line"><a name="l01575"></a><span class="lineno"> 1575</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir1_o&quot;</span>;</div>
+<div class="line"><a name="l01576"></a><span class="lineno"> 1576</span>&#160;              convert &lt;&lt; i;</div>
+<div class="line"><a name="l01577"></a><span class="lineno"> 1577</span>&#160;              line_name += convert.str();</div>
+<div class="line"><a name="l01578"></a><span class="lineno"> 1578</span>&#160;</div>
+<div class="line"><a name="l01579"></a><span class="lineno"> 1579</span>&#160;              viewer-&gt;addLine&lt;PointT&gt;(pd_1,pd_2,1,0,0,line_name);</div>
+<div class="line"><a name="l01580"></a><span class="lineno"> 1580</span>&#160;      <span class="keywordflow">case</span> 2:</div>
+<div class="line"><a name="l01581"></a><span class="lineno"> 1581</span>&#160;              pd_1.x = this-&gt;principal_directions_objects[i].centroid[0] - this-&gt;principal_directions_objects[i].dir1[0]*length;</div>
+<div class="line"><a name="l01582"></a><span class="lineno"> 1582</span>&#160;              pd_1.y = this-&gt;principal_directions_objects[i].centroid[1] - this-&gt;principal_directions_objects[i].dir1[1]*length;</div>
+<div class="line"><a name="l01583"></a><span class="lineno"> 1583</span>&#160;              pd_1.z = this-&gt;principal_directions_objects[i].centroid[2] - this-&gt;principal_directions_objects[i].dir1[2]*length;</div>
 <div class="line"><a name="l01584"></a><span class="lineno"> 1584</span>&#160;</div>
-<div class="line"><a name="l01585"></a><span class="lineno"> 1585</span>&#160;    <span class="keywordflow">switch</span>(d)</div>
-<div class="line"><a name="l01586"></a><span class="lineno"> 1586</span>&#160;    {</div>
-<div class="line"><a name="l01587"></a><span class="lineno"> 1587</span>&#160;      <span class="keywordflow">case</span> 1:</div>
-<div class="line"><a name="l01588"></a><span class="lineno"> 1588</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir1_o&quot;</span>;</div>
-<div class="line"><a name="l01589"></a><span class="lineno"> 1589</span>&#160;              convert &lt;&lt; i;</div>
-<div class="line"><a name="l01590"></a><span class="lineno"> 1590</span>&#160;              line_name += convert.str();</div>
-<div class="line"><a name="l01591"></a><span class="lineno"> 1591</span>&#160;</div>
-<div class="line"><a name="l01592"></a><span class="lineno"> 1592</span>&#160;              viewer-&gt;removeShape(line_name);</div>
-<div class="line"><a name="l01593"></a><span class="lineno"> 1593</span>&#160;      <span class="keywordflow">case</span> 2:</div>
-<div class="line"><a name="l01594"></a><span class="lineno"> 1594</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir2_o&quot;</span>;</div>
-<div class="line"><a name="l01595"></a><span class="lineno"> 1595</span>&#160;              convert &lt;&lt; i;</div>
-<div class="line"><a name="l01596"></a><span class="lineno"> 1596</span>&#160;              line_name += convert.str();</div>
-<div class="line"><a name="l01597"></a><span class="lineno"> 1597</span>&#160;</div>
-<div class="line"><a name="l01598"></a><span class="lineno"> 1598</span>&#160;              viewer-&gt;removeShape(line_name);</div>
-<div class="line"><a name="l01599"></a><span class="lineno"> 1599</span>&#160;      <span class="keywordflow">case</span> 3:</div>
-<div class="line"><a name="l01600"></a><span class="lineno"> 1600</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir3_o&quot;</span>;</div>
-<div class="line"><a name="l01601"></a><span class="lineno"> 1601</span>&#160;              convert &lt;&lt; i;</div>
-<div class="line"><a name="l01602"></a><span class="lineno"> 1602</span>&#160;              line_name += convert.str();</div>
+<div class="line"><a name="l01585"></a><span class="lineno"> 1585</span>&#160;              pd_2.x = this-&gt;principal_directions_objects[i].centroid[0];</div>
+<div class="line"><a name="l01586"></a><span class="lineno"> 1586</span>&#160;              pd_2.y = this-&gt;principal_directions_objects[i].centroid[1];</div>
+<div class="line"><a name="l01587"></a><span class="lineno"> 1587</span>&#160;              pd_2.z = this-&gt;principal_directions_objects[i].centroid[2];</div>
+<div class="line"><a name="l01588"></a><span class="lineno"> 1588</span>&#160;</div>
+<div class="line"><a name="l01589"></a><span class="lineno"> 1589</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir2_o&quot;</span>;</div>
+<div class="line"><a name="l01590"></a><span class="lineno"> 1590</span>&#160;              convert &lt;&lt; i;</div>
+<div class="line"><a name="l01591"></a><span class="lineno"> 1591</span>&#160;              line_name += convert.str();</div>
+<div class="line"><a name="l01592"></a><span class="lineno"> 1592</span>&#160;</div>
+<div class="line"><a name="l01593"></a><span class="lineno"> 1593</span>&#160;              viewer-&gt;addLine&lt;PointT&gt;(pd_2,pd_1,0,1,0,line_name);</div>
+<div class="line"><a name="l01594"></a><span class="lineno"> 1594</span>&#160;      <span class="keywordflow">case</span> 3:</div>
+<div class="line"><a name="l01595"></a><span class="lineno"> 1595</span>&#160;</div>
+<div class="line"><a name="l01596"></a><span class="lineno"> 1596</span>&#160;              pd_1.x = this-&gt;principal_directions_objects[i].centroid[0] + this-&gt;principal_directions_objects[i].dir3[0]*length;</div>
+<div class="line"><a name="l01597"></a><span class="lineno"> 1597</span>&#160;              pd_1.y = this-&gt;principal_directions_objects[i].centroid[1] + this-&gt;principal_directions_objects[i].dir3[1]*length;</div>
+<div class="line"><a name="l01598"></a><span class="lineno"> 1598</span>&#160;              pd_1.z = this-&gt;principal_directions_objects[i].centroid[2] + this-&gt;principal_directions_objects[i].dir3[2]*length;</div>
+<div class="line"><a name="l01599"></a><span class="lineno"> 1599</span>&#160;</div>
+<div class="line"><a name="l01600"></a><span class="lineno"> 1600</span>&#160;              pd_2.x = this-&gt;principal_directions_objects[i].centroid[0];</div>
+<div class="line"><a name="l01601"></a><span class="lineno"> 1601</span>&#160;              pd_2.y = this-&gt;principal_directions_objects[i].centroid[1];</div>
+<div class="line"><a name="l01602"></a><span class="lineno"> 1602</span>&#160;              pd_2.z = this-&gt;principal_directions_objects[i].centroid[2];</div>
 <div class="line"><a name="l01603"></a><span class="lineno"> 1603</span>&#160;</div>
-<div class="line"><a name="l01604"></a><span class="lineno"> 1604</span>&#160;              viewer-&gt;removeShape(line_name);</div>
-<div class="line"><a name="l01605"></a><span class="lineno"> 1605</span>&#160;      <span class="keywordflow">case</span> 4:</div>
-<div class="line"><a name="l01606"></a><span class="lineno"> 1606</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir4_o&quot;</span>;</div>
-<div class="line"><a name="l01607"></a><span class="lineno"> 1607</span>&#160;              convert &lt;&lt; i;</div>
-<div class="line"><a name="l01608"></a><span class="lineno"> 1608</span>&#160;              line_name += convert.str();</div>
-<div class="line"><a name="l01609"></a><span class="lineno"> 1609</span>&#160;</div>
-<div class="line"><a name="l01610"></a><span class="lineno"> 1610</span>&#160;              viewer-&gt;removeShape(line_name);</div>
-<div class="line"><a name="l01611"></a><span class="lineno"> 1611</span>&#160;      <span class="keywordflow">default</span>: <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01612"></a><span class="lineno"> 1612</span>&#160;    }</div>
-<div class="line"><a name="l01613"></a><span class="lineno"> 1613</span>&#160;  }</div>
-<div class="line"><a name="l01614"></a><span class="lineno"> 1614</span>&#160;}</div>
-<div class="line"><a name="l01615"></a><span class="lineno"> 1615</span>&#160;</div>
-<div class="line"><a name="l01616"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a36ae5ea802dcd7198f17ba7c5898715b"> 1616</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a36ae5ea802dcd7198f17ba7c5898715b">CTableClearingPlanning::cleanPolygonalMesh</a>(Visualizer viewer)</div>
-<div class="line"><a name="l01617"></a><span class="lineno"> 1617</span>&#160;{</div>
-<div class="line"><a name="l01618"></a><span class="lineno"> 1618</span>&#160;  viewer-&gt;removePolygonMesh(<span class="stringliteral">&quot;ee&quot;</span>);</div>
-<div class="line"><a name="l01619"></a><span class="lineno"> 1619</span>&#160;</div>
-<div class="line"><a name="l01620"></a><span class="lineno"> 1620</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; 100; ++i) <span class="comment">//high value -&gt; ineficcient but fast to implement -&gt; it is only for visualization</span></div>
-<div class="line"><a name="l01621"></a><span class="lineno"> 1621</span>&#160;  {</div>
-<div class="line"><a name="l01622"></a><span class="lineno"> 1622</span>&#160;    std::string pol_name;</div>
-<div class="line"><a name="l01623"></a><span class="lineno"> 1623</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
-<div class="line"><a name="l01624"></a><span class="lineno"> 1624</span>&#160;    pol_name = <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a name="l01625"></a><span class="lineno"> 1625</span>&#160;    convert &lt;&lt; i;</div>
-<div class="line"><a name="l01626"></a><span class="lineno"> 1626</span>&#160;    pol_name += convert.str();</div>
-<div class="line"><a name="l01627"></a><span class="lineno"> 1627</span>&#160;    viewer-&gt;removePolygonMesh(pol_name);</div>
-<div class="line"><a name="l01628"></a><span class="lineno"> 1628</span>&#160;  }</div>
-<div class="line"><a name="l01629"></a><span class="lineno"> 1629</span>&#160;  </div>
-<div class="line"><a name="l01630"></a><span class="lineno"> 1630</span>&#160;}</div>
-<div class="line"><a name="l01631"></a><span class="lineno"> 1631</span>&#160;</div>
-<div class="line"><a name="l01632"></a><span class="lineno"> 1632</span>&#160;<span class="keywordtype">void</span> CTableClearingPlanning::viewerAddPlaneNormal(Visualizer viewer)</div>
-<div class="line"><a name="l01633"></a><span class="lineno"> 1633</span>&#160;{</div>
-<div class="line"><a name="l01634"></a><span class="lineno"> 1634</span>&#160;  <span class="keywordtype">double</span> length = 100;</div>
+<div class="line"><a name="l01604"></a><span class="lineno"> 1604</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir3_o&quot;</span>;</div>
+<div class="line"><a name="l01605"></a><span class="lineno"> 1605</span>&#160;              convert &lt;&lt; i;</div>
+<div class="line"><a name="l01606"></a><span class="lineno"> 1606</span>&#160;              line_name += convert.str();</div>
+<div class="line"><a name="l01607"></a><span class="lineno"> 1607</span>&#160;</div>
+<div class="line"><a name="l01608"></a><span class="lineno"> 1608</span>&#160;              viewer-&gt;addLine&lt;PointT&gt;(pd_1,pd_2,0,0,1,line_name);</div>
+<div class="line"><a name="l01609"></a><span class="lineno"> 1609</span>&#160;      <span class="keywordflow">case</span> 4:</div>
+<div class="line"><a name="l01610"></a><span class="lineno"> 1610</span>&#160;              pd_1.x = this-&gt;principal_directions_objects[i].centroid[0] + this-&gt;principal_directions_objects[i].dir4[0]*length;</div>
+<div class="line"><a name="l01611"></a><span class="lineno"> 1611</span>&#160;              pd_1.y = this-&gt;principal_directions_objects[i].centroid[1] + this-&gt;principal_directions_objects[i].dir4[1]*length;</div>
+<div class="line"><a name="l01612"></a><span class="lineno"> 1612</span>&#160;              pd_1.z = this-&gt;principal_directions_objects[i].centroid[2] + this-&gt;principal_directions_objects[i].dir4[2]*length;</div>
+<div class="line"><a name="l01613"></a><span class="lineno"> 1613</span>&#160;</div>
+<div class="line"><a name="l01614"></a><span class="lineno"> 1614</span>&#160;              pd_2.x = this-&gt;principal_directions_objects[i].centroid[0];</div>
+<div class="line"><a name="l01615"></a><span class="lineno"> 1615</span>&#160;              pd_2.y = this-&gt;principal_directions_objects[i].centroid[1];</div>
+<div class="line"><a name="l01616"></a><span class="lineno"> 1616</span>&#160;              pd_2.z = this-&gt;principal_directions_objects[i].centroid[2];</div>
+<div class="line"><a name="l01617"></a><span class="lineno"> 1617</span>&#160;</div>
+<div class="line"><a name="l01618"></a><span class="lineno"> 1618</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir4_o&quot;</span>;</div>
+<div class="line"><a name="l01619"></a><span class="lineno"> 1619</span>&#160;              convert &lt;&lt; i;</div>
+<div class="line"><a name="l01620"></a><span class="lineno"> 1620</span>&#160;              line_name += convert.str();</div>
+<div class="line"><a name="l01621"></a><span class="lineno"> 1621</span>&#160;</div>
+<div class="line"><a name="l01622"></a><span class="lineno"> 1622</span>&#160;              viewer-&gt;addLine&lt;PointT&gt;(pd_1,pd_2,1,1,1,line_name);</div>
+<div class="line"><a name="l01623"></a><span class="lineno"> 1623</span>&#160;      <span class="keywordflow">default</span>: <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01624"></a><span class="lineno"> 1624</span>&#160;    }</div>
+<div class="line"><a name="l01625"></a><span class="lineno"> 1625</span>&#160;  }</div>
+<div class="line"><a name="l01626"></a><span class="lineno"> 1626</span>&#160;}</div>
+<div class="line"><a name="l01627"></a><span class="lineno"> 1627</span>&#160;</div>
+<div class="line"><a name="l01628"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#aa7ebbec8d9b2d01da431fe6609ba2fbf"> 1628</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">CTableClearingPlanning::viewerAddPrincipalDirections</a>(Visualizer viewer)</div>
+<div class="line"><a name="l01629"></a><span class="lineno"> 1629</span>&#160;{</div>
+<div class="line"><a name="l01630"></a><span class="lineno"> 1630</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; n_objects; ++i)</div>
+<div class="line"><a name="l01631"></a><span class="lineno"> 1631</span>&#160;  {</div>
+<div class="line"><a name="l01632"></a><span class="lineno"> 1632</span>&#160;    this-&gt;<a class="code" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">viewerAddPrincipalDirections</a>(viewer,i);</div>
+<div class="line"><a name="l01633"></a><span class="lineno"> 1633</span>&#160;  }</div>
+<div class="line"><a name="l01634"></a><span class="lineno"> 1634</span>&#160;}</div>
 <div class="line"><a name="l01635"></a><span class="lineno"> 1635</span>&#160;</div>
-<div class="line"><a name="l01636"></a><span class="lineno"> 1636</span>&#160;  <span class="comment">//get normal vector of the plane</span></div>
-<div class="line"><a name="l01637"></a><span class="lineno"> 1637</span>&#160;  Eigen::Vector3f norm_plane;</div>
-<div class="line"><a name="l01638"></a><span class="lineno"> 1638</span>&#160;  <span class="keywordflow">if</span>(! this-&gt;plane_coefficients.values.size() &gt; 0)</div>
-<div class="line"><a name="l01639"></a><span class="lineno"> 1639</span>&#160;  {</div>
-<div class="line"><a name="l01640"></a><span class="lineno"> 1640</span>&#160;    std::cout &lt;&lt; <span class="stringliteral">&quot;Plane model coefficients not set - Exiting from computePrincipalDirections()&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l01641"></a><span class="lineno"> 1641</span>&#160;    <span class="keywordflow">return</span>; </div>
-<div class="line"><a name="l01642"></a><span class="lineno"> 1642</span>&#160;  }</div>
-<div class="line"><a name="l01643"></a><span class="lineno"> 1643</span>&#160;  norm_plane[0] = this-&gt;plane_coefficients.values[0];</div>
-<div class="line"><a name="l01644"></a><span class="lineno"> 1644</span>&#160;  norm_plane[1] = this-&gt;plane_coefficients.values[1];</div>
-<div class="line"><a name="l01645"></a><span class="lineno"> 1645</span>&#160;  norm_plane[2] = this-&gt;plane_coefficients.values[2];</div>
-<div class="line"><a name="l01646"></a><span class="lineno"> 1646</span>&#160;  norm_plane.normalize();</div>
-<div class="line"><a name="l01647"></a><span class="lineno"> 1647</span>&#160;  </div>
-<div class="line"><a name="l01648"></a><span class="lineno"> 1648</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt;   this-&gt;principal_directions_objects.size(); ++i)</div>
-<div class="line"><a name="l01649"></a><span class="lineno"> 1649</span>&#160;  {</div>
-<div class="line"><a name="l01650"></a><span class="lineno"> 1650</span>&#160;    PointT pd_1,pd_2;</div>
-<div class="line"><a name="l01651"></a><span class="lineno"> 1651</span>&#160;    pd_1.x = this-&gt;principal_directions_objects[i].centroid[0] + norm_plane[0]*length;</div>
-<div class="line"><a name="l01652"></a><span class="lineno"> 1652</span>&#160;    pd_1.y = this-&gt;principal_directions_objects[i].centroid[1] + norm_plane[1]*length;</div>
-<div class="line"><a name="l01653"></a><span class="lineno"> 1653</span>&#160;    pd_1.z = this-&gt;principal_directions_objects[i].centroid[2] + norm_plane[2]*length;</div>
-<div class="line"><a name="l01654"></a><span class="lineno"> 1654</span>&#160;</div>
-<div class="line"><a name="l01655"></a><span class="lineno"> 1655</span>&#160;    pd_2.x = this-&gt;principal_directions_objects[i].centroid[0] - norm_plane[0]*length;</div>
-<div class="line"><a name="l01656"></a><span class="lineno"> 1656</span>&#160;    pd_2.y = this-&gt;principal_directions_objects[i].centroid[1] - norm_plane[1]*length;</div>
-<div class="line"><a name="l01657"></a><span class="lineno"> 1657</span>&#160;    pd_2.z = this-&gt;principal_directions_objects[i].centroid[2] - norm_plane[2]*length;</div>
-<div class="line"><a name="l01658"></a><span class="lineno"> 1658</span>&#160;</div>
-<div class="line"><a name="l01659"></a><span class="lineno"> 1659</span>&#160;    std::string line_name = <span class="stringliteral">&quot;plane_normal&quot;</span>;</div>
-<div class="line"><a name="l01660"></a><span class="lineno"> 1660</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
-<div class="line"><a name="l01661"></a><span class="lineno"> 1661</span>&#160;    convert &lt;&lt; i;</div>
-<div class="line"><a name="l01662"></a><span class="lineno"> 1662</span>&#160;    line_name += convert.str();</div>
-<div class="line"><a name="l01663"></a><span class="lineno"> 1663</span>&#160;</div>
-<div class="line"><a name="l01664"></a><span class="lineno"> 1664</span>&#160;    viewer-&gt;addLine&lt;PointT&gt;(pd_1,pd_2,line_name);</div>
-<div class="line"><a name="l01665"></a><span class="lineno"> 1665</span>&#160;  }</div>
-<div class="line"><a name="l01666"></a><span class="lineno"> 1666</span>&#160;}</div>
-<div class="line"><a name="l01667"></a><span class="lineno"> 1667</span>&#160;</div>
-<div class="line"><a name="l01668"></a><span class="lineno"> 1668</span>&#160;<span class="keywordtype">void</span> CTableClearingPlanning::viewerAddObjectsClouds(Visualizer viewer)</div>
-<div class="line"><a name="l01669"></a><span class="lineno"> 1669</span>&#160;{</div>
-<div class="line"><a name="l01670"></a><span class="lineno"> 1670</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt; this-&gt;objects.size(); ++i)</div>
-<div class="line"><a name="l01671"></a><span class="lineno"> 1671</span>&#160;  { </div>
-<div class="line"><a name="l01672"></a><span class="lineno"> 1672</span>&#160;    std::string cloud_name = <span class="stringliteral">&quot;object&quot;</span>;</div>
-<div class="line"><a name="l01673"></a><span class="lineno"> 1673</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
-<div class="line"><a name="l01674"></a><span class="lineno"> 1674</span>&#160;    convert &lt;&lt; i;</div>
-<div class="line"><a name="l01675"></a><span class="lineno"> 1675</span>&#160;    cloud_name += convert.str();</div>
-<div class="line"><a name="l01676"></a><span class="lineno"> 1676</span>&#160;    viewer-&gt;addPointCloud(this-&gt;objects[i].makeShared(),cloud_name);</div>
-<div class="line"><a name="l01677"></a><span class="lineno"> 1677</span>&#160;  }</div>
-<div class="line"><a name="l01678"></a><span class="lineno"> 1678</span>&#160;}</div>
-<div class="line"><a name="l01679"></a><span class="lineno"> 1679</span>&#160;</div>
-<div class="line"><a name="l01680"></a><span class="lineno"> 1680</span>&#160;<span class="keywordtype">void</span> CTableClearingPlanning::viewerAddRichObjectsClouds(Visualizer viewer)</div>
-<div class="line"><a name="l01681"></a><span class="lineno"> 1681</span>&#160;{</div>
-<div class="line"><a name="l01682"></a><span class="lineno"> 1682</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt; this-&gt;rich_objects.size(); ++i)</div>
-<div class="line"><a name="l01683"></a><span class="lineno"> 1683</span>&#160;  { </div>
-<div class="line"><a name="l01684"></a><span class="lineno"> 1684</span>&#160;    std::string cloud_name = <span class="stringliteral">&quot;object&quot;</span>;</div>
-<div class="line"><a name="l01685"></a><span class="lineno"> 1685</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
-<div class="line"><a name="l01686"></a><span class="lineno"> 1686</span>&#160;    convert &lt;&lt; i;</div>
-<div class="line"><a name="l01687"></a><span class="lineno"> 1687</span>&#160;    cloud_name += convert.str();</div>
-<div class="line"><a name="l01688"></a><span class="lineno"> 1688</span>&#160;    viewer-&gt;addPointCloud(this-&gt;rich_objects[i].makeShared(),cloud_name);</div>
-<div class="line"><a name="l01689"></a><span class="lineno"> 1689</span>&#160;  }</div>
-<div class="line"><a name="l01690"></a><span class="lineno"> 1690</span>&#160;}</div>
-<div class="line"><a name="l01691"></a><span class="lineno"> 1691</span>&#160;<span class="keywordtype">void</span> CTableClearingPlanning::viewerAddFullObjectsClouds(Visualizer viewer)</div>
+<div class="line"><a name="l01636"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a42760538c751780255cc2072bad0ebe7"> 1636</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a42760538c751780255cc2072bad0ebe7">CTableClearingPlanning::cleanPrincipalDirections</a>(Visualizer viewer, uint i)</div>
+<div class="line"><a name="l01637"></a><span class="lineno"> 1637</span>&#160;{</div>
+<div class="line"><a name="l01638"></a><span class="lineno"> 1638</span>&#160;  <span class="keywordflow">for</span> (uint d = 1; d &lt;= 4; ++d)</div>
+<div class="line"><a name="l01639"></a><span class="lineno"> 1639</span>&#160;  { </div>
+<div class="line"><a name="l01640"></a><span class="lineno"> 1640</span>&#160;    PointT pd_1,pd_2;</div>
+<div class="line"><a name="l01641"></a><span class="lineno"> 1641</span>&#160;    std::string line_name;</div>
+<div class="line"><a name="l01642"></a><span class="lineno"> 1642</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
+<div class="line"><a name="l01643"></a><span class="lineno"> 1643</span>&#160;</div>
+<div class="line"><a name="l01644"></a><span class="lineno"> 1644</span>&#160;    <span class="keywordflow">switch</span>(d)</div>
+<div class="line"><a name="l01645"></a><span class="lineno"> 1645</span>&#160;    {</div>
+<div class="line"><a name="l01646"></a><span class="lineno"> 1646</span>&#160;      <span class="keywordflow">case</span> 1:</div>
+<div class="line"><a name="l01647"></a><span class="lineno"> 1647</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir1_o&quot;</span>;</div>
+<div class="line"><a name="l01648"></a><span class="lineno"> 1648</span>&#160;              convert &lt;&lt; i;</div>
+<div class="line"><a name="l01649"></a><span class="lineno"> 1649</span>&#160;              line_name += convert.str();</div>
+<div class="line"><a name="l01650"></a><span class="lineno"> 1650</span>&#160;</div>
+<div class="line"><a name="l01651"></a><span class="lineno"> 1651</span>&#160;              viewer-&gt;removeShape(line_name);</div>
+<div class="line"><a name="l01652"></a><span class="lineno"> 1652</span>&#160;      <span class="keywordflow">case</span> 2:</div>
+<div class="line"><a name="l01653"></a><span class="lineno"> 1653</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir2_o&quot;</span>;</div>
+<div class="line"><a name="l01654"></a><span class="lineno"> 1654</span>&#160;              convert &lt;&lt; i;</div>
+<div class="line"><a name="l01655"></a><span class="lineno"> 1655</span>&#160;              line_name += convert.str();</div>
+<div class="line"><a name="l01656"></a><span class="lineno"> 1656</span>&#160;</div>
+<div class="line"><a name="l01657"></a><span class="lineno"> 1657</span>&#160;              viewer-&gt;removeShape(line_name);</div>
+<div class="line"><a name="l01658"></a><span class="lineno"> 1658</span>&#160;      <span class="keywordflow">case</span> 3:</div>
+<div class="line"><a name="l01659"></a><span class="lineno"> 1659</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir3_o&quot;</span>;</div>
+<div class="line"><a name="l01660"></a><span class="lineno"> 1660</span>&#160;              convert &lt;&lt; i;</div>
+<div class="line"><a name="l01661"></a><span class="lineno"> 1661</span>&#160;              line_name += convert.str();</div>
+<div class="line"><a name="l01662"></a><span class="lineno"> 1662</span>&#160;</div>
+<div class="line"><a name="l01663"></a><span class="lineno"> 1663</span>&#160;              viewer-&gt;removeShape(line_name);</div>
+<div class="line"><a name="l01664"></a><span class="lineno"> 1664</span>&#160;      <span class="keywordflow">case</span> 4:</div>
+<div class="line"><a name="l01665"></a><span class="lineno"> 1665</span>&#160;              line_name = <span class="stringliteral">&quot;prin_dir4_o&quot;</span>;</div>
+<div class="line"><a name="l01666"></a><span class="lineno"> 1666</span>&#160;              convert &lt;&lt; i;</div>
+<div class="line"><a name="l01667"></a><span class="lineno"> 1667</span>&#160;              line_name += convert.str();</div>
+<div class="line"><a name="l01668"></a><span class="lineno"> 1668</span>&#160;</div>
+<div class="line"><a name="l01669"></a><span class="lineno"> 1669</span>&#160;              viewer-&gt;removeShape(line_name);</div>
+<div class="line"><a name="l01670"></a><span class="lineno"> 1670</span>&#160;      <span class="keywordflow">default</span>: <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01671"></a><span class="lineno"> 1671</span>&#160;    }</div>
+<div class="line"><a name="l01672"></a><span class="lineno"> 1672</span>&#160;  }</div>
+<div class="line"><a name="l01673"></a><span class="lineno"> 1673</span>&#160;}</div>
+<div class="line"><a name="l01674"></a><span class="lineno"> 1674</span>&#160;</div>
+<div class="line"><a name="l01675"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a36ae5ea802dcd7198f17ba7c5898715b"> 1675</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a36ae5ea802dcd7198f17ba7c5898715b">CTableClearingPlanning::cleanPolygonalMesh</a>(Visualizer viewer)</div>
+<div class="line"><a name="l01676"></a><span class="lineno"> 1676</span>&#160;{</div>
+<div class="line"><a name="l01677"></a><span class="lineno"> 1677</span>&#160;  viewer-&gt;removePolygonMesh(<span class="stringliteral">&quot;ee&quot;</span>);</div>
+<div class="line"><a name="l01678"></a><span class="lineno"> 1678</span>&#160;</div>
+<div class="line"><a name="l01679"></a><span class="lineno"> 1679</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; 100; ++i) <span class="comment">//high value -&gt; ineficcient but fast to implement -&gt; it is only for visualization</span></div>
+<div class="line"><a name="l01680"></a><span class="lineno"> 1680</span>&#160;  {</div>
+<div class="line"><a name="l01681"></a><span class="lineno"> 1681</span>&#160;    std::string pol_name;</div>
+<div class="line"><a name="l01682"></a><span class="lineno"> 1682</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
+<div class="line"><a name="l01683"></a><span class="lineno"> 1683</span>&#160;    pol_name = <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a name="l01684"></a><span class="lineno"> 1684</span>&#160;    convert &lt;&lt; i;</div>
+<div class="line"><a name="l01685"></a><span class="lineno"> 1685</span>&#160;    pol_name += convert.str();</div>
+<div class="line"><a name="l01686"></a><span class="lineno"> 1686</span>&#160;    viewer-&gt;removePolygonMesh(pol_name);</div>
+<div class="line"><a name="l01687"></a><span class="lineno"> 1687</span>&#160;  }</div>
+<div class="line"><a name="l01688"></a><span class="lineno"> 1688</span>&#160;  </div>
+<div class="line"><a name="l01689"></a><span class="lineno"> 1689</span>&#160;}</div>
+<div class="line"><a name="l01690"></a><span class="lineno"> 1690</span>&#160;</div>
+<div class="line"><a name="l01691"></a><span class="lineno"> 1691</span>&#160;<span class="keywordtype">void</span> CTableClearingPlanning::viewerAddPlaneNormal(Visualizer viewer)</div>
 <div class="line"><a name="l01692"></a><span class="lineno"> 1692</span>&#160;{</div>
-<div class="line"><a name="l01693"></a><span class="lineno"> 1693</span>&#160;    <span class="keywordflow">for</span> (uint i = 0; i &lt; this-&gt;objects_full.size(); ++i)</div>
-<div class="line"><a name="l01694"></a><span class="lineno"> 1694</span>&#160;  { </div>
-<div class="line"><a name="l01695"></a><span class="lineno"> 1695</span>&#160;    std::string cloud_name = <span class="stringliteral">&quot;object_full&quot;</span>;</div>
-<div class="line"><a name="l01696"></a><span class="lineno"> 1696</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
-<div class="line"><a name="l01697"></a><span class="lineno"> 1697</span>&#160;    convert &lt;&lt; i;</div>
-<div class="line"><a name="l01698"></a><span class="lineno"> 1698</span>&#160;    cloud_name += convert.str();</div>
-<div class="line"><a name="l01699"></a><span class="lineno"> 1699</span>&#160;    viewer-&gt;addPointCloud(this-&gt;objects_full[i].cloud.makeShared(),cloud_name);</div>
-<div class="line"><a name="l01700"></a><span class="lineno"> 1700</span>&#160;  }</div>
-<div class="line"><a name="l01701"></a><span class="lineno"> 1701</span>&#160;}</div>
-<div class="line"><a name="l01702"></a><span class="lineno"> 1702</span>&#160;</div>
-<div class="line"><a name="l01703"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a00bfbb4f6b61d5983026ed76e835421a"> 1703</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a00bfbb4f6b61d5983026ed76e835421a">CTableClearingPlanning::viewerAddObjectsLabel</a>(Visualizer viewer)</div>
-<div class="line"><a name="l01704"></a><span class="lineno"> 1704</span>&#160;{</div>
-<div class="line"><a name="l01705"></a><span class="lineno"> 1705</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt; this-&gt;principal_directions_objects.size(); ++i)</div>
-<div class="line"><a name="l01706"></a><span class="lineno"> 1706</span>&#160;  {</div>
-<div class="line"><a name="l01707"></a><span class="lineno"> 1707</span>&#160;    pcl::PointXYZ p;</div>
-<div class="line"><a name="l01708"></a><span class="lineno"> 1708</span>&#160;    p.x = this-&gt;principal_directions_objects[i].centroid[0];</div>
-<div class="line"><a name="l01709"></a><span class="lineno"> 1709</span>&#160;    p.y = this-&gt;principal_directions_objects[i].centroid[1];</div>
-<div class="line"><a name="l01710"></a><span class="lineno"> 1710</span>&#160;    p.z = this-&gt;principal_directions_objects[i].centroid[2];</div>
-<div class="line"><a name="l01711"></a><span class="lineno"> 1711</span>&#160;    std::string text = <span class="stringliteral">&quot;o&quot;</span>;</div>
-<div class="line"><a name="l01712"></a><span class="lineno"> 1712</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
-<div class="line"><a name="l01713"></a><span class="lineno"> 1713</span>&#160;    convert &lt;&lt; i;</div>
-<div class="line"><a name="l01714"></a><span class="lineno"> 1714</span>&#160;    text += convert.str();</div>
-<div class="line"><a name="l01715"></a><span class="lineno"> 1715</span>&#160;    viewer-&gt;addText3D&lt;pcl::PointXYZ&gt;(text,p,10,1,0,0);</div>
-<div class="line"><a name="l01716"></a><span class="lineno"> 1716</span>&#160;  }</div>
-<div class="line"><a name="l01717"></a><span class="lineno"> 1717</span>&#160;}</div>
-<div class="line"><a name="l01718"></a><span class="lineno"> 1718</span>&#160;</div>
-<div class="line"><a name="l01719"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a3e322ec0f718a7bc830adae9265c98aa"> 1719</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a3e322ec0f718a7bc830adae9265c98aa">CTableClearingPlanning::viewerAddObjectsTransfomed</a>(Visualizer viewer)</div>
-<div class="line"><a name="l01720"></a><span class="lineno"> 1720</span>&#160;{</div>
-<div class="line"><a name="l01721"></a><span class="lineno"> 1721</span>&#160;  uint i = 1;</div>
-<div class="line"><a name="l01722"></a><span class="lineno"> 1722</span>&#160;  PrincipalDirections* pd = &amp;(this-&gt;principal_directions_objects[i]);</div>
-<div class="line"><a name="l01723"></a><span class="lineno"> 1723</span>&#160;  <span class="comment">// we have to compute the transformation</span></div>
-<div class="line"><a name="l01724"></a><span class="lineno"> 1724</span>&#160;  Eigen::Matrix4f transform;</div>
-<div class="line"><a name="l01725"></a><span class="lineno"> 1725</span>&#160;  transform(0,0) = pd-&gt;dir1[0]; transform(0,1) = pd-&gt;dir1[1]; transform(0,2) = pd-&gt;dir1[2];</div>
-<div class="line"><a name="l01726"></a><span class="lineno"> 1726</span>&#160;  transform(1,0) = pd-&gt;dir3[0]; transform(1,1) = pd-&gt;dir3[1]; transform(1,2) = pd-&gt;dir3[2];</div>
-<div class="line"><a name="l01727"></a><span class="lineno"> 1727</span>&#160;  transform(2,0) = this-&gt;plane_normal[0]; transform(2,1) = this-&gt;plane_normal[1]; transform(2,2) = this-&gt;plane_normal[2];</div>
-<div class="line"><a name="l01728"></a><span class="lineno"> 1728</span>&#160;</div>
-<div class="line"><a name="l01729"></a><span class="lineno"> 1729</span>&#160;  <span class="comment">//translation</span></div>
-<div class="line"><a name="l01730"></a><span class="lineno"> 1730</span>&#160;  transform(0,3) = - pd-&gt;centroid[0]; </div>
-<div class="line"><a name="l01731"></a><span class="lineno"> 1731</span>&#160;  transform(1,3) = - pd-&gt;centroid[1];</div>
-<div class="line"><a name="l01732"></a><span class="lineno"> 1732</span>&#160;  transform(2,3) = - pd-&gt;centroid[2];</div>
-<div class="line"><a name="l01733"></a><span class="lineno"> 1733</span>&#160;</div>
-<div class="line"><a name="l01734"></a><span class="lineno"> 1734</span>&#160;  transform(3,0) = 0;transform(3,1) = 0;transform(3,2) = 0;transform(3,3) = 1;</div>
-<div class="line"><a name="l01735"></a><span class="lineno"> 1735</span>&#160;</div>
-<div class="line"><a name="l01736"></a><span class="lineno"> 1736</span>&#160;  PointCloudT tmp_cloud;</div>
-<div class="line"><a name="l01737"></a><span class="lineno"> 1737</span>&#160;  pcl::transformPointCloud&lt;PointT&gt;(this-&gt;objects[i], tmp_cloud, transform);</div>
+<div class="line"><a name="l01693"></a><span class="lineno"> 1693</span>&#160;  <span class="keywordtype">double</span> length = 100;</div>
+<div class="line"><a name="l01694"></a><span class="lineno"> 1694</span>&#160;</div>
+<div class="line"><a name="l01695"></a><span class="lineno"> 1695</span>&#160;  <span class="comment">//get normal vector of the plane</span></div>
+<div class="line"><a name="l01696"></a><span class="lineno"> 1696</span>&#160;  Eigen::Vector3f norm_plane;</div>
+<div class="line"><a name="l01697"></a><span class="lineno"> 1697</span>&#160;  <span class="keywordflow">if</span>(! this-&gt;plane_coefficients.values.size() &gt; 0)</div>
+<div class="line"><a name="l01698"></a><span class="lineno"> 1698</span>&#160;  {</div>
+<div class="line"><a name="l01699"></a><span class="lineno"> 1699</span>&#160;    std::cout &lt;&lt; <span class="stringliteral">&quot;Plane model coefficients not set - Exiting from computePrincipalDirections()&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l01700"></a><span class="lineno"> 1700</span>&#160;    <span class="keywordflow">return</span>; </div>
+<div class="line"><a name="l01701"></a><span class="lineno"> 1701</span>&#160;  }</div>
+<div class="line"><a name="l01702"></a><span class="lineno"> 1702</span>&#160;  norm_plane[0] = this-&gt;plane_coefficients.values[0];</div>
+<div class="line"><a name="l01703"></a><span class="lineno"> 1703</span>&#160;  norm_plane[1] = this-&gt;plane_coefficients.values[1];</div>
+<div class="line"><a name="l01704"></a><span class="lineno"> 1704</span>&#160;  norm_plane[2] = this-&gt;plane_coefficients.values[2];</div>
+<div class="line"><a name="l01705"></a><span class="lineno"> 1705</span>&#160;  norm_plane.normalize();</div>
+<div class="line"><a name="l01706"></a><span class="lineno"> 1706</span>&#160;  </div>
+<div class="line"><a name="l01707"></a><span class="lineno"> 1707</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt;   this-&gt;principal_directions_objects.size(); ++i)</div>
+<div class="line"><a name="l01708"></a><span class="lineno"> 1708</span>&#160;  {</div>
+<div class="line"><a name="l01709"></a><span class="lineno"> 1709</span>&#160;    PointT pd_1,pd_2;</div>
+<div class="line"><a name="l01710"></a><span class="lineno"> 1710</span>&#160;    pd_1.x = this-&gt;principal_directions_objects[i].centroid[0] + norm_plane[0]*length;</div>
+<div class="line"><a name="l01711"></a><span class="lineno"> 1711</span>&#160;    pd_1.y = this-&gt;principal_directions_objects[i].centroid[1] + norm_plane[1]*length;</div>
+<div class="line"><a name="l01712"></a><span class="lineno"> 1712</span>&#160;    pd_1.z = this-&gt;principal_directions_objects[i].centroid[2] + norm_plane[2]*length;</div>
+<div class="line"><a name="l01713"></a><span class="lineno"> 1713</span>&#160;</div>
+<div class="line"><a name="l01714"></a><span class="lineno"> 1714</span>&#160;    pd_2.x = this-&gt;principal_directions_objects[i].centroid[0] - norm_plane[0]*length;</div>
+<div class="line"><a name="l01715"></a><span class="lineno"> 1715</span>&#160;    pd_2.y = this-&gt;principal_directions_objects[i].centroid[1] - norm_plane[1]*length;</div>
+<div class="line"><a name="l01716"></a><span class="lineno"> 1716</span>&#160;    pd_2.z = this-&gt;principal_directions_objects[i].centroid[2] - norm_plane[2]*length;</div>
+<div class="line"><a name="l01717"></a><span class="lineno"> 1717</span>&#160;</div>
+<div class="line"><a name="l01718"></a><span class="lineno"> 1718</span>&#160;    std::string line_name = <span class="stringliteral">&quot;plane_normal&quot;</span>;</div>
+<div class="line"><a name="l01719"></a><span class="lineno"> 1719</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
+<div class="line"><a name="l01720"></a><span class="lineno"> 1720</span>&#160;    convert &lt;&lt; i;</div>
+<div class="line"><a name="l01721"></a><span class="lineno"> 1721</span>&#160;    line_name += convert.str();</div>
+<div class="line"><a name="l01722"></a><span class="lineno"> 1722</span>&#160;</div>
+<div class="line"><a name="l01723"></a><span class="lineno"> 1723</span>&#160;    viewer-&gt;addLine&lt;PointT&gt;(pd_1,pd_2,line_name);</div>
+<div class="line"><a name="l01724"></a><span class="lineno"> 1724</span>&#160;  }</div>
+<div class="line"><a name="l01725"></a><span class="lineno"> 1725</span>&#160;}</div>
+<div class="line"><a name="l01726"></a><span class="lineno"> 1726</span>&#160;</div>
+<div class="line"><a name="l01727"></a><span class="lineno"> 1727</span>&#160;<span class="keywordtype">void</span> CTableClearingPlanning::viewerAddObjectsClouds(Visualizer viewer)</div>
+<div class="line"><a name="l01728"></a><span class="lineno"> 1728</span>&#160;{</div>
+<div class="line"><a name="l01729"></a><span class="lineno"> 1729</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt; this-&gt;objects.size(); ++i)</div>
+<div class="line"><a name="l01730"></a><span class="lineno"> 1730</span>&#160;  { </div>
+<div class="line"><a name="l01731"></a><span class="lineno"> 1731</span>&#160;    std::string cloud_name = <span class="stringliteral">&quot;object&quot;</span>;</div>
+<div class="line"><a name="l01732"></a><span class="lineno"> 1732</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
+<div class="line"><a name="l01733"></a><span class="lineno"> 1733</span>&#160;    convert &lt;&lt; i;</div>
+<div class="line"><a name="l01734"></a><span class="lineno"> 1734</span>&#160;    cloud_name += convert.str();</div>
+<div class="line"><a name="l01735"></a><span class="lineno"> 1735</span>&#160;    viewer-&gt;addPointCloud(this-&gt;objects[i].makeShared(),cloud_name);</div>
+<div class="line"><a name="l01736"></a><span class="lineno"> 1736</span>&#160;  }</div>
+<div class="line"><a name="l01737"></a><span class="lineno"> 1737</span>&#160;}</div>
 <div class="line"><a name="l01738"></a><span class="lineno"> 1738</span>&#160;</div>
-<div class="line"><a name="l01739"></a><span class="lineno"> 1739</span>&#160;  PointT min_pt,max_pt;</div>
-<div class="line"><a name="l01740"></a><span class="lineno"> 1740</span>&#160;  pcl::getMinMax3D(tmp_cloud,min_pt,max_pt);</div>
-<div class="line"><a name="l01741"></a><span class="lineno"> 1741</span>&#160;</div>
-<div class="line"><a name="l01742"></a><span class="lineno"> 1742</span>&#160;  viewer-&gt;addPointCloud(tmp_cloud.makeShared(),<span class="stringliteral">&quot;transformed_cloud&quot;</span>);</div>
-<div class="line"><a name="l01743"></a><span class="lineno"> 1743</span>&#160;}</div>
-<div class="line"><a name="l01744"></a><span class="lineno"> 1744</span>&#160;</div>
-<div class="line"><a name="l01745"></a><span class="lineno"> 1745</span>&#160;uint CTableClearingPlanning::getNumObjects()</div>
-<div class="line"><a name="l01746"></a><span class="lineno"> 1746</span>&#160;{</div>
-<div class="line"><a name="l01747"></a><span class="lineno"> 1747</span>&#160;  <span class="keywordflow">return</span> this-&gt;n_objects;</div>
-<div class="line"><a name="l01748"></a><span class="lineno"> 1748</span>&#160;}</div>
-<div class="line"><a name="l01749"></a><span class="lineno"> 1749</span>&#160;</div>
-<div class="line"><a name="l01750"></a><span class="lineno"> 1750</span>&#160;std::vector&lt;ObjectFull&gt; </div>
-<div class="line"><a name="l01751"></a><span class="lineno"> 1751</span>&#160;CTableClearingPlanning::getFullObjects()</div>
-<div class="line"><a name="l01752"></a><span class="lineno"> 1752</span>&#160;{</div>
-<div class="line"><a name="l01753"></a><span class="lineno"> 1753</span>&#160;  <span class="keywordflow">return</span> this-&gt;objects_full;</div>
-<div class="line"><a name="l01754"></a><span class="lineno"> 1754</span>&#160;}</div>
-<div class="line"><a name="l01755"></a><span class="lineno"> 1755</span>&#160;</div>
-<div class="line"><a name="l01756"></a><span class="lineno"> 1756</span>&#160;std::vector&lt;AABB&gt; CTableClearingPlanning::getAABBObjects()</div>
-<div class="line"><a name="l01757"></a><span class="lineno"> 1757</span>&#160;{</div>
-<div class="line"><a name="l01758"></a><span class="lineno"> 1758</span>&#160;  <span class="keywordflow">return</span> this-&gt;aabb_objects;</div>
-<div class="line"><a name="l01759"></a><span class="lineno"> 1759</span>&#160;</div>
+<div class="line"><a name="l01739"></a><span class="lineno"> 1739</span>&#160;<span class="keywordtype">void</span> CTableClearingPlanning::viewerAddRichObjectsClouds(Visualizer viewer)</div>
+<div class="line"><a name="l01740"></a><span class="lineno"> 1740</span>&#160;{</div>
+<div class="line"><a name="l01741"></a><span class="lineno"> 1741</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt; this-&gt;rich_objects.size(); ++i)</div>
+<div class="line"><a name="l01742"></a><span class="lineno"> 1742</span>&#160;  { </div>
+<div class="line"><a name="l01743"></a><span class="lineno"> 1743</span>&#160;    std::string cloud_name = <span class="stringliteral">&quot;object&quot;</span>;</div>
+<div class="line"><a name="l01744"></a><span class="lineno"> 1744</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
+<div class="line"><a name="l01745"></a><span class="lineno"> 1745</span>&#160;    convert &lt;&lt; i;</div>
+<div class="line"><a name="l01746"></a><span class="lineno"> 1746</span>&#160;    cloud_name += convert.str();</div>
+<div class="line"><a name="l01747"></a><span class="lineno"> 1747</span>&#160;    viewer-&gt;addPointCloud(this-&gt;rich_objects[i].makeShared(),cloud_name);</div>
+<div class="line"><a name="l01748"></a><span class="lineno"> 1748</span>&#160;  }</div>
+<div class="line"><a name="l01749"></a><span class="lineno"> 1749</span>&#160;}</div>
+<div class="line"><a name="l01750"></a><span class="lineno"> 1750</span>&#160;<span class="keywordtype">void</span> CTableClearingPlanning::viewerAddFullObjectsClouds(Visualizer viewer)</div>
+<div class="line"><a name="l01751"></a><span class="lineno"> 1751</span>&#160;{</div>
+<div class="line"><a name="l01752"></a><span class="lineno"> 1752</span>&#160;    <span class="keywordflow">for</span> (uint i = 0; i &lt; this-&gt;objects_full.size(); ++i)</div>
+<div class="line"><a name="l01753"></a><span class="lineno"> 1753</span>&#160;  { </div>
+<div class="line"><a name="l01754"></a><span class="lineno"> 1754</span>&#160;    std::string cloud_name = <span class="stringliteral">&quot;object_full&quot;</span>;</div>
+<div class="line"><a name="l01755"></a><span class="lineno"> 1755</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
+<div class="line"><a name="l01756"></a><span class="lineno"> 1756</span>&#160;    convert &lt;&lt; i;</div>
+<div class="line"><a name="l01757"></a><span class="lineno"> 1757</span>&#160;    cloud_name += convert.str();</div>
+<div class="line"><a name="l01758"></a><span class="lineno"> 1758</span>&#160;    viewer-&gt;addPointCloud(this-&gt;objects_full[i].cloud.makeShared(),cloud_name);</div>
+<div class="line"><a name="l01759"></a><span class="lineno"> 1759</span>&#160;  }</div>
 <div class="line"><a name="l01760"></a><span class="lineno"> 1760</span>&#160;}</div>
+<div class="line"><a name="l01761"></a><span class="lineno"> 1761</span>&#160;</div>
+<div class="line"><a name="l01762"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a00bfbb4f6b61d5983026ed76e835421a"> 1762</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a00bfbb4f6b61d5983026ed76e835421a">CTableClearingPlanning::viewerAddObjectsLabel</a>(Visualizer viewer)</div>
+<div class="line"><a name="l01763"></a><span class="lineno"> 1763</span>&#160;{</div>
+<div class="line"><a name="l01764"></a><span class="lineno"> 1764</span>&#160;  <span class="keywordflow">for</span> (uint i = 0; i &lt; this-&gt;principal_directions_objects.size(); ++i)</div>
+<div class="line"><a name="l01765"></a><span class="lineno"> 1765</span>&#160;  {</div>
+<div class="line"><a name="l01766"></a><span class="lineno"> 1766</span>&#160;    pcl::PointXYZ p;</div>
+<div class="line"><a name="l01767"></a><span class="lineno"> 1767</span>&#160;    p.x = this-&gt;principal_directions_objects[i].centroid[0];</div>
+<div class="line"><a name="l01768"></a><span class="lineno"> 1768</span>&#160;    p.y = this-&gt;principal_directions_objects[i].centroid[1];</div>
+<div class="line"><a name="l01769"></a><span class="lineno"> 1769</span>&#160;    p.z = this-&gt;principal_directions_objects[i].centroid[2];</div>
+<div class="line"><a name="l01770"></a><span class="lineno"> 1770</span>&#160;    std::string text = <span class="stringliteral">&quot;o&quot;</span>;</div>
+<div class="line"><a name="l01771"></a><span class="lineno"> 1771</span>&#160;    std::ostringstream convert;   <span class="comment">// stream used for the conversion</span></div>
+<div class="line"><a name="l01772"></a><span class="lineno"> 1772</span>&#160;    convert &lt;&lt; i;</div>
+<div class="line"><a name="l01773"></a><span class="lineno"> 1773</span>&#160;    text += convert.str();</div>
+<div class="line"><a name="l01774"></a><span class="lineno"> 1774</span>&#160;    viewer-&gt;addText3D&lt;pcl::PointXYZ&gt;(text,p,10,1,0,0);</div>
+<div class="line"><a name="l01775"></a><span class="lineno"> 1775</span>&#160;  }</div>
+<div class="line"><a name="l01776"></a><span class="lineno"> 1776</span>&#160;}</div>
+<div class="line"><a name="l01777"></a><span class="lineno"> 1777</span>&#160;</div>
+<div class="line"><a name="l01778"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html#a3e322ec0f718a7bc830adae9265c98aa"> 1778</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a3e322ec0f718a7bc830adae9265c98aa">CTableClearingPlanning::viewerAddObjectsTransfomed</a>(Visualizer viewer)</div>
+<div class="line"><a name="l01779"></a><span class="lineno"> 1779</span>&#160;{</div>
+<div class="line"><a name="l01780"></a><span class="lineno"> 1780</span>&#160;  uint i = 1;</div>
+<div class="line"><a name="l01781"></a><span class="lineno"> 1781</span>&#160;  <a class="code" href="structPrincipalDirections.html">PrincipalDirections</a>* pd = &amp;(this-&gt;principal_directions_objects[i]);</div>
+<div class="line"><a name="l01782"></a><span class="lineno"> 1782</span>&#160;  <span class="comment">// we have to compute the transformation</span></div>
+<div class="line"><a name="l01783"></a><span class="lineno"> 1783</span>&#160;  Eigen::Matrix4f transform;</div>
+<div class="line"><a name="l01784"></a><span class="lineno"> 1784</span>&#160;  transform(0,0) = pd-&gt;dir1[0]; transform(0,1) = pd-&gt;dir1[1]; transform(0,2) = pd-&gt;dir1[2];</div>
+<div class="line"><a name="l01785"></a><span class="lineno"> 1785</span>&#160;  transform(1,0) = pd-&gt;dir3[0]; transform(1,1) = pd-&gt;dir3[1]; transform(1,2) = pd-&gt;dir3[2];</div>
+<div class="line"><a name="l01786"></a><span class="lineno"> 1786</span>&#160;  transform(2,0) = this-&gt;plane_normal[0]; transform(2,1) = this-&gt;plane_normal[1]; transform(2,2) = this-&gt;plane_normal[2];</div>
+<div class="line"><a name="l01787"></a><span class="lineno"> 1787</span>&#160;</div>
+<div class="line"><a name="l01788"></a><span class="lineno"> 1788</span>&#160;  <span class="comment">//translation</span></div>
+<div class="line"><a name="l01789"></a><span class="lineno"> 1789</span>&#160;  transform(0,3) = - pd-&gt;<a class="code" href="structPrincipalDirections.html#a764f4a0f89de8d7914352b5b08faf043">centroid</a>[0]; </div>
+<div class="line"><a name="l01790"></a><span class="lineno"> 1790</span>&#160;  transform(1,3) = - pd-&gt;<a class="code" href="structPrincipalDirections.html#a764f4a0f89de8d7914352b5b08faf043">centroid</a>[1];</div>
+<div class="line"><a name="l01791"></a><span class="lineno"> 1791</span>&#160;  transform(2,3) = - pd-&gt;<a class="code" href="structPrincipalDirections.html#a764f4a0f89de8d7914352b5b08faf043">centroid</a>[2];</div>
+<div class="line"><a name="l01792"></a><span class="lineno"> 1792</span>&#160;</div>
+<div class="line"><a name="l01793"></a><span class="lineno"> 1793</span>&#160;  transform(3,0) = 0;transform(3,1) = 0;transform(3,2) = 0;transform(3,3) = 1;</div>
+<div class="line"><a name="l01794"></a><span class="lineno"> 1794</span>&#160;</div>
+<div class="line"><a name="l01795"></a><span class="lineno"> 1795</span>&#160;  PointCloudT tmp_cloud;</div>
+<div class="line"><a name="l01796"></a><span class="lineno"> 1796</span>&#160;  pcl::transformPointCloud&lt;PointT&gt;(this-&gt;objects[i], tmp_cloud, transform);</div>
+<div class="line"><a name="l01797"></a><span class="lineno"> 1797</span>&#160;</div>
+<div class="line"><a name="l01798"></a><span class="lineno"> 1798</span>&#160;  PointT min_pt,max_pt;</div>
+<div class="line"><a name="l01799"></a><span class="lineno"> 1799</span>&#160;  pcl::getMinMax3D(tmp_cloud,min_pt,max_pt);</div>
+<div class="line"><a name="l01800"></a><span class="lineno"> 1800</span>&#160;</div>
+<div class="line"><a name="l01801"></a><span class="lineno"> 1801</span>&#160;  viewer-&gt;addPointCloud(tmp_cloud.makeShared(),<span class="stringliteral">&quot;transformed_cloud&quot;</span>);</div>
+<div class="line"><a name="l01802"></a><span class="lineno"> 1802</span>&#160;}</div>
+<div class="line"><a name="l01803"></a><span class="lineno"> 1803</span>&#160;</div>
+<div class="line"><a name="l01804"></a><span class="lineno"> 1804</span>&#160;uint CTableClearingPlanning::getNumObjects()</div>
+<div class="line"><a name="l01805"></a><span class="lineno"> 1805</span>&#160;{</div>
+<div class="line"><a name="l01806"></a><span class="lineno"> 1806</span>&#160;  <span class="keywordflow">return</span> this-&gt;n_objects;</div>
+<div class="line"><a name="l01807"></a><span class="lineno"> 1807</span>&#160;}</div>
+<div class="line"><a name="l01808"></a><span class="lineno"> 1808</span>&#160;</div>
+<div class="line"><a name="l01809"></a><span class="lineno"> 1809</span>&#160;std::vector&lt;ObjectFull&gt; </div>
+<div class="line"><a name="l01810"></a><span class="lineno"> 1810</span>&#160;CTableClearingPlanning::getFullObjects()</div>
+<div class="line"><a name="l01811"></a><span class="lineno"> 1811</span>&#160;{</div>
+<div class="line"><a name="l01812"></a><span class="lineno"> 1812</span>&#160;  <span class="keywordflow">return</span> this-&gt;objects_full;</div>
+<div class="line"><a name="l01813"></a><span class="lineno"> 1813</span>&#160;}</div>
+<div class="line"><a name="l01814"></a><span class="lineno"> 1814</span>&#160;</div>
+<div class="line"><a name="l01815"></a><span class="lineno"> 1815</span>&#160;std::vector&lt;AABB&gt; CTableClearingPlanning::getAABBObjects()</div>
+<div class="line"><a name="l01816"></a><span class="lineno"> 1816</span>&#160;{</div>
+<div class="line"><a name="l01817"></a><span class="lineno"> 1817</span>&#160;  <span class="keywordflow">return</span> this-&gt;aabb_objects;</div>
+<div class="line"><a name="l01818"></a><span class="lineno"> 1818</span>&#160;}</div>
+<div class="line"><a name="l01819"></a><span class="lineno"> 1819</span>&#160;std::vector&lt;BlocksPredicate&gt; CTableClearingPlanning::getBlockPredicates()</div>
+<div class="line"><a name="l01820"></a><span class="lineno"> 1820</span>&#160;{</div>
+<div class="line"><a name="l01821"></a><span class="lineno"> 1821</span>&#160;  <span class="keywordflow">return</span> this-&gt;blocks_predicates;</div>
+<div class="line"><a name="l01822"></a><span class="lineno"> 1822</span>&#160;}</div>
+<div class="line"><a name="l01823"></a><span class="lineno"> 1823</span>&#160;std::vector&lt;std::vector&lt;uint&gt; &gt; CTableClearingPlanning::getOnTopPrediates()</div>
+<div class="line"><a name="l01824"></a><span class="lineno"> 1824</span>&#160;{</div>
+<div class="line"><a name="l01825"></a><span class="lineno"> 1825</span>&#160;  <span class="keywordflow">return</span> this-&gt;on_top_predicates;</div>
+<div class="line"><a name="l01826"></a><span class="lineno"> 1826</span>&#160;}</div>
 <div class="ttc" id="utilities_8h_html_a5ba73899fe15846cc99820005d978e24"><div class="ttname"><a href="utilities_8h.html#a5ba73899fe15846cc99820005d978e24">tic</a></div><div class="ttdeci">void tic()</div><div class="ttdoc">Start measuring the time. </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8cpp_source.html#l00004">utilities.cpp:4</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a00bfbb4f6b61d5983026ed76e835421a"><div class="ttname"><a href="classCTableClearingPlanning.html#a00bfbb4f6b61d5983026ed76e835421a">CTableClearingPlanning::viewerAddObjectsLabel</a></div><div class="ttdeci">void viewerAddObjectsLabel(Visualizer viewer)</div><div class="ttdoc">Show the labels in the viewer as 3D text. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01703">table_clearing_planning.cpp:1703</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a42760538c751780255cc2072bad0ebe7"><div class="ttname"><a href="classCTableClearingPlanning.html#a42760538c751780255cc2072bad0ebe7">CTableClearingPlanning::cleanPrincipalDirections</a></div><div class="ttdeci">void cleanPrincipalDirections(Visualizer viewer, uint i)</div><div class="ttdoc">Remove from the the viewer associated to the class the principal directions of a specific object...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01577">table_clearing_planning.cpp:1577</a></div></div>
+<div class="ttc" id="structPrincipalDirections_html"><div class="ttname"><a href="structPrincipalDirections.html">PrincipalDirections</a></div><div class="ttdoc">structure to represent the first 2 pricipal directions as a 3D vector and the centroid of the object...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00057">table_clearing_planning.h:57</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a00bfbb4f6b61d5983026ed76e835421a"><div class="ttname"><a href="classCTableClearingPlanning.html#a00bfbb4f6b61d5983026ed76e835421a">CTableClearingPlanning::viewerAddObjectsLabel</a></div><div class="ttdeci">void viewerAddObjectsLabel(Visualizer viewer)</div><div class="ttdoc">Show the labels in the viewer as 3D text. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01762">table_clearing_planning.cpp:1762</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a75c00aa680729dd64ef1603699ce2032"><div class="ttname"><a href="classCTableClearingPlanning.html#a75c00aa680729dd64ef1603699ce2032">CTableClearingPlanning::voxelizeFullObjects</a></div><div class="ttdeci">void voxelizeFullObjects(double leaf_size=0.01f)</div><div class="ttdoc">Voxelize Full Objects. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01454">table_clearing_planning.cpp:1454</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a42760538c751780255cc2072bad0ebe7"><div class="ttname"><a href="classCTableClearingPlanning.html#a42760538c751780255cc2072bad0ebe7">CTableClearingPlanning::cleanPrincipalDirections</a></div><div class="ttdeci">void cleanPrincipalDirections(Visualizer viewer, uint i)</div><div class="ttdoc">Remove from the the viewer associated to the class the principal directions of a specific object...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01636">table_clearing_planning.cpp:1636</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_ad2c39de7c5402e20b6acf6aefe1107bd"><div class="ttname"><a href="classCTableClearingPlanning.html#ad2c39de7c5402e20b6acf6aefe1107bd">CTableClearingPlanning::computeBlockPredicates</a></div><div class="ttdeci">void computeBlockPredicates(bool print=false)</div><div class="ttdoc">Get block predicates. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00472">table_clearing_planning.cpp:472</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a137370fbab10207adede2ad0dd79d910"><div class="ttname"><a href="classCTableClearingPlanning.html#a137370fbab10207adede2ad0dd79d910">CTableClearingPlanning::setOriginalPointCloud</a></div><div class="ttdeci">void setOriginalPointCloud(PointCloudT original_cloud)</div><div class="ttdoc">Set the original point cloud, the one used for the segmentation. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00023">table_clearing_planning.cpp:23</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a255fac249cb27a932582509731da5fcb"><div class="ttname"><a href="classCTableClearingPlanning.html#a255fac249cb27a932582509731da5fcb">CTableClearingPlanning::computeProjectionsOnTable</a></div><div class="ttdeci">void computeProjectionsOnTable()</div><div class="ttdoc">Compute the projections of the objects onto the table plane. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00384">table_clearing_planning.cpp:384</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a1c8dd4cc392f0e3f59d962747577e898"><div class="ttname"><a href="classCTableClearingPlanning.html#a1c8dd4cc392f0e3f59d962747577e898">CTableClearingPlanning::visualComputeBlockPredicates</a></div><div class="ttdeci">void visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx, bool visualization=true, bool print=true)</div><div class="ttdoc">Compute the block predicates. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00760">table_clearing_planning.cpp:760</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a0fc6086e9bc90fe598bdeaa4345f9b46"><div class="ttname"><a href="classCTableClearingPlanning.html#a0fc6086e9bc90fe598bdeaa4345f9b46">CTableClearingPlanning::viewerAddConvexHulls</a></div><div class="ttdeci">void viewerAddConvexHulls(Visualizer viewer, uint idx)</div><div class="ttdoc">Show the convex hulls. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01187">table_clearing_planning.cpp:1187</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a29c77f988fa4dd19a4b22f6d0011cc17"><div class="ttname"><a href="classCTableClearingPlanning.html#a29c77f988fa4dd19a4b22f6d0011cc17">CTableClearingPlanning::computePrincipalDirections</a></div><div class="ttdeci">void computePrincipalDirections()</div><div class="ttdoc">compute the principal directions of the objects. This is better because the others that use the hulls...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01373">table_clearing_planning.cpp:1373</a></div></div>
+<div class="ttc" id="structPrincipalDirections_html_a764f4a0f89de8d7914352b5b08faf043"><div class="ttname"><a href="structPrincipalDirections.html#a764f4a0f89de8d7914352b5b08faf043">PrincipalDirections::centroid</a></div><div class="ttdeci">Eigen::Vector4f centroid</div><div class="ttdoc">centroid of the object </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00059">table_clearing_planning.h:59</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a8ea62df3e2073805823f5ed0eb149435"><div class="ttname"><a href="classCTableClearingPlanning.html#a8ea62df3e2073805823f5ed0eb149435">CTableClearingPlanning::voxelizeObjects</a></div><div class="ttdeci">void voxelizeObjects(double leaf_size=0.01f)</div><div class="ttdoc">Voxelize objects. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01442">table_clearing_planning.cpp:1442</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a29c77f988fa4dd19a4b22f6d0011cc17"><div class="ttname"><a href="classCTableClearingPlanning.html#a29c77f988fa4dd19a4b22f6d0011cc17">CTableClearingPlanning::computePrincipalDirections</a></div><div class="ttdeci">void computePrincipalDirections()</div><div class="ttdoc">compute the principal directions of the objects. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01373">table_clearing_planning.cpp:1373</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a962b92d4cb88368392ff984672d56617"><div class="ttname"><a href="classCTableClearingPlanning.html#a962b92d4cb88368392ff984672d56617">CTableClearingPlanning::computeConcaveHulls</a></div><div class="ttdeci">void computeConcaveHulls()</div><div class="ttdoc">Compute the concave hull of each object. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00372">table_clearing_planning.cpp:372</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a3e322ec0f718a7bc830adae9265c98aa"><div class="ttname"><a href="classCTableClearingPlanning.html#a3e322ec0f718a7bc830adae9265c98aa">CTableClearingPlanning::viewerAddObjectsTransfomed</a></div><div class="ttdeci">void viewerAddObjectsTransfomed(Visualizer viewer)</div><div class="ttdoc">Show in the viewer associated to the class a transformed object. ONLY FOR DEBUGGING PURPOSE - USELESS...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01719">table_clearing_planning.cpp:1719</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a3e322ec0f718a7bc830adae9265c98aa"><div class="ttname"><a href="classCTableClearingPlanning.html#a3e322ec0f718a7bc830adae9265c98aa">CTableClearingPlanning::viewerAddObjectsTransfomed</a></div><div class="ttdeci">void viewerAddObjectsTransfomed(Visualizer viewer)</div><div class="ttdoc">Show in the viewer associated to the class a transformed object. ONLY FOR DEBUGGING PURPOSE - USELESS...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01778">table_clearing_planning.cpp:1778</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a09319e4c77b7fe4386a8743c6f5f21af"><div class="ttname"><a href="classCTableClearingPlanning.html#a09319e4c77b7fe4386a8743c6f5f21af">CTableClearingPlanning::computeRichConvexHulls</a></div><div class="ttdeci">void computeRichConvexHulls()</div><div class="ttdoc">Compute the convex hull of each object considering also the projections of the convex hulls on the pl...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01203">table_clearing_planning.cpp:1203</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a5ff3b414b34ead8871bd9faf9c3db02f"><div class="ttname"><a href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f">CTableClearingPlanning::setPlaneCoefficients</a></div><div class="ttdeci">void setPlaneCoefficients(pcl::ModelCoefficients &amp;plane_coefficients)</div><div class="ttdoc">Set the coefficients of the table plane. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01467">table_clearing_planning.cpp:1467</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a5ff3b414b34ead8871bd9faf9c3db02f"><div class="ttname"><a href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f">CTableClearingPlanning::setPlaneCoefficients</a></div><div class="ttdeci">void setPlaneCoefficients(pcl::ModelCoefficients &amp;plane_coefficients)</div><div class="ttdoc">Set the coefficients of the table plane. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01526">table_clearing_planning.cpp:1526</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a25c74f67135de366fb7681746d6c7cc9"><div class="ttname"><a href="classCTableClearingPlanning.html#a25c74f67135de366fb7681746d6c7cc9">CTableClearingPlanning::viewerAddConcaveHulls</a></div><div class="ttdeci">void viewerAddConcaveHulls(Visualizer viewer, uint idx)</div><div class="ttdoc">Show the concave hulls. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01195">table_clearing_planning.cpp:1195</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a248d2f5aa18cabf1d172b2303dacebe3"><div class="ttname"><a href="classCTableClearingPlanning.html#a248d2f5aa18cabf1d172b2303dacebe3">CTableClearingPlanning::computeRichConcaveHulls</a></div><div class="ttdeci">void computeRichConcaveHulls()</div><div class="ttdoc">Compute the concave hull of each object considering also the projections of the convex hulls on the p...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01233">table_clearing_planning.cpp:1233</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a20a14456db5d4e68e8e94ca1fae65c19"><div class="ttname"><a href="classCTableClearingPlanning.html#a20a14456db5d4e68e8e94ca1fae65c19">CTableClearingPlanning::setPushingLimit</a></div><div class="ttdeci">void setPushingLimit(double pushing_limit)</div><div class="ttdoc">Set the pushing limit. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00467">table_clearing_planning.cpp:467</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a8ec3fdc39866b18caa9d7b83c2486e76"><div class="ttname"><a href="classCTableClearingPlanning.html#a8ec3fdc39866b18caa9d7b83c2486e76">CTableClearingPlanning::setGripperSimpleModel</a></div><div class="ttdeci">void setGripperSimpleModel(double height, double deep, double width, double distance_plane)</div><div class="ttdoc">Set the gripper model. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00316">table_clearing_planning.cpp:316</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a2cd87120cf1abe06b96c0611cde50edf"><div class="ttname"><a href="classCTableClearingPlanning.html#a2cd87120cf1abe06b96c0611cde50edf">CTableClearingPlanning::setObjectsPointCloud</a></div><div class="ttdeci">void setObjectsPointCloud(std::vector&lt; PointCloudT &gt; &amp;objects)</div><div class="ttdoc">set point clouds of the objects, reference to project the principal direction to the plane: http://ww...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01461">table_clearing_planning.cpp:1461</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a2cd87120cf1abe06b96c0611cde50edf"><div class="ttname"><a href="classCTableClearingPlanning.html#a2cd87120cf1abe06b96c0611cde50edf">CTableClearingPlanning::setObjectsPointCloud</a></div><div class="ttdeci">void setObjectsPointCloud(std::vector&lt; PointCloudT &gt; &amp;objects)</div><div class="ttdoc">set point clouds of the objects, reference to project the principal direction to the plane: http://ww...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01520">table_clearing_planning.cpp:1520</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_ad945cae3b79e0fbacae1c5fbb4670bbe"><div class="ttname"><a href="classCTableClearingPlanning.html#ad945cae3b79e0fbacae1c5fbb4670bbe">CTableClearingPlanning::computeConvexHulls</a></div><div class="ttdeci">void computeConvexHulls()</div><div class="ttdoc">Compute the convex hull of each object. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00348">table_clearing_planning.cpp:348</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a5e10f775eede6274ce3a4e25adfa0057"><div class="ttname"><a href="classCTableClearingPlanning.html#a5e10f775eede6274ce3a4e25adfa0057">CTableClearingPlanning::computeProjectionsConvexHull</a></div><div class="ttdeci">void computeProjectionsConvexHull()</div><div class="ttdoc">Compute the convex hulls of the projections onto the table plane. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00406">table_clearing_planning.cpp:406</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a36ae5ea802dcd7198f17ba7c5898715b"><div class="ttname"><a href="classCTableClearingPlanning.html#a36ae5ea802dcd7198f17ba7c5898715b">CTableClearingPlanning::cleanPolygonalMesh</a></div><div class="ttdeci">void cleanPolygonalMesh(Visualizer viewer)</div><div class="ttdoc">Remove the viewer associated to the class all the polygonal mesh. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01616">table_clearing_planning.cpp:1616</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a5a89a7c5aed9db43af745d5f341c5367"><div class="ttname"><a href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">CTableClearingPlanning::viewerAddPrincipalDirections</a></div><div class="ttdeci">void viewerAddPrincipalDirections(Visualizer viewer, uint i)</div><div class="ttdoc">Shows the projections of the principal directions of a specific object. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01494">table_clearing_planning.cpp:1494</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a36ae5ea802dcd7198f17ba7c5898715b"><div class="ttname"><a href="classCTableClearingPlanning.html#a36ae5ea802dcd7198f17ba7c5898715b">CTableClearingPlanning::cleanPolygonalMesh</a></div><div class="ttdeci">void cleanPolygonalMesh(Visualizer viewer)</div><div class="ttdoc">Remove the viewer associated to the class all the polygonal mesh. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01675">table_clearing_planning.cpp:1675</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a5a89a7c5aed9db43af745d5f341c5367"><div class="ttname"><a href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">CTableClearingPlanning::viewerAddPrincipalDirections</a></div><div class="ttdeci">void viewerAddPrincipalDirections(Visualizer viewer, uint i)</div><div class="ttdoc">Shows the projections of the principal directions of a specific object. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01553">table_clearing_planning.cpp:1553</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a3f763527a90f01e72c048a6a13f7d579"><div class="ttname"><a href="classCTableClearingPlanning.html#a3f763527a90f01e72c048a6a13f7d579">CTableClearingPlanning::computePrincipalDirectionsConvexHull</a></div><div class="ttdeci">void computePrincipalDirectionsConvexHull()</div><div class="ttdoc">compute the principal directions of the objects using the point cloud of the convex hull...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01259">table_clearing_planning.cpp:1259</a></div></div>
+<div class="ttc" id="structPrincipalDirections_html_aeb0328c9c16c3504e3118b6b76823b89"><div class="ttname"><a href="structPrincipalDirections.html#aeb0328c9c16c3504e3118b6b76823b89">PrincipalDirections::dir4</a></div><div class="ttdeci">Eigen::Vector3f dir4</div><div class="ttdoc">direction of the principal direction (dir1 &amp; dir2) and the orthogonal (dir3 &amp; dir4) ...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00058">table_clearing_planning.h:58</a></div></div>
 <div class="ttc" id="utilities_8h_html_a3f604b0d492a343dd2c72ca7469b3cf7"><div class="ttname"><a href="utilities_8h.html#a3f604b0d492a343dd2c72ca7469b3cf7">toc</a></div><div class="ttdeci">void toc()</div><div class="ttdoc">Stop measuring the time and print the elapsed time. </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8cpp_source.html#l00007">utilities.cpp:7</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_ad235fde9e142bc1b99081f993014599b"><div class="ttname"><a href="classCTableClearingPlanning.html#ad235fde9e142bc1b99081f993014599b">CTableClearingPlanning::computeAABBObjects</a></div><div class="ttdeci">void computeAABBObjects(bool refine_centroids=true)</div><div class="ttdoc">Compute the Axis Aligned Bounding Box of each object. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00265">table_clearing_planning.cpp:265</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a6c7657ced77aabb0fc9daea514b9a857"><div class="ttname"><a href="classCTableClearingPlanning.html#a6c7657ced77aabb0fc9daea514b9a857">CTableClearingPlanning::computeOnTopPredicates</a></div><div class="ttdeci">void computeOnTopPredicates()</div><div class="ttdoc">Compute the on predicates. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00422">table_clearing_planning.cpp:422</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 7 2016 18:13:57 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Apr 11 2016 12:19:51 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

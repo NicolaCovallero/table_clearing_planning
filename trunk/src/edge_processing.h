@@ -178,7 +178,10 @@ class EdgeProcessing
 	void compute2DEdges();
 
 
+
 	std::vector<PointCloudT> getObjectsOccludedSides(); 
+
+	std::vector<Edges2D> getObjectsEdges2DIndices();
 
 	/**
 	 * @brief Initialize the viewer

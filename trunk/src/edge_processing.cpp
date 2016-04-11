@@ -378,6 +378,11 @@ EdgeProcessing::getObjectsOccludedSides()
 	return this->occluded_sides;
 }
 
+std::vector<std::vector<uint> > EdgeProcessing::getObjectsEdges2DIndices()
+{
+	return this->objects_edges_2d;
+}
+
 void EdgeProcessing::viewerInit(boost::shared_ptr<pcl::visualization::PCLVisualizer>& viewer)
 {	
 	this->viewer = viewer;

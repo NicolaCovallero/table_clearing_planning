@@ -261,10 +261,10 @@ class CTableClearingPlanning
    * @brief Get the centroid of the grasping pose as the surface point of the object which projection on the table plane is similar to the centroid.
    * @details Get the centroid of the grasping pose as the surface point of the object which projection on the table plane is similar to the centroid.
    * 
-   * @param centroid [description]
-   * @param idx [description]
+   * @param[out] surface_point surface point
+   * @param[in] idx Index of the object
    */
-  void computeSurfaceGraspPoint(Eigen::Vector3f& centroid, uint idx);
+  void computeSurfaceGraspPoint(Eigen::Vector3f& surface_point, uint idx);
 
   public:
 
@@ -342,6 +342,8 @@ class CTableClearingPlanning
      * @brief Compute the grasping pose with a simple heuristic.
      * @details Compute the grasping pose with a simple heuristic. 
      * Gripper centered at the centroid with rotation aligned to the principal axes.
+     * The contact point is choosen to be the nearest point which projection on the table plane is 
+     * the enarest on the projection of the centroid.
      * 
      * @param vertical_poses If it is set to true consider only vertical poses, with respect the table.
      */

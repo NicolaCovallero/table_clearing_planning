@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
   //----------- VISUALIZATIONS ----------------------
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
   tcp.setFingersModel(0.08,0.02,0.03,0.08,0.06);
-  tcp.computeSimpleHeuristicGraspingPoses();
+  tcp.computeSimpleHeuristicGraspingPoses(true);
   tcp.viewerAddGraspingPoses(viewer);
    viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
   viewer->setBackgroundColor (0, 0, 0);

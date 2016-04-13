@@ -562,34 +562,28 @@ void CTableClearingPlanning::testTranslation(uint idx)
   this->translate(this->convex_hull_objects[idx],this->convex_hull_objects[idx],translation);
 }
 
-void CTableClearingPlanning::computeSurfaceGraspPoint(Eigen::Vector3f& centroid, uint idx)
+void CTableClearingPlanning::computeSurfaceGraspPoint(Eigen::Vector3f& surface_point, uint idx)
 {
   //we project the centroid on the plane
   Eigen::Vector3f centroid_projected;
-  pcl::geometry::project(this->principal_directions_objects[idx].centroid,this->plane_origin,this->plane_normal,centroid_projected);
+  pcl::geometry::project(this->principal_directions_objects[idx].centroid.head<3>(),this->plane_origin,this->plane_normal,centroid_projected);
 
   pcl::KdTreeFLANN<PointT> kdtree;
   kdtree.setInputCloud (this->projections[idx].makeShared());
   uint K = 1;
 
-  //PointT searchPoint = vector3f2pointT<PointT>(centroid_projected);
-  PointT searchPoint;
-  searchPoint.x = centroid_projected[0];
-  searchPoint.y = centroid_projected[1];
-  searchPoint.z = centroid_projected[2];
-  // K nearest neighbor search
-
-//   std::vector<int> pointIdxNKNSearch(K);
-//   std::vector<float> pointNKNSquaredDistance(K);
-//   if ( kdtree.nearestKSearch (searchPoint, K, pointIdxNKNSearch, pointNKNSquaredDistance) > 0 )
-//   {
-//     //centroid = pointT2vector3f<PointT>(this->objects[idx].points[pointIdxNKNSearch[0]]);
-//     centroid = this->pointT2vector3f(this->objects[idx].points[pointIdxNKNSearch[0]]);
-//   }
-//   else
-//   {
-//     PCL_ERROR("Impossible finding a new centroid");
-//   }
+  PointT searchPoint = conv::vector3f2pointT<PointT>(centroid_projected);
+  std::vector<int> pointIdxNKNSearch(K);
+  std::vector<float> pointNKNSquaredDistance(K);
+  if ( kdtree.nearestKSearch (searchPoint, K, pointIdxNKNSearch, pointNKNSquaredDistance) > 0 )
+  {
+    surface_point = conv::pointT2vector3f<PointT>(this->objects[idx].points[pointIdxNKNSearch[0]]);
+    //surface_point = this->pointT2vector3f(this->objects[idx].points[pointIdxNKNSearch[0]]);
+  }
+  else
+  {
+    PCL_ERROR("Impossible finding a surface contact");
+  }
 }
 
 void CTableClearingPlanning::computeConcaveHulls()
@@ -1773,6 +1767,12 @@ void CTableClearingPlanning::setPlaneCoefficients(pcl::ModelCoefficients &plane_
   this->plane_normal[1] = this->plane_coefficients.values[1];
   this->plane_normal[2] = this->plane_coefficients.values[2];
   this->plane_normal.normalize();
+
+  // CHECK ON THE ORIENTATION OF THE PLANE
+  //we want the plane normal to be poiting down
+  Eigen::Vector3f z_ax(0,0,1);
+  if(this->plane_normal.dot(z_ax) < 0)
+    this->plane_normal = - this->plane_normal;
 
   //the normal has to be looking for the Kinect, so 
     // Eigen::Vector3f kinect_pow(0,0,1);

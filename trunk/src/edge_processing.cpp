@@ -1,5 +1,7 @@
 #include "edge_processing.h"
 
+using namespace conv;
+
 EdgeProcessing::EdgeProcessing()
 //: viewer(new pcl::visualization::PCLVisualizer ("3D Viewer")) //initialize the boost::shared_ptr viewer
 {

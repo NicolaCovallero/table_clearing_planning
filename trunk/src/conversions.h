@@ -3,6 +3,9 @@
 
 #include <pcl/common/eigen.h>
 
+namespace conv
+{
+
 template <typename PointT>
 Eigen::Vector3f  pointT2vector3f(PointT point)
 {
@@ -30,4 +33,6 @@ PointT vector3f2pointT(Eigen::Vector3f vec)
   return point;
 }
 
+
+}
 #endif

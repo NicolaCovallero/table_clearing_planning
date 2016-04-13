@@ -54,12 +54,18 @@ struct ObjectFull
 * @brief     structure to represent the first 2 pricipal directions as a 3D vector and the centroid of 
 *       the object. The principal directions are projected on the plane.
 */
-struct PrincipalDirections{
+struct PrincipalDirectionsProjected{
   Eigen::Vector3f dir1,dir2,dir3,dir4; ///< direction of the principal direction (dir1 & dir2) and the orthogonal (dir3 & dir4)
   Eigen::Vector4f centroid; ///< centroid of the object
 
   double dir1_limit;
   double dir3_limit;
+};
+
+struct OriginalPrincipalDirections
+{
+  Eigen::Vector3f p1,p2,p3;
+  Eigen::Vector4f centroid;
 };
 
 /**
@@ -81,7 +87,10 @@ std::vector<uint> block_dir1,
 //   /* code */
 // }
 
-
+struct GraspingPose{
+  Eigen::Matrix3f rotation;
+  Eigen::Vector3f translation;
+};
 
 
 // check this
@@ -140,6 +149,20 @@ class CTableClearingPlanning
 
   }ee_simple_model;///< end effector simple model
 
+  struct FingersModel{
+    double opening_width;
+    double finger_width;
+    double deep;
+    double height;
+    double closing_height;
+
+    // convex hull
+    pcl::PointCloud<pcl::PointXYZ > cloud;
+    std::vector<pcl::Vertices> vertices;
+
+  }fingers_model;
+
+
 
   PointCloudT original_cloud;
   std::vector<PointCloudT > objects;///< vector of objects point cloud
@@ -148,10 +171,13 @@ class CTableClearingPlanning
   std::vector<PointCloudT > projections; 
   std::vector<PointCloudT > convex_hull_objects;///< vector of the convex hull of each object
   std::vector<PointCloudT > concave_hull_objects;///< vector of the concave hull of each object
-  std::vector<PrincipalDirections> principal_directions_objects;///< principal directions of 
+  std::vector<PrincipalDirectionsProjected> principal_directions_objects;///< principal directions of 
+  std::vector<OriginalPrincipalDirections> original_principal_directions_objects;
   std::vector<std::vector<pcl::Vertices> > convex_hull_vertices,concave_hull_vertices;
 
   std::vector<AABB> aabb_objects;
+
+  std::vector<GraspingPose> grasping_poses;
 
   // projections on plane
   std::vector<PointCloudT > concave_hull_projections; 
@@ -231,6 +257,14 @@ class CTableClearingPlanning
    */
   void translate(PointCloudT& cloud1, PointCloudT& cloud2, Eigen::Vector4f& translation);
 
+  /**
+   * @brief Get the centroid of the grasping pose as the surface point of the object which projection on the table plane is similar to the centroid.
+   * @details Get the centroid of the grasping pose as the surface point of the object which projection on the table plane is similar to the centroid.
+   * 
+   * @param centroid [description]
+   * @param idx [description]
+   */
+  void computeSurfaceGraspPoint(Eigen::Vector3f& centroid, uint idx);
 
   public:
 
@@ -255,6 +289,22 @@ class CTableClearingPlanning
      * @param[in] distance_plane Distance in meters from the table plane during the pushing action
      */
     void setGripperSimpleModel(double height, double deep, double width, double distance_plane);
+
+
+    /**
+     * @brief Set the fingers model
+     * @details Set the fingers model. The origin is located at height/2, deep/2 and (opening_width + finger_width*2)/2
+     * 
+     * @image html fingers_model.png
+     * 
+     * @param opening_width 
+     * @param finger_width [description]
+     * @param deep [description]
+     * @param height [description]
+     * @param closing_height [description]
+     */
+    void setFingersModel(double opening_width, double finger_width,
+               double deep, double height, double closing_height);
 
     /**
      * @brief Set the original point cloud, the one used for the segmentation. 
@@ -287,6 +337,15 @@ class CTableClearingPlanning
      * @param refine_centroids True if you want to refine the centroid by computing the mean of the bounding box
      */
     void computeAABBObjects(bool refine_centroids = true);  
+
+    /**
+     * @brief Compute the grasping pose with a simple heuristic.
+     * @details Compute the grasping pose with a simple heuristic. 
+     * Gripper centered at the centroid with rotation aligned to the principal axes.
+     * 
+     * @param vertical_poses If it is set to true consider only vertical poses, with respect the table.
+     */
+    void computeSimpleHeuristicGraspingPoses(bool vertical_poses = false);
 
 
     /**
@@ -483,11 +542,16 @@ class CTableClearingPlanning
      */
     void viewerAddObjectsLabel(Visualizer viewer);
 
+    void viewerShowFingersModel(Visualizer viewer);
+
     /**
      * @brief Show in the viewer associated to the class a transformed object. 
      *        ONLY FOR DEBUGGING PURPOSE - USELESS
      */
     void viewerAddObjectsTransfomed(Visualizer viewer);
+
+    void viewerAddGraspingPose(Visualizer viewer,uint idx);
+    void viewerAddGraspingPoses(Visualizer viewer);
 
     uint getNumObjects();
     std::vector<ObjectFull> getFullObjects();

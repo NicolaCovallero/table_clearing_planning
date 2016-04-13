@@ -360,8 +360,11 @@ void EdgeProcessing::compute2DEdges()
 	    cv::findNonZero(edges_mat, nonZeroCoordinates);
 	    for (uint i = 0; i < nonZeroCoordinates.total(); i++ ) {
 	        this->objects_edges_2d[idx].push_back((uint)(nonZeroCoordinates.at<cv::Point>(i).x + (int)nonZeroCoordinates.at<cv::Point>(i).y * this->original_cloud.width));
+
 	    }
 
+
+	    // Uncomment these lines if you want to see how works the edg	es detection
 		// cv::namedWindow("Object", CV_WINDOW_AUTOSIZE); //create a window with the name "MyWindow"
 		// cv::imshow("Object", edges_mat); //display the image which is stored in the 'img' in the "MyWindow" window
 		// cv::waitKey(0);

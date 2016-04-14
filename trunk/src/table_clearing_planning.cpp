@@ -365,24 +365,44 @@ void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, d
   this->ee_simple_model.deep = deep;
   this->ee_simple_model.width = width;
 
+  // //set the vertices of the bounding box
+  // pcl::PointXYZ p;
+  // p.x = width/2; p.y = deep/2; p.z = height/2;
+  // this->ee_simple_model.cloud.points.push_back(p);
+  // p.x = width/2; p.y = deep/2; p.z = - height/2;
+  // this->ee_simple_model.cloud.points.push_back(p);
+  // p.x = width/2; p.y = - deep/2; p.z = height/2;
+  // this->ee_simple_model.cloud.points.push_back(p);
+  // p.x = - width/2; p.y = deep/2; p.z = height/2;
+  // this->ee_simple_model.cloud.points.push_back(p);
+  // p.x = - width/2; p.y = - deep/2; p.z = height/2;
+  // this->ee_simple_model.cloud.points.push_back(p);
+  // p.x = - width/2; p.y = deep/2; p.z = - height/2;
+  // this->ee_simple_model.cloud.points.push_back(p);
+  // p.x = width/2; p.y = - deep/2; p.z = - height/2;
+  // this->ee_simple_model.cloud.points.push_back(p);
+  // p.x = - width/2; p.y = - deep/2; p.z = - height/2;
+  // this->ee_simple_model.cloud.points.push_back(p);
+
   //set the vertices of the bounding box
   pcl::PointXYZ p;
-  p.x = width/2; p.y = deep/2; p.z = height/2;
+  p.x = width/2; p.y = height/2; p.z = deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
-  p.x = width/2; p.y = deep/2; p.z = - height/2;
+  p.x = width/2; p.y = height/2; p.z = - deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
-  p.x = width/2; p.y = - deep/2; p.z = height/2;
+  p.x = width/2; p.y = - height/2; p.z = deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
-  p.x = - width/2; p.y = deep/2; p.z = height/2;
+  p.x = - width/2; p.y = height/2; p.z = deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
-  p.x = - width/2; p.y = - deep/2; p.z = height/2;
+  p.x = - width/2; p.y = - height/2; p.z = deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
-  p.x = - width/2; p.y = deep/2; p.z = - height/2;
+  p.x = - width/2; p.y = height/2; p.z = - deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
-  p.x = width/2; p.y = - deep/2; p.z = - height/2;
+  p.x = width/2; p.y = - height/2; p.z = - deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
-  p.x = - width/2; p.y = - deep/2; p.z = - height/2;
+  p.x = - width/2; p.y = - height/2; p.z = - deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
+
 
   pcl::ConvexHull<pcl::PointXYZ> hull;
   hull.setInputCloud(this->ee_simple_model.cloud.makeShared());
@@ -811,79 +831,101 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
 
       Eigen::Vector3f normal;
       switch(dir_idx)
-      {
-        case 1 :
-                step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                                   - this->ee_simple_model.deep;
-                x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
-                     new_centroid[0];
-                y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
-                     new_centroid[1];
-                z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
-                     new_centroid[2];
-                T.setValue(x,y,z);
+  {
+    case 1 :
+            step_translation = - this->aabb_objects[obj_idx].deep/2 +
+                               - this->ee_simple_model.deep/2;
+            x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
+                 new_centroid[0];
+            y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
+                 new_centroid[1];
+            z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
+                 new_centroid[2];
+            T.setValue(x,y,z);
 
-                // x axis -> dir1, y axis-> dir3
-                rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-                rot(1,0) = pd->dir3[0]; rot(1,1) = pd->dir3[1]; rot(1,2) = pd->dir3[2];
-                rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-                //rot(2,0) = normal[0]; rot(2,1) = normal[1]; rot(2,2) = normal[2];
-                break;
-        case 2 :
-                step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                                   - this->ee_simple_model.deep;           
-                x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
-                     new_centroid[0];
-                y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
-                     new_centroid[1];
-                z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
-                     new_centroid[2];
-                T.setValue(x,y,z);
+            // old frame
+            // x axis -> dir1, y axis-> dir3
+            // rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+            // rot(1,0) = pd->dir3[0]; rot(1,1) = pd->dir3[1]; rot(1,2) = pd->dir3[2];
+            // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+            //rot(2,0) = normal[0]; rot(2,1) = normal[1]; rot(2,2) = normal[2];
 
+            rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+            rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
+            
+            break;
+    case 2 :
+            step_translation = - this->aabb_objects[obj_idx].deep/2 +
+                               - this->ee_simple_model.deep/2;           
+            x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
+                 new_centroid[0];
+            y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
+                 new_centroid[1];
+            z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
+                 new_centroid[2];
+            T.setValue(x,y,z);
 
-                rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-                rot(1,0) = pd->dir4[0]; rot(1,1) = pd->dir4[1]; rot(1,2) = pd->dir4[2];
-                rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+            // old frame
+            // rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+            // rot(1,0) = pd->dir4[0]; rot(1,1) = pd->dir4[1]; rot(1,2) = pd->dir4[2];
+            // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
 
-                break; 
-        case 3 :
-                step_translation = - this->aabb_objects[obj_idx].width/2 +
-                                   - this->ee_simple_model.deep;
-                x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
-                     new_centroid[0];
-                y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
-                     new_centroid[1];
-                z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
-                     new_centroid[2];
-                T.setValue(x,y,z);
-
-
-                rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-                rot(1,0) = pd->dir1[0]; rot(1,1) = pd->dir1[1]; rot(1,2) = pd->dir1[2];
-                rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
+            rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+            rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
+            
 
 
-                break; 
-        case 4 :
-                step_translation = - this->aabb_objects[obj_idx].width/2 +
-                                   - this->ee_simple_model.deep;
-                x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
-                     new_centroid[0];
-                y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
-                     new_centroid[1];
-                z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
-                     new_centroid[2];
-                T.setValue(x,y,z);
+            break; 
+    case 3 :
+            step_translation = - this->aabb_objects[obj_idx].width/2 +
+                               - this->ee_simple_model.deep/2;
+            x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
+                 new_centroid[0];
+            y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
+                 new_centroid[1];
+            z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
+                 new_centroid[2];
+            T.setValue(x,y,z);
+
+            // old frame
+            // rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+            // rot(1,0) = pd->dir1[0]; rot(1,1) = pd->dir1[1]; rot(1,2) = pd->dir1[2];
+            // rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
+
+            rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+            rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
+            
+
+            break; 
+    case 4 :
+            step_translation = - this->aabb_objects[obj_idx].width/2 +
+                               - this->ee_simple_model.deep/2;
+            x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
+                 new_centroid[0];
+            y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
+                 new_centroid[1];
+            z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
+                 new_centroid[2];
+            T.setValue(x,y,z);
+
+            // old frame
+            // rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+            // rot(1,0) = pd->dir2[0]; rot(1,1) = pd->dir2[1]; rot(1,2) = pd->dir2[2];
+            // rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
 
 
-                rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-                rot(1,0) = pd->dir2[0]; rot(1,1) = pd->dir2[1]; rot(1,2) = pd->dir2[2];
-                rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
+            rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+            rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
+            
 
 
-                break; 
-        default: break;
-      }
+            break; 
+    default: break;
+  }
       //for all the other objects
 
       //we have to compute the rotation accordingly to the direction
@@ -1104,7 +1146,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   {
     case 1 :
             step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                               - this->ee_simple_model.deep;
+                               - this->ee_simple_model.deep/2;
             x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                  new_centroid[0];
             y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
@@ -1113,15 +1155,21 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
                  new_centroid[2];
             T.setValue(x,y,z);
 
+            // old frame
             // x axis -> dir1, y axis-> dir3
-            rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-            rot(1,0) = pd->dir3[0]; rot(1,1) = pd->dir3[1]; rot(1,2) = pd->dir3[2];
-            rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+            // rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+            // rot(1,0) = pd->dir3[0]; rot(1,1) = pd->dir3[1]; rot(1,2) = pd->dir3[2];
+            // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
             //rot(2,0) = normal[0]; rot(2,1) = normal[1]; rot(2,2) = normal[2];
+
+            rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+            rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
+            
             break;
     case 2 :
             step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                               - this->ee_simple_model.deep;           
+                               - this->ee_simple_model.deep/2;           
             x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
                  new_centroid[0];
             y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
@@ -1130,15 +1178,21 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
                  new_centroid[2];
             T.setValue(x,y,z);
 
+            // old frame
+            // rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+            // rot(1,0) = pd->dir4[0]; rot(1,1) = pd->dir4[1]; rot(1,2) = pd->dir4[2];
+            // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
 
-            rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-            rot(1,0) = pd->dir4[0]; rot(1,1) = pd->dir4[1]; rot(1,2) = pd->dir4[2];
-            rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+            rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+            rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
+            
+
 
             break; 
     case 3 :
             step_translation = - this->aabb_objects[obj_idx].width/2 +
-                               - this->ee_simple_model.deep;
+                               - this->ee_simple_model.deep/2;
             x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
                  new_centroid[0];
             y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
@@ -1147,16 +1201,20 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
                  new_centroid[2];
             T.setValue(x,y,z);
 
+            // old frame
+            // rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+            // rot(1,0) = pd->dir1[0]; rot(1,1) = pd->dir1[1]; rot(1,2) = pd->dir1[2];
+            // rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
 
-            rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-            rot(1,0) = pd->dir1[0]; rot(1,1) = pd->dir1[1]; rot(1,2) = pd->dir1[2];
-            rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
-
+            rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+            rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
+            
 
             break; 
     case 4 :
             step_translation = - this->aabb_objects[obj_idx].width/2 +
-                               - this->ee_simple_model.deep;
+                               - this->ee_simple_model.deep/2;
             x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
                  new_centroid[0];
             y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
@@ -1165,10 +1223,16 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
                  new_centroid[2];
             T.setValue(x,y,z);
 
+            // old frame
+            // rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+            // rot(1,0) = pd->dir2[0]; rot(1,1) = pd->dir2[1]; rot(1,2) = pd->dir2[2];
+            // rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
 
-            rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-            rot(1,0) = pd->dir2[0]; rot(1,1) = pd->dir2[1]; rot(1,2) = pd->dir2[2];
-            rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
+
+            rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+            rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
+            
 
 
             break; 

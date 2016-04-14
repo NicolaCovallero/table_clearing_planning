@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
   tcp.setObjectsPointCloud(segmented_objs);
   //tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
-  tcp.setGripperSimpleModel(0.05, 0.07, 0.1, 0.025);
+  tcp.setGripperSimpleModel(0.05, 0.2, 0.1, 0.025);
 
 
   tcp.computeProjectionsOnTable();
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
   tcp.setFingersModel(0.08,0.02,0.03,0.08,0.06);
   tcp.computeSimpleHeuristicGraspingPoses(true);
   tcp.viewerAddGraspingPoses(viewer);
-   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
+  viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
   viewer->setBackgroundColor (0, 0, 0);
   viewer->addCoordinateSystem (0.3);
   //tcp.viewerAddRichObjectsClouds(viewer); 

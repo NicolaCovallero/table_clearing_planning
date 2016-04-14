@@ -64,7 +64,7 @@ struct PrincipalDirectionsProjected{
 
 struct OriginalPrincipalDirections
 {
-  Eigen::Vector3f p1,p2,p3;
+  Eigen::Vector3f p1,p2,p3;//p1 orthogonal to p2 and to p3, they have no the same meaning of dir1,dir2,dir3
   Eigen::Vector4f centroid;
 };
 
@@ -132,6 +132,7 @@ class CTableClearingPlanning
   // ----------- PREDICATES ---------------
   std::vector<BlocksPredicate> blocks_predicates;
   std::vector<std::vector<uint> > on_top_predicates;  
+  std::vector<std::vector<uint> > block_grasp_predicates;  
   // --------------------------------------
 
   // ------------- Gripper Model ----------
@@ -210,6 +211,8 @@ class CTableClearingPlanning
   */
   bool isEEColliding(uint idx, fcl::Transform3f tf);
 
+  bool isFingersModelColliding(uint idx, fcl::Transform3f tf);
+
   /**
    * @brief Get the mesh of the gripper model
    * @details [long description]
@@ -217,7 +220,7 @@ class CTableClearingPlanning
    */
   FclMesh getGripperMesh();
 
-
+  FclMesh getFingersModelMesh();
 
   // --------- MY CONVERSIONS --------------------
 
@@ -423,6 +426,15 @@ class CTableClearingPlanning
      *          considered in saved in the private memeber 
      */
     void computeBlockPredicates(bool print=false);
+
+    /**
+     * @brief Get block grasp predicates
+     * @details This method computes the block grasp predicates for each object by detecting 
+     *          collision of the fingers model with the other objects.
+     * 
+     * @param print True if you want to print in the terminal the predicates.
+     */
+    void computeBlockGraspPredicates(bool print=false);
 
 
     void testFcl();

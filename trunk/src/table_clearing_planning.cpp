@@ -121,6 +121,54 @@ bool CTableClearingPlanning::isEEColliding(uint idx, fcl::Transform3f tf)
   return false;
 }
 
+bool CTableClearingPlanning::isFingersModelColliding(uint idx, fcl::Transform3f tf)
+{
+  FclMesh mesh1,mesh2;
+
+  mesh1 = this->getFingersModelMesh();
+  mesh2 = this->pcl2FclConvexHull(idx);
+
+  // BVHModel is a template class for mesh geometry, for default OBBRSS template is used
+  typedef fcl::BVHModel<fcl::OBBRSS> Model;
+  Model* finger_model = new Model();
+  finger_model->beginModel();
+  finger_model->addSubModel(mesh1.vertices, mesh1.triangles);
+  finger_model->endModel();
+
+  // get the bounding box 
+  //fcl::BVNode<fcl::OBBRSS> p = ee_model1->getBV(0);
+  //double a = p.bv.width();
+
+  Model* model2 = new Model();
+  model2->beginModel();
+  model2->addSubModel(mesh2.vertices, mesh2.triangles);
+  model2->endModel();
+
+
+  // no rotation
+  fcl::Matrix3f R(1,0,0,
+                  0,1,0,
+                  0,0,1);
+  fcl::Vec3f T(0,0,0); // no translation
+
+
+  fcl::Transform3f pose(R, T);
+
+  bool enable_contact = true;
+  int num_max_contacts = std::numeric_limits<int>::max();
+  // set the collision request structure, here we just use the default setting
+  fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // result will be returned via the collision result structure
+  fcl::CollisionResult result;
+
+  int num_contacts = fcl::collide(finger_model, tf, model2, pose, 
+                             request, result);
+  if(num_contacts > 0)
+    return true;
+
+  return false;
+}
+
 CTableClearingPlanning::FclMesh
 CTableClearingPlanning::getGripperMesh()
 {
@@ -153,6 +201,44 @@ CTableClearingPlanning::getGripperMesh()
     fcl::Triangle triangle_tmp(this->ee_simple_model.vertices[i].vertices[0],
                                this->ee_simple_model.vertices[i].vertices[1],
                                this->ee_simple_model.vertices[i].vertices[2]);
+    fcl_mesh.triangles.push_back(triangle_tmp);
+  }
+
+  return fcl_mesh; 
+}
+
+CTableClearingPlanning::FclMesh
+CTableClearingPlanning::getFingersModelMesh()
+{
+  FclMesh fcl_mesh;
+  // initialize the struct
+  fcl_mesh.vertices.resize(0);
+  fcl_mesh.triangles.resize(0);
+
+  // check for correct input
+  if(this->fingers_model.cloud.points.size() == 0 )
+  {
+    PCL_ERROR("Fingers Model not set\n");
+    return fcl_mesh;
+  }
+
+  // ----------------- fill vertices ----------------------------
+  // for each vertex of the convex hull
+  for (uint i = 0; i < this->fingers_model.cloud.points.size(); ++i)
+  {
+    fcl::Vec3f vec_tmp(this->fingers_model.cloud.points[i].x,
+                       this->fingers_model.cloud.points[i].y,
+                       this->fingers_model.cloud.points[i].z);
+    fcl_mesh.vertices.push_back(vec_tmp);
+  }
+
+  // ----------------- fill triangles ---------------------------
+  for (uint i = 0; i < this->fingers_model.vertices.size(); ++i)
+  {
+
+    fcl::Triangle triangle_tmp(this->fingers_model.vertices[i].vertices[0],
+                               this->fingers_model.vertices[i].vertices[1],
+                               this->fingers_model.vertices[i].vertices[2]);
     fcl_mesh.triangles.push_back(triangle_tmp);
   }
 
@@ -327,8 +413,8 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
     if(vertical_poses)
     {
       gp.rotation(0,0) = pd->dir3[0]; gp.rotation(0,1) = pd->dir3[1]; gp.rotation(0,2) = pd->dir3[2];   
-      gp.rotation(1,0) = pd->dir1[0]; gp.rotation(1,1) = pd->dir1[1]; gp.rotation(1,2) = pd->dir1[2];   
-      Eigen::Vector3f new_axis = pd->dir3.cross(pd->dir1); 
+      gp.rotation(1,0) = pd->dir2[0]; gp.rotation(1,1) = pd->dir2[1]; gp.rotation(1,2) = pd->dir2[2];   
+      Eigen::Vector3f new_axis = pd->dir3.cross(pd->dir2); 
       gp.rotation(2,0) = new_axis[0]; gp.rotation(2,1) = new_axis[1]; gp.rotation(2,2) = new_axis[2];  
       
       // this express the rotation from the desired position to the frame, we have to get the inverse to
@@ -339,16 +425,15 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
     }
     else
     {
-      // the gripper has its x axis aligned with the p1, so we have to define
-      // a rotation matrix in way that its x axis is aligned to the y axis of fingerModel
-      // gp.rotation(0,0) = opd->p1[0]; gp.rotation(0,1) = opd->p1[1]; gp.rotation(0,2) = opd->p1[2];   
-      // gp.rotation(1,0) = opd->p2[0]; gp.rotation(1,1) = opd->p2[1]; gp.rotation(1,2) = opd->p2[2];   
-      // gp.rotation(2,0) = opd->p3[0]; gp.rotation(2,1) = opd->p3[1]; gp.rotation(2,2) = opd->p3[2];   
+      // the gripper has its x axis aligned with the p3, so we have to define
+      // a rotation matrix in way that its x axis is aligned to the y axis of fingerModel 
    
       gp.rotation(0,0) = pd->dir3[0]; gp.rotation(0,1) = pd->dir3[1]; gp.rotation(0,2) = pd->dir3[2];   
-      Eigen::Vector3f new_axis = opd->p3.cross(pd->dir3); 
+      Eigen::Vector3f new_axis = pd->dir3.cross(opd->p3); 
       gp.rotation(1,0) = new_axis[0]; gp.rotation(1,1) = new_axis[1]; gp.rotation(1,2) = new_axis[2];   
-      gp.rotation(2,0) = opd->p3[0]; gp.rotation(2,1) = opd->p3[1]; gp.rotation(2,2) = opd->p3[2];   
+      new_axis = pd->dir3.cross(new_axis);
+      gp.rotation(2,0) = new_axis[0]; gp.rotation(2,1) = new_axis[1]; gp.rotation(2,2) = new_axis[2];   
+
 
       Eigen::Matrix3f mat_rot = gp.rotation.inverse();
       gp.rotation = mat_rot;
@@ -480,6 +565,17 @@ void CTableClearingPlanning::setFingersModel(double opening_width, double finger
   // hull.setAlpha(0.05);
   // hull.setDimension(3);
   // hull.reconstruct(this->fingers_model.cloud,this->fingers_model.vertices);
+
+
+  // make the z axis pointing down
+  Eigen::Vector3f translation(0,0,0);
+  Eigen::Matrix3f mat_rot;
+  mat_rot(0,0) = -1;mat_rot(0,1) = 0;mat_rot(0,2) = 0;
+  mat_rot(1,0) = 0;mat_rot(1,1) = 1;mat_rot(1,2) = 0;
+  mat_rot(2,0) = 0;mat_rot(2,1) = 0;mat_rot(2,2) = -1;
+  Eigen::Matrix3f rot = mat_rot.inverse();
+  Eigen::Quaternionf quat(rot);
+  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.cloud, this->fingers_model.cloud, translation , quat);
 
 
   //manually polygonal mesh reconstruction
@@ -1336,6 +1432,37 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   }
 }  
 
+void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
+{
+  if(this->grasping_poses.size()==0)
+  {
+    PCL_ERROR("The grasping poses are still not computed.");
+    return;
+  }
+
+  this->block_grasp_predicates.resize(this->n_objects);
+  for (int i = 0; i < this->n_objects; ++i)
+  {
+    GraspingPose* gp = &(this->grasping_poses[i]);
+    fcl::Matrix3f R; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
+    this->eigen2FclRotation(gp->rotation,R);
+    fcl::Vec3f T;
+    T.setValue( gp->translation[0],
+                gp->translation[1],
+                gp->translation[2]);
+    fcl::Transform3f grasp_pose(R, T);
+    for (int o = 0; o < this->n_objects; ++o)
+    {
+      if(i != o)
+        if(this->isFingersModelColliding(o,grasp_pose))
+        {
+          this->block_grasp_predicates[i].push_back(o);
+          if(print)
+            std::cout << "Object " << o << " blocks object " << i << " to be grasped\n";
+        }
+    }
+  }
+}
 
 void CTableClearingPlanning::testFcl()
 {

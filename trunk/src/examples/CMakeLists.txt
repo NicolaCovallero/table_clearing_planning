@@ -4,6 +4,7 @@ ADD_EXECUTABLE(table_clearing_planning_test table_clearing_planning_test.cpp)
 FIND_PACKAGE( PCL 1.8 REQUIRED )
 find_package(tos_supervoxels REQUIRED)
 
+
 IF (PCL_FOUND)
   INCLUDE_DIRECTORIES(${PCL_INCLUDE_DIRS})
   LINK_DIRECTORIES(${PCL_LIBRARY_DIRS})

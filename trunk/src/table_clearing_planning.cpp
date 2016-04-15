@@ -2278,7 +2278,7 @@ std::vector<BlocksPredicate> CTableClearingPlanning::getBlockPredicates()
 {
   return this->blocks_predicates;
 }
-std::vector<std::vector<uint> > CTableClearingPlanning::getOnTopPrediates()
+std::vector<std::vector<uint> > CTableClearingPlanning::getOnTopPredicates()
 {
   return this->on_top_predicates;
 }

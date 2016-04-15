@@ -573,7 +573,7 @@ class CTableClearingPlanning
     std::vector<AABB> getAABBObjects();
 
     std::vector<BlocksPredicate> getBlockPredicates();
-    std::vector<std::vector<uint> > getOnTopPrediates();
+    std::vector<std::vector<uint> > getOnTopPredicates();
     std::vector<std::vector<uint> > getBlockGraspPredicates();
 
     /**

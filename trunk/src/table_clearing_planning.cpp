@@ -507,42 +507,42 @@ void CTableClearingPlanning::setFingersModel(double opening_width, double finger
 
   // creating the cloud
   pcl::PointXYZ p;
-  p.x = - opening_width/2; p.y = - deep/2; p.z = - height/2;
+  p.x = - opening_width/2; p.y = - deep/2; p.z = - closing_height/2;
   this->fingers_model.cloud.points.push_back(p);
   p.y = deep/2;
   this->fingers_model.cloud.points.push_back(p);
 
-  p.x = - (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = - height/2;
+  p.x = - (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
   this->fingers_model.cloud.points.push_back(p);
   p.y = deep/2;
   this->fingers_model.cloud.points.push_back(p);
 
-  p.x = - (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = height/2;
-  this->fingers_model.cloud.points.push_back(p);
-  p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);  
-
-  p.x = (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = height/2;
-  this->fingers_model.cloud.points.push_back(p);
-  p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);
-
-  p.x = (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = - height/2;
-  this->fingers_model.cloud.points.push_back(p);
-  p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);
-
-  p.x = (opening_width)/2; p.y = - deep/2; p.z = - height/2;
-  this->fingers_model.cloud.points.push_back(p);
-  p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);
-
-  p.x = (opening_width)/2; p.y = - deep/2; p.z = height/2 - (height - closing_height);
+  p.x = - (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
   this->fingers_model.cloud.points.push_back(p);
   p.y = deep/2;
   this->fingers_model.cloud.points.push_back(p);  
 
-  p.x = - (opening_width)/2; p.y = - deep/2; p.z = height/2 - (height - closing_height);
+  p.x = (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
+  this->fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->fingers_model.cloud.points.push_back(p);
+
+  p.x = (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
+  this->fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->fingers_model.cloud.points.push_back(p);
+
+  p.x = (opening_width)/2; p.y = - deep/2; p.z = - closing_height/2;
+  this->fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->fingers_model.cloud.points.push_back(p);
+
+  p.x = (opening_width)/2; p.y = - deep/2; p.z = closing_height/2;
+  this->fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->fingers_model.cloud.points.push_back(p);  
+
+  p.x = - (opening_width)/2; p.y = - deep/2; p.z = closing_height/2;
   this->fingers_model.cloud.points.push_back(p);
   p.y = deep/2;
   this->fingers_model.cloud.points.push_back(p);  
@@ -752,7 +752,7 @@ void CTableClearingPlanning::computeProjectionsConvexHull()
   }
 }
 
-void CTableClearingPlanning::computeOnTopPredicates()
+void CTableClearingPlanning::computeOnTopPredicates(bool print)
 {
   pcl::CropHull<PointT> crop;
   crop.setCropOutside(true);
@@ -789,7 +789,8 @@ void CTableClearingPlanning::computeOnTopPredicates()
         //if(indices1.size() > 0 && indices2.size() == 0)
         if(indices1.size() > 100 && indices2.size() < 100)
         {
-          std::cout << "on top " << i << " " << h << std::endl;
+          if(print)
+            std::cout << "on top " << i << " " << h << std::endl;
           this->on_top_predicates[i].push_back(h); 
         }
       }

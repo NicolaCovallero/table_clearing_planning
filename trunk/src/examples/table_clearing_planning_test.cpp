@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
   tcp.computeAABBObjects(true);
 
   tcp.computeBlockPredicates(true);
-  tcp.computeOnTopPredicates();
+  tcp.computeOnTopPredicates(true);
 
   //----------- VISUALIZATIONS ----------------------
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));

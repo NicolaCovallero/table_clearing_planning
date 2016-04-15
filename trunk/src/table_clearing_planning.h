@@ -406,7 +406,7 @@ class CTableClearingPlanning
      *                   THE PROJECTED POINTS ARE TOO MUCH CLOSE
      *                
      */
-    void computeOnTopPredicates();
+    void computeOnTopPredicates(bool print = false);
 
     /**
      * @brief Set the pushing limit

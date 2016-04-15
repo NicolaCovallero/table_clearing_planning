@@ -2281,6 +2281,19 @@ std::vector<std::vector<uint> > CTableClearingPlanning::getOnTopPrediates()
 {
   return this->on_top_predicates;
 }
+std::vector<std::vector<uint> > CTableClearingPlanning::getBlockGraspPredicates()
+{
+  return this->block_grasp_predicates;
+}
+std::vector<PrincipalDirectionsProjected> CTableClearingPlanning::getProjectedPrincipalDirections()
+{
+  return this->principal_directions_objects;
+}
+std::vector<GraspingPose> CTableClearingPlanning::getGraspingPoses()
+{
+  return this->grasping_poses;
+}
+
 
 void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer)
 {

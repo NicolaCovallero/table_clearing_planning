@@ -573,7 +573,16 @@ class CTableClearingPlanning
     std::vector<AABB> getAABBObjects();
 
     std::vector<BlocksPredicate> getBlockPredicates();
-    std::vector<std::vector<uint> > getOnTopPrediates();  
+    std::vector<std::vector<uint> > getOnTopPrediates();
+    std::vector<std::vector<uint> > getBlockGraspPredicates();
+
+    /**
+     * @details Get the projected principal directions
+     * @return projected principal directions
+     */
+    std::vector<PrincipalDirectionsProjected> getProjectedPrincipalDirections();
+
+    std::vector<GraspingPose> getGraspingPoses();
 
 };
 

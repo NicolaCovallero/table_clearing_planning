@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
   tcp.setObjectsPointCloud(segmented_objs);
   //tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
-  tcp.setGripperSimpleModel(0.05, 0.2, 0.1, 0.025);
+  tcp.setGripperSimpleModel(0.05, 0.1, 0.12, 0.025);
 
 
   tcp.computeProjectionsOnTable();

@@ -422,6 +422,8 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
       // if we do directly: gp.rotation == p.rotation.inverse() it returns error
       Eigen::Matrix3f mat_rot = gp.rotation.inverse();
       gp.rotation = mat_rot;
+      Eigen::Quaternionf quat(mat_rot);
+      gp.quaternion = quat;
     }
     else
     {
@@ -437,8 +439,10 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
 
       Eigen::Matrix3f mat_rot = gp.rotation.inverse();
       gp.rotation = mat_rot;
-    }
+      Eigen::Quaternionf quat(mat_rot);
+      gp.quaternion = quat;
 
+    }
 
     this->grasping_poses.push_back(gp);
   }

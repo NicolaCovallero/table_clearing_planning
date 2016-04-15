@@ -90,6 +90,7 @@ std::vector<uint> block_dir1,
 struct GraspingPose{
   Eigen::Matrix3f rotation;
   Eigen::Vector3f translation;
+  Eigen::Quaternionf quaternion;
 };
 
 

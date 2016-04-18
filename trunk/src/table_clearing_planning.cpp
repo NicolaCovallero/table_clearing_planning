@@ -808,7 +808,8 @@ void CTableClearingPlanning::setPushingLimit(double pushing_limit)
 }
 
 void CTableClearingPlanning::computeBlockPredicates(bool print)
-{
+{ 
+  this->blocks_predicates.resize(this->n_objects);
   if(this->convex_hull_objects.size() == 0)
   {
       this->computeProjectionsOnTable();
@@ -2306,4 +2307,28 @@ void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer)
   viewer->addCoordinateSystem (0.3);
   viewer->addPointCloud(this->fingers_model.cloud.makeShared(),"fingers model");
   viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.cloud.makeShared(), this->fingers_model.vertices );  
+}
+
+void CTableClearingPlanning::reset()
+{
+  this->n_objects = 0;
+  this->original_cloud.points.resize(0);
+  this->objects.resize(0);
+  this->rich_objects.resize(0);
+  this->objects_full.resize(0);
+  this->projections.resize(0);
+  this->convex_hull_objects.resize(0);
+  this->concave_hull_objects.resize(0);
+  this->principal_directions_objects.resize(0);
+  this->original_principal_directions_objects.resize(0);
+  this->convex_hull_vertices.resize(0);
+  this->aabb_objects.resize(0);
+  this->grasping_poses.resize(0);
+  this->concave_hull_projections.resize(0);
+  this->concave_hull_vertices_projections.resize(0);
+  this->convex_hull_projections.resize(0);
+  this->convex_hull_vertices_projections.resize(0);
+  this->blocks_predicates.resize(0);
+  this->on_top_predicates.resize(0);
+  this->block_grasp_predicates.resize(0);
 }

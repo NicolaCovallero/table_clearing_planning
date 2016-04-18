@@ -768,7 +768,7 @@ void CTableClearingPlanning::computeOnTopPredicates(bool print)
   // for each object 
   for (uint i = 0; i < this->n_objects; ++i)
   {
-    
+    this->on_top_predicates[i].resize(0);
     //for all the other objects - we should implemente a better strategy to choose
     // the close ones
     for (uint h = 0; h < this->n_objects; ++h)
@@ -1448,6 +1448,7 @@ void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
   this->block_grasp_predicates.resize(this->n_objects);
   for (int i = 0; i < this->n_objects; ++i)
   {
+    this->block_grasp_predicates[i].resize(0);
     GraspingPose* gp = &(this->grasping_poses[i]);
     fcl::Matrix3f R; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
     this->eigen2FclRotation(gp->rotation,R);

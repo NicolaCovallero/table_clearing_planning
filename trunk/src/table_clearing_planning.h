@@ -406,8 +406,11 @@ class CTableClearingPlanning
      *                   top of object 2. MAYBE A EROSION TECHNIQUE WILL BE REQUIRED IN ORDER TO AVOID SITUATIONS WHERE 
      *                   THE PROJECTED POINTS ARE TOO MUCH CLOSE
      *                
+     * @param th1 threshold: how many points of the objects which is on the top can lie inside the
+     * convex hull of the other
+     * @param th2 The inverse of th1, a correct balance between them we can achieve a nice result               
      */
-    void computeOnTopPredicates(bool print = false);
+    void computeOnTopPredicates(double th1 =100, double th2 = 100, bool print = false);
 
     /**
      * @brief Set the pushing limit

@@ -756,7 +756,7 @@ void CTableClearingPlanning::computeProjectionsConvexHull()
   }
 }
 
-void CTableClearingPlanning::computeOnTopPredicates(bool print)
+void CTableClearingPlanning::computeOnTopPredicates(double th1, double th2, bool print)
 {
   pcl::CropHull<PointT> crop;
   crop.setCropOutside(true);
@@ -791,7 +791,7 @@ void CTableClearingPlanning::computeOnTopPredicates(bool print)
         crop.filter(indices2);
 
         //if(indices1.size() > 0 && indices2.size() == 0)
-        if(indices1.size() > 100 && indices2.size() < 100)
+        if(indices1.size() > th1 && indices2.size() < th2)
         {
           if(print)
             std::cout << "on top " << i << " " << h << std::endl;

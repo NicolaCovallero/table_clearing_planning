@@ -586,6 +586,8 @@ class CTableClearingPlanning
      */
     std::vector<PrincipalDirectionsProjected> getProjectedPrincipalDirections();
 
+    std::vector<OriginalPrincipalDirections> getOriginalPrincipalDirections();
+
     std::vector<GraspingPose> getGraspingPoses();
 
     /**

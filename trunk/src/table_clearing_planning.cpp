@@ -2296,6 +2296,10 @@ std::vector<PrincipalDirectionsProjected> CTableClearingPlanning::getProjectedPr
 {
   return this->principal_directions_objects;
 }
+std::vector<OriginalPrincipalDirections> CTableClearingPlanning::getOriginalPrincipalDirections()
+{
+  return this->original_principal_directions_objects;
+}
 std::vector<GraspingPose> CTableClearingPlanning::getGraspingPoses()
 {
   return this->grasping_poses;

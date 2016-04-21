@@ -995,9 +995,9 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
                 mat_rot = rot.inverse();
                 quat = mat_rot;
 
-                this->pushing_poses[obj_idx].pose_dir1.translation = translation;
-                this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
-                this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
+                this->pushing_poses[obj_idx].pose_dir2.translation = translation;
+                this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
+                this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
 
                 break; 
         case 3 :
@@ -1025,9 +1025,9 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
                 mat_rot = rot.inverse();
                 quat = mat_rot;
 
-                this->pushing_poses[obj_idx].pose_dir1.translation = translation;
-                this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
-                this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
+                this->pushing_poses[obj_idx].pose_dir3.translation = translation;
+                this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
+                this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
 
                 break; 
         case 4 :
@@ -1055,9 +1055,9 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
                 mat_rot = rot.inverse();
                 quat = mat_rot;
 
-                this->pushing_poses[obj_idx].pose_dir1.translation = translation;
-                this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
-                this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
+                this->pushing_poses[obj_idx].pose_dir4.translation = translation;
+                this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
+                this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
 
                 break; 
         default: break;

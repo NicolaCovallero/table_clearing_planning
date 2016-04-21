@@ -86,11 +86,20 @@ std::vector<uint> block_dir1,
 // {
 //   /* code */
 // }
-
 struct GraspingPose{
   Eigen::Matrix3f rotation;
   Eigen::Vector3f translation;
   Eigen::Quaternionf quaternion;
+};
+
+struct Pose{
+  Eigen::Matrix3f rotation;
+  Eigen::Vector3f translation;
+  Eigen::Quaternionf quaternion;
+};
+
+struct PushingPose{
+  Pose pose_dir1, pose_dir2, pose_dir3, pose_dir4;
 };
 
 
@@ -180,6 +189,7 @@ class CTableClearingPlanning
   std::vector<AABB> aabb_objects;
 
   std::vector<GraspingPose> grasping_poses;
+  std::vector<PushingPose> pushing_poses;
 
   // projections on plane
   std::vector<PointCloudT > concave_hull_projections; 
@@ -589,6 +599,8 @@ class CTableClearingPlanning
     std::vector<OriginalPrincipalDirections> getOriginalPrincipalDirections();
 
     std::vector<GraspingPose> getGraspingPoses();
+
+    std::vector<PushingPose> getPushingPoses();
 
     /**
      * @brief Delete all the data ot the class

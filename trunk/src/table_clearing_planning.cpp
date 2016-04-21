@@ -810,6 +810,7 @@ void CTableClearingPlanning::setPushingLimit(double pushing_limit)
 void CTableClearingPlanning::computeBlockPredicates(bool print)
 { 
   this->blocks_predicates.resize(this->n_objects);
+  this->pushing_poses.resize(this->n_objects);
   if(this->convex_hull_objects.size() == 0)
   {
       this->computeProjectionsOnTable();
@@ -932,108 +933,141 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
       Eigen::Vector3f new_centroid = proj_eigen_point + scaled_diff;
 
       Eigen::Vector3f normal;
+      Eigen::Vector3f translation;
+      Eigen::Matrix3f mat_rot;
+      Eigen::Quaternionf quat;
       switch(dir_idx)
-  {
-    case 1 :
-            step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                               - this->ee_simple_model.deep/2;
-            x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
-                 new_centroid[0];
-            y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
-                 new_centroid[1];
-            z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
-                 new_centroid[2];
-            T.setValue(x,y,z);
+      {
+        case 1 :
+                step_translation = - this->aabb_objects[obj_idx].deep/2 +
+                                   - this->ee_simple_model.deep/2;
+                x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
+                     new_centroid[0];
+                y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
+                     new_centroid[1];
+                z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
+                     new_centroid[2];
+                T.setValue(x,y,z);
+                translation[0] = x;
+                translation[1] = y;
+                translation[2] = z;
 
-            // old frame
-            // x axis -> dir1, y axis-> dir3
-            // rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-            // rot(1,0) = pd->dir3[0]; rot(1,1) = pd->dir3[1]; rot(1,2) = pd->dir3[2];
-            // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-            //rot(2,0) = normal[0]; rot(2,1) = normal[1]; rot(2,2) = normal[2];
+                // old frame
+                // x axis -> dir1, y axis-> dir3
+                // rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+                // rot(1,0) = pd->dir3[0]; rot(1,1) = pd->dir3[1]; rot(1,2) = pd->dir3[2];
+                // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+                //rot(2,0) = normal[0]; rot(2,1) = normal[1]; rot(2,2) = normal[2];
 
-            rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-            rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
-            
-            break;
-    case 2 :
-            step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                               - this->ee_simple_model.deep/2;           
-            x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
-                 new_centroid[0];
-            y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
-                 new_centroid[1];
-            z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
-                 new_centroid[2];
-            T.setValue(x,y,z);
+                rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+                rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+                rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
+                mat_rot = rot.inverse();
+                quat = mat_rot;
 
-            // old frame
-            // rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-            // rot(1,0) = pd->dir4[0]; rot(1,1) = pd->dir4[1]; rot(1,2) = pd->dir4[2];
-            // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+                this->pushing_poses[obj_idx].pose_dir1.translation = translation;
+                this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
+                this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
 
-            rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-            rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
-            
+                break;
+        case 2 :
+                step_translation = - this->aabb_objects[obj_idx].deep/2 +
+                                   - this->ee_simple_model.deep/2;           
+                x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
+                     new_centroid[0];
+                y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
+                     new_centroid[1];
+                z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
+                     new_centroid[2];
+                T.setValue(x,y,z);
+                translation[0] = x;
+                translation[1] = y;
+                translation[2] = z;
+
+                // old frame
+                // rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+                // rot(1,0) = pd->dir4[0]; rot(1,1) = pd->dir4[1]; rot(1,2) = pd->dir4[2];
+                // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+
+                rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+                rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+                rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
+                mat_rot = rot.inverse();
+                quat = mat_rot;
+
+                this->pushing_poses[obj_idx].pose_dir1.translation = translation;
+                this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
+                this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
+
+                break; 
+        case 3 :
+                step_translation = - this->aabb_objects[obj_idx].width/2 +
+                                   - this->ee_simple_model.deep/2;
+                x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
+                     new_centroid[0];
+                y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
+                     new_centroid[1];
+                z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
+                     new_centroid[2];
+                T.setValue(x,y,z);
+                translation[0] = x;
+                translation[1] = y;
+                translation[2] = z;
+
+                // old frame
+                // rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+                // rot(1,0) = pd->dir1[0]; rot(1,1) = pd->dir1[1]; rot(1,2) = pd->dir1[2];
+                // rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
+
+                rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+                rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+                rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
+                mat_rot = rot.inverse();
+                quat = mat_rot;
+
+                this->pushing_poses[obj_idx].pose_dir1.translation = translation;
+                this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
+                this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
+
+                break; 
+        case 4 :
+                step_translation = - this->aabb_objects[obj_idx].width/2 +
+                                   - this->ee_simple_model.deep/2;
+                x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
+                     new_centroid[0];
+                y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
+                     new_centroid[1];
+                z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
+                     new_centroid[2];
+                T.setValue(x,y,z);
+                translation[0] = x;
+                translation[1] = y;
+                translation[2] = z;
+                // old frame
+                // rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+                // rot(1,0) = pd->dir2[0]; rot(1,1) = pd->dir2[1]; rot(1,2) = pd->dir2[2];
+                // rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
 
 
-            break; 
-    case 3 :
-            step_translation = - this->aabb_objects[obj_idx].width/2 +
-                               - this->ee_simple_model.deep/2;
-            x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
-                 new_centroid[0];
-            y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
-                 new_centroid[1];
-            z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
-                 new_centroid[2];
-            T.setValue(x,y,z);
+                rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+                rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+                rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
+                mat_rot = rot.inverse();
+                quat = mat_rot;
 
-            // old frame
-            // rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-            // rot(1,0) = pd->dir1[0]; rot(1,1) = pd->dir1[1]; rot(1,2) = pd->dir1[2];
-            // rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
+                this->pushing_poses[obj_idx].pose_dir1.translation = translation;
+                this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
+                this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
 
-            rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-            rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
-            
-
-            break; 
-    case 4 :
-            step_translation = - this->aabb_objects[obj_idx].width/2 +
-                               - this->ee_simple_model.deep/2;
-            x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
-                 new_centroid[0];
-            y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
-                 new_centroid[1];
-            z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
-                 new_centroid[2];
-            T.setValue(x,y,z);
-
-            // old frame
-            // rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-            // rot(1,0) = pd->dir2[0]; rot(1,1) = pd->dir2[1]; rot(1,2) = pd->dir2[2];
-            // rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
-
-
-            rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-            rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
-            
-
-
-            break; 
-    default: break;
-  }
+                break; 
+        default: break;
+      }
       //for all the other objects
 
       //we have to compute the rotation accordingly to the direction
 
       fcl::Matrix3f R; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
-      Eigen::Matrix3f mat_rot = rot.inverse();
+      
       this->eigen2FclRotation(mat_rot,R);
 
       fcl::Transform3f pose_ee(R, T);
@@ -1445,6 +1479,7 @@ void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
     PCL_ERROR("The grasping poses are still not computed.");
     return;
   }
+
 
   this->block_grasp_predicates.resize(this->n_objects);
   for (int i = 0; i < this->n_objects; ++i)
@@ -2304,7 +2339,10 @@ std::vector<GraspingPose> CTableClearingPlanning::getGraspingPoses()
 {
   return this->grasping_poses;
 }
-
+std::vector<PushingPose> CTableClearingPlanning::getPushingPoses()
+{
+  return this->pushing_poses;
+}
 
 void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer)
 {

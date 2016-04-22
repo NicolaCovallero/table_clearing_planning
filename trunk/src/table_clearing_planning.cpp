@@ -3,7 +3,7 @@
 CTableClearingPlanning::CTableClearingPlanning()
 {
   this->n_objects = 0;
-  this->pushing_limit = this->PUSHING_LIMIT;
+  this->pushing_step = this->PUSHING_STEP;
   return;
 }
 
@@ -11,7 +11,7 @@ CTableClearingPlanning::CTableClearingPlanning(std::vector<PointCloudT> &objects
 {
   this->objects = objects;
   this->n_objects = objects.size();
-  this->pushing_limit = this->PUSHING_LIMIT;
+  this->pushing_step = this->PUSHING_STEP;
   return;
 } 
 
@@ -802,9 +802,9 @@ void CTableClearingPlanning::computeOnTopPredicates(double th1, double th2, bool
   }
 }
 
-void CTableClearingPlanning::setPushingLimit(double pushing_limit)
+void CTableClearingPlanning::setPushingStep(double pushing_step)
 {
-  this->pushing_limit = pushing_limit;
+  this->pushing_step = pushing_step;
 }
 
 void CTableClearingPlanning::computeBlockPredicates(bool print)
@@ -820,7 +820,8 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
   {
     this->computePrincipalDirections();
   }
-  tic();
+  //tic();
+
   for (uint obj_idx = 0; obj_idx < this->n_objects; ++obj_idx)
   {
     for (uint dir_idx = 1; dir_idx <= 4; ++dir_idx)
@@ -836,6 +837,18 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
       uint n = 1;
       //for (uint n = 1; n <= this->n_pushes; ++n)
       double step_translation = 0;
+      switch(dir_idx)
+      {
+        case 1:
+        case 2:
+            this->pushing_limit =  this->pushing_step * aabb_objects[obj_idx].deep;
+            break;
+        case 3:
+        case 4:
+            this->pushing_limit =  this->pushing_step * aabb_objects[obj_idx].width;     
+            break;
+        default: break;
+      }
       while(step_translation < this->pushing_limit)
       {
         switch(dir_idx)
@@ -1149,7 +1162,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
       }    
     }
   }
-  toc();
+  //toc();
 }
 
 void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uint obj_idx,uint dir_idx, bool visualization,
@@ -1166,7 +1179,21 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   uint n = 1;
   //for (uint n = 1; n <= this->n_pushes; ++n)
   double step_translation = 0;
-  while(step_translation < this->pushing_limit)
+  // double pushing_limit;
+  switch(dir_idx)
+  {
+    case 1:
+    case 2:
+        this->pushing_limit =  this->pushing_step * aabb_objects[obj_idx].deep;
+        break;
+    case 3:
+    case 4:
+        this->pushing_limit =  this->pushing_step * aabb_objects[obj_idx].width;     
+        break;
+    default: break;
+  }
+
+  while(step_translation < this->pushing_limit )
   {
     switch(dir_idx)
     {

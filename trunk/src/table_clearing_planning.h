@@ -133,8 +133,9 @@ class CTableClearingPlanning
       std::vector<fcl::Triangle> triangles;
   };
 
-  static const double PUSHING_LIMIT = 0.1; // default value 0.1 meters = 10 cm
-  double pushing_limit;
+  static const double PUSHING_STEP = 1.5; // default value 1.5 the AABB dimension
+  double pushing_limit; //used only from the block predicates computation functions
+  double pushing_step;
 
 
   double n_objects; ///< number of objects
@@ -424,13 +425,14 @@ class CTableClearingPlanning
 
     /**
      * @brief Set the pushing limit
-     * @details If it is not setted a default value will be used. The pushing limit is here 
-     *          defined as the maximum length (in meters) you want to push the object and therefore 
-     *          it acts on the block predicates computation.
+     * @details If it is not setted a default value will be used. The pushing step
+     * is here defined as the maximum times of the aabb dimension to be pushed. 
+     * (e.g. : If the pushing_step is 1.5 considering to push ht eojbect 1 in direction 1 
+     *  it is pushed for 1.5 the AABB dimension relative to direction 1 (which is the aabb.deep))
      * 
-     * @param[in] pushing_limit Desired value for the pushing limit.
+     * @param[in] pushing_step Desired value for the pushing limit.
      */
-    void setPushingLimit(double pushing_limit);
+    void setPushingStep(double pushing_step);
 
     /**
      * @brief Get block predicates

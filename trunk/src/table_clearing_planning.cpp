@@ -928,7 +928,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
 
       Eigen::Vector3f scaled_diff = eigen_point - proj_eigen_point;
       scaled_diff.normalize();
-      scaled_diff = (this->ee_simple_model.distance_plane )* scaled_diff;
+      scaled_diff = (this->ee_simple_model.distance_plane + this->ee_simple_model.height/2 )* scaled_diff;
       
       Eigen::Vector3f new_centroid = proj_eigen_point + scaled_diff;
 
@@ -1273,7 +1273,8 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
   Eigen::Vector3f scaled_diff = eigen_point - proj_eigen_point;
   scaled_diff.normalize();
-  scaled_diff = (this->ee_simple_model.distance_plane )* scaled_diff;
+
+  scaled_diff = (this->ee_simple_model.distance_plane + this->ee_simple_model.height/2 )* scaled_diff;
   
   Eigen::Vector3f new_centroid = proj_eigen_point + scaled_diff;
 

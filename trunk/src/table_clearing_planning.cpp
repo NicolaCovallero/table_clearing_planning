@@ -4,6 +4,7 @@ CTableClearingPlanning::CTableClearingPlanning()
 {
   this->n_objects = 0;
   this->pushing_step = this->PUSHING_STEP;
+  this-> pushing_object_distance = 0.05; //5 cm
   return;
 }
 
@@ -12,6 +13,7 @@ CTableClearingPlanning::CTableClearingPlanning(std::vector<PointCloudT> &objects
   this->objects = objects;
   this->n_objects = objects.size();
   this->pushing_step = this->PUSHING_STEP;
+  this-> pushing_object_distance = 0.05; //5 cm
   return;
 } 
 
@@ -806,7 +808,10 @@ void CTableClearingPlanning::setPushingStep(double pushing_step)
 {
   this->pushing_step = pushing_step;
 }
-
+void CTableClearingPlanning::setPushingObjectDistance(double pushing_object_distance)
+{
+  this->pushing_object_distance = pushing_object_distance;
+}
 void CTableClearingPlanning::computeBlockPredicates(bool print)
 { 
   this->blocks_predicates.resize(this->n_objects);
@@ -949,11 +954,12 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
       Eigen::Vector3f translation;
       Eigen::Matrix3f mat_rot;
       Eigen::Quaternionf quat;
+      //fcl::Vec3f T_tcp; // transformation for the tool central point
       switch(dir_idx)
       {
         case 1 :
                 step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                                   - this->ee_simple_model.deep/2;
+                                   - this->ee_simple_model.deep/2 - pushing_object_distance;
                 x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                      new_centroid[0];
                 y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
@@ -978,6 +984,9 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
                 mat_rot = rot.inverse();
                 quat = mat_rot;
 
+                // we are now going to save the TCP pose 
+                translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir1;
+
                 this->pushing_poses[obj_idx].pose_dir1.translation = translation;
                 this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
                 this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
@@ -985,7 +994,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
                 break;
         case 2 :
                 step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                                   - this->ee_simple_model.deep/2;           
+                                   - this->ee_simple_model.deep/2 - pushing_object_distance;           
                 x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
                      new_centroid[0];
                 y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
@@ -1008,6 +1017,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
                 mat_rot = rot.inverse();
                 quat = mat_rot;
 
+                translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir2;
                 this->pushing_poses[obj_idx].pose_dir2.translation = translation;
                 this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
                 this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
@@ -1015,7 +1025,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
                 break; 
         case 3 :
                 step_translation = - this->aabb_objects[obj_idx].width/2 +
-                                   - this->ee_simple_model.deep/2;
+                                   - this->ee_simple_model.deep/2 - pushing_object_distance;
                 x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
                      new_centroid[0];
                 y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
@@ -1038,6 +1048,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
                 mat_rot = rot.inverse();
                 quat = mat_rot;
 
+                translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir3;
                 this->pushing_poses[obj_idx].pose_dir3.translation = translation;
                 this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
                 this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
@@ -1045,7 +1056,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
                 break; 
         case 4 :
                 step_translation = - this->aabb_objects[obj_idx].width/2 +
-                                   - this->ee_simple_model.deep/2;
+                                   - this->ee_simple_model.deep/2 - pushing_object_distance;
                 x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
                      new_centroid[0];
                 y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
@@ -1068,6 +1079,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
                 mat_rot = rot.inverse();
                 quat = mat_rot;
 
+                translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir4;
                 this->pushing_poses[obj_idx].pose_dir4.translation = translation;
                 this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
                 this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
@@ -1310,7 +1322,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   {
     case 1 :
             step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                               - this->ee_simple_model.deep/2;
+                               - this->ee_simple_model.deep/2 - pushing_object_distance;
             x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                  new_centroid[0];
             y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
@@ -1333,7 +1345,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
             break;
     case 2 :
             step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                               - this->ee_simple_model.deep/2;           
+                               - this->ee_simple_model.deep/2 - pushing_object_distance;           
             x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
                  new_centroid[0];
             y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
@@ -1356,7 +1368,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
             break; 
     case 3 :
             step_translation = - this->aabb_objects[obj_idx].width/2 +
-                               - this->ee_simple_model.deep/2;
+                               - this->ee_simple_model.deep/2 - pushing_object_distance;
             x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
                  new_centroid[0];
             y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
@@ -1378,7 +1390,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
             break; 
     case 4 :
             step_translation = - this->aabb_objects[obj_idx].width/2 +
-                               - this->ee_simple_model.deep/2;
+                               - this->ee_simple_model.deep/2 - pushing_object_distance; 
             x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
                  new_centroid[0];
             y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +

@@ -136,7 +136,7 @@ class CTableClearingPlanning
   static const double PUSHING_STEP = 1.5; // default value 1.5 the AABB dimension
   double pushing_limit; //used only from the block predicates computation functions
   double pushing_step;
-
+  double pushing_object_distance; ///< Distance between the tcp and the object for the first point of the pushing action
 
   double n_objects; ///< number of objects
 
@@ -433,6 +433,14 @@ class CTableClearingPlanning
      * @param[in] pushing_step Desired value for the pushing limit.
      */
     void setPushingStep(double pushing_step);
+
+    /**
+     * 
+     * @details This distance is the distance of the end effector from the object, it is like an offset.
+     * 
+     * @param pushing_object_distance distance from the objects, in meters
+     */
+    void setPushingObjectDistance(double pushing_object_distance);
 
     /**
      * @brief Get block predicates

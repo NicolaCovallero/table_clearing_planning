@@ -113,18 +113,20 @@ int main(int argc, char *argv[])
   //tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
   tcp.setGripperSimpleModel(0.08, 0.1, 0.12, 0.025);
+  tcp.setFingersModel(0.08,0.04,0.02,0.03,0.08,0.06);
 
   tcp.computeProjectionsOnTable();
   tcp.computeRichConvexHulls();
   tcp.computePrincipalDirections();
   tcp.computeAABBObjects(true);
 
-  tcp.computeBlockPredicates(true);
+  tcp.computeBlockPredicates(true, ORTHOGONAL_PUSHING);
   tcp.computeOnTopPredicates(true);
 
   //----------- VISUALIZATIONS ----------------------
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
-  tcp.setFingersModel(0.08,0.02,0.03,0.08,0.06);
+  
+  tcp.viewerShowClosedFingersModel(viewer);
   tcp.computeSimpleHeuristicGraspingPoses();
   tcp.computeBlockGraspPredicates(true);
   tcp.viewerAddGraspingPoses(viewer);

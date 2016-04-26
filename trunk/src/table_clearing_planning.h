@@ -42,6 +42,8 @@
 #include "utilities.h"
 #include "edge_processing.h"
 
+#define ORTHOGONAL_PUSHING 0
+#define PARALLEL_PUSHING 1
 
 struct ObjectFull
 {
@@ -172,7 +174,7 @@ class CTableClearingPlanning
     pcl::PointCloud<pcl::PointXYZ > cloud;
     std::vector<pcl::Vertices> vertices;
 
-  }fingers_model;
+  }fingers_model, closed_fingers_model;
 
 
 
@@ -223,6 +225,16 @@ class CTableClearingPlanning
   */
   bool isEEColliding(uint idx, fcl::Transform3f tf);
 
+  /**
+   * @details Collission checking for the case we push in orhtoganl mode
+   * 
+   * @param idx Index of the object 
+   * @param tf tf of the gripper
+   * 
+  * @return true if there is a collision with object indexed by "idx"
+   */
+  bool isClosedFinderModelColliding(uint idx, fcl::Transform3f tf);
+
   bool isFingersModelColliding(uint idx, fcl::Transform3f tf);
 
   /**
@@ -231,6 +243,13 @@ class CTableClearingPlanning
    * @return FclMesh containing the vertices and the triangles
    */
   FclMesh getGripperMesh();
+
+  /**
+   * @brief Get the mesh of the closed gripper model
+   * @details [long description]
+   * @return FclMesh containing the vertices and the triangles
+   */
+  FclMesh getClosedFingersMesh();
 
   FclMesh getFingersModelMesh();
 
@@ -313,12 +332,13 @@ class CTableClearingPlanning
      * @image html fingers_model.png
      * 
      * @param opening_width 
+     * @param closing_width
      * @param finger_width [description]
      * @param deep [description]
      * @param height [description]
      * @param closing_height [description]
      */
-    void setFingersModel(double opening_width, double finger_width,
+    void setFingersModel(double opening_width, double closing_width, double finger_width,
                double deep, double height, double closing_height);
 
     /**
@@ -449,7 +469,7 @@ class CTableClearingPlanning
      *          with the current one, along each principal direction. The length of the push
      *          considered in saved in the private memeber 
      */
-    void computeBlockPredicates(bool print=false);
+    void computeBlockPredicates(bool print=false, uint pushing_method = ORTHOGONAL_PUSHING);
 
     /**
      * @brief Get block grasp predicates
@@ -521,7 +541,7 @@ class CTableClearingPlanning
      * @param[in] print True to print in the terminal each block predicate
      */
     void visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,bool visualization = true,
-                                      bool print = true);
+                                      bool print = true, uint pushing_method = ORTHOGONAL_PUSHING);
 
 
     /**
@@ -581,6 +601,7 @@ class CTableClearingPlanning
     void viewerAddObjectsLabel(Visualizer viewer);
 
     void viewerShowFingersModel(Visualizer viewer);
+    void viewerShowClosedFingersModel(Visualizer viewer);
 
     /**
      * @brief Show in the viewer associated to the class a transformed object. 

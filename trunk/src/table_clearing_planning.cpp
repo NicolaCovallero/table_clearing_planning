@@ -122,6 +122,54 @@ bool CTableClearingPlanning::isEEColliding(uint idx, fcl::Transform3f tf)
 
   return false;
 }
+bool CTableClearingPlanning::isClosedFinderModelColliding(uint idx, fcl::Transform3f tf)
+{
+  FclMesh mesh1,mesh2;
+
+  mesh1 = this->getClosedFingersMesh();
+  mesh2 = this->pcl2FclConvexHull(idx);
+
+  // BVHModel is a template class for mesh geometry, for default OBBRSS template is used
+  typedef fcl::BVHModel<fcl::OBBRSS> Model;
+  Model* ee_model1 = new Model();
+  ee_model1->beginModel();
+  ee_model1->addSubModel(mesh1.vertices, mesh1.triangles);
+  ee_model1->endModel();
+
+  // get the bounding box 
+  //fcl::BVNode<fcl::OBBRSS> p = ee_model1->getBV(0);
+  //double a = p.bv.width();
+
+  Model* model2 = new Model();
+  model2->beginModel();
+  model2->addSubModel(mesh2.vertices, mesh2.triangles);
+  model2->endModel();
+
+
+  // no rotation
+  fcl::Matrix3f R(1,0,0,
+                  0,1,0,
+                  0,0,1);
+  fcl::Vec3f T(0,0,0); // no translation
+
+
+  fcl::Transform3f pose(R, T);
+
+  bool enable_contact = true;
+  int num_max_contacts = std::numeric_limits<int>::max();
+  // set the collision request structure, here we just use the default setting
+  fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // result will be returned via the collision result structure
+  fcl::CollisionResult result;
+
+  int num_contacts = fcl::collide(ee_model1, tf, model2, pose, 
+                             request, result);
+  if(num_contacts > 0)
+    return true;
+
+  return false;
+}
+
 
 bool CTableClearingPlanning::isFingersModelColliding(uint idx, fcl::Transform3f tf)
 {
@@ -203,6 +251,44 @@ CTableClearingPlanning::getGripperMesh()
     fcl::Triangle triangle_tmp(this->ee_simple_model.vertices[i].vertices[0],
                                this->ee_simple_model.vertices[i].vertices[1],
                                this->ee_simple_model.vertices[i].vertices[2]);
+    fcl_mesh.triangles.push_back(triangle_tmp);
+  }
+
+  return fcl_mesh; 
+}
+
+CTableClearingPlanning::FclMesh
+CTableClearingPlanning::getClosedFingersMesh()
+{
+  FclMesh fcl_mesh;
+  // initialize the struct
+  fcl_mesh.vertices.resize(0);
+  fcl_mesh.triangles.resize(0);
+
+  // check for correct input
+  if(this->closed_fingers_model.cloud.points.size() == 0 )
+  {
+    PCL_ERROR("Gripper Model not set\n");
+    return fcl_mesh;
+  }
+
+  // ----------------- fill vertices ----------------------------
+  // for each vertex of the convex hull
+  for (uint i = 0; i < this->closed_fingers_model.cloud.points.size(); ++i)
+  {
+    fcl::Vec3f vec_tmp(this->closed_fingers_model.cloud.points[i].x,
+                       this->closed_fingers_model.cloud.points[i].y,
+                       this->closed_fingers_model.cloud.points[i].z);
+    fcl_mesh.vertices.push_back(vec_tmp);
+  }
+
+  // ----------------- fill triangles ---------------------------
+  for (uint i = 0; i < this->closed_fingers_model.vertices.size(); ++i)
+  {
+
+    fcl::Triangle triangle_tmp(this->closed_fingers_model.vertices[i].vertices[0],
+                               this->closed_fingers_model.vertices[i].vertices[1],
+                               this->closed_fingers_model.vertices[i].vertices[2]);
     fcl_mesh.triangles.push_back(triangle_tmp);
   }
 
@@ -372,7 +458,10 @@ void CTableClearingPlanning::computeAABBObjects(bool refine_centroids)
     transform(3,0) = 0;transform(3,1) = 0;transform(3,2) = 0;transform(3,3) = 1;
 
     PointCloudT tmp_cloud;
-    pcl::transformPointCloud<PointT>(this->objects[i], tmp_cloud, transform);
+    tmp_cloud = this->objects[i];
+    tmp_cloud += this->projections[i];
+    pcl::transformPointCloud<PointT>(tmp_cloud, tmp_cloud, transform);
+    //pcl::transformPointCloud<PointT>(this->objects[i], tmp_cloud, transform);
 
     PointT min_pt,max_pt;
     pcl::getMinMax3D(tmp_cloud,min_pt,max_pt);
@@ -502,7 +591,7 @@ void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, d
   this->ee_simple_model.distance_plane = distance_plane;
 }
 
-void CTableClearingPlanning::setFingersModel(double opening_width, double finger_width,
+void CTableClearingPlanning::setFingersModel (double opening_width, double closing_width, double finger_width,
                double deep, double height, double closing_height)
 {
   if(height <= closing_height)
@@ -552,26 +641,6 @@ void CTableClearingPlanning::setFingersModel(double opening_width, double finger
   this->fingers_model.cloud.points.push_back(p);
   p.y = deep/2;
   this->fingers_model.cloud.points.push_back(p);  
-
-  // // origin up
-  // p.x = 0; p.y = - deep/2; p.z = height/2;
-  // this->fingers_model.cloud.points.push_back(p);
-  // p.y = deep/2;
-  // this->fingers_model.cloud.points.push_back(p);  
-
-  // // origin down
-  // p.x = 0; p.y = - deep/2; p.z = height - closing_height;
-  // this->fingers_model.cloud.points.push_back(p);
-  // p.y = deep/2;
-  // this->fingers_model.cloud.points.push_back(p);  
-
-  //  //creating the concave hull
-  // pcl::ConcaveHull<pcl::PointXYZ> hull;
-  // hull.setInputCloud(this->fingers_model.cloud.makeShared());
-  // hull.setAlpha(0.05);
-  // hull.setDimension(3);
-  // hull.reconstruct(this->fingers_model.cloud,this->fingers_model.vertices);
-
 
   // make the z axis pointing down
   Eigen::Vector3f translation(0,0,0);
@@ -658,6 +727,54 @@ void CTableClearingPlanning::setFingersModel(double opening_width, double finger
   this->fingers_model.vertices.push_back(v);
   v.vertices[0] = 13;v.vertices[1] = 11;v.vertices[2] = 12;
   this->fingers_model.vertices.push_back(v);  
+
+  // creating the cloud
+  p.x = - closing_width/2; p.y = - deep/2; p.z = - closing_height/2;
+  this->closed_fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->closed_fingers_model.cloud.points.push_back(p);
+
+  p.x = - (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
+  this->closed_fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->closed_fingers_model.cloud.points.push_back(p);
+
+  p.x = - (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
+  this->closed_fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->closed_fingers_model.cloud.points.push_back(p);  
+
+  p.x = (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
+  this->closed_fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->closed_fingers_model.cloud.points.push_back(p);
+
+  p.x = (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
+  this->closed_fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->closed_fingers_model.cloud.points.push_back(p);
+
+  p.x = (closing_width)/2; p.y = - deep/2; p.z = - closing_height/2;
+  this->closed_fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->closed_fingers_model.cloud.points.push_back(p);
+
+  p.x = (closing_width)/2; p.y = - deep/2; p.z = closing_height/2;
+  this->closed_fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->closed_fingers_model.cloud.points.push_back(p);  
+
+  p.x = - (closing_width)/2; p.y = - deep/2; p.z = closing_height/2;
+  this->closed_fingers_model.cloud.points.push_back(p);
+  p.y = deep/2;
+  this->closed_fingers_model.cloud.points.push_back(p);  
+
+  // make the z axis pointing down
+  pcl::transformPointCloud<pcl::PointXYZ>(this->closed_fingers_model.cloud, this->closed_fingers_model.cloud, translation , quat);
+
+
+  //manually polygonal mesh reconstruction
+  this->closed_fingers_model.vertices = this->fingers_model.vertices;
 }
 
 void CTableClearingPlanning::computeConvexHulls()
@@ -812,7 +929,7 @@ void CTableClearingPlanning::setPushingObjectDistance(double pushing_object_dist
 {
   this->pushing_object_distance = pushing_object_distance;
 }
-void CTableClearingPlanning::computeBlockPredicates(bool print)
+void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_method)
 { 
   this->blocks_predicates.resize(this->n_objects);
   this->pushing_poses.resize(this->n_objects);
@@ -824,6 +941,17 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
   if(this->principal_directions_objects.size() == 0)
   {
     this->computePrincipalDirections();
+  }
+
+  switch(pushing_method)
+  {
+    case ORTHOGONAL_PUSHING:
+    case PARALLEL_PUSHING: 
+      break;
+    default: 
+      PCL_ERROR("The chosen pushing method is not correct. You set it to %d \n", pushing_method);
+      return;
+      break;
   }
   //tic();
 
@@ -1177,8 +1305,8 @@ void CTableClearingPlanning::computeBlockPredicates(bool print)
   //toc();
 }
 
-void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uint obj_idx,uint dir_idx, bool visualization,
-                                                              bool print)
+void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,
+                                                          bool visualization, bool print, uint pushing_method)
 { 
   fcl::Vec3f T;
   double x,y,z;
@@ -1188,6 +1316,18 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     PCL_ERROR("Index of the direction wrong: %d it has to belong to be 1,2,3,4\n",dir_idx);
     return;
   }
+
+  switch(pushing_method)
+  {
+    case ORTHOGONAL_PUSHING:
+    case PARALLEL_PUSHING: 
+      break;
+    default: 
+      PCL_ERROR("The chosen pushing method is not correct. You set it to %d \n", pushing_method);
+      return;
+      break;
+  }
+
   uint n = 1;
   //for (uint n = 1; n <= this->n_pushes; ++n)
   double step_translation = 0;
@@ -1305,121 +1445,265 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   PrincipalDirectionsProjected* pd = &(principal_directions_objects[obj_idx]);
   Eigen::Matrix3f rot;
   
-  // project centroid to the table 
-  Eigen::Vector3f eigen_point = pd->centroid.head<3>();
-  Eigen::Vector3f proj_eigen_point;
-  pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
-
-  Eigen::Vector3f scaled_diff = eigen_point - proj_eigen_point;
-  scaled_diff.normalize();
-
-  scaled_diff = (this->ee_simple_model.distance_plane + this->ee_simple_model.height/2 )* scaled_diff;
-  
-  Eigen::Vector3f new_centroid = proj_eigen_point + scaled_diff;
-
   Eigen::Vector3f normal;
-  switch(dir_idx)
+  Eigen::Vector3f translation;
+  Eigen::Matrix3f mat_rot;
+  Eigen::Quaternionf quat;
+  if(pushing_method == PARALLEL_PUSHING)
   {
-    case 1 :
-            step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                               - this->ee_simple_model.deep/2 - pushing_object_distance;
-            x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
-                 new_centroid[0];
-            y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
-                 new_centroid[1];
-            z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
-                 new_centroid[2];
-            T.setValue(x,y,z);
+    // project centroid to the table 
+    Eigen::Vector3f eigen_point = pd->centroid.head<3>();
+    Eigen::Vector3f proj_eigen_point;
+    pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
 
-            // old frame
-            // x axis -> dir1, y axis-> dir3
-            // rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-            // rot(1,0) = pd->dir3[0]; rot(1,1) = pd->dir3[1]; rot(1,2) = pd->dir3[2];
-            // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-            //rot(2,0) = normal[0]; rot(2,1) = normal[1]; rot(2,2) = normal[2];
+    Eigen::Vector3f scaled_diff = eigen_point - proj_eigen_point;
+    scaled_diff.normalize(); // this hsould be equal to - this->normal_plane
 
-            rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-            rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
-            
-            break;
-    case 2 :
-            step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                               - this->ee_simple_model.deep/2 - pushing_object_distance;           
-            x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
-                 new_centroid[0];
-            y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
-                 new_centroid[1];
-            z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
-                 new_centroid[2];
-            T.setValue(x,y,z);
+    scaled_diff = (this->ee_simple_model.distance_plane + this->ee_simple_model.height/2 )* scaled_diff;
+    
+    Eigen::Vector3f new_centroid = proj_eigen_point + scaled_diff;
 
-            // old frame
-            // rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-            // rot(1,0) = pd->dir4[0]; rot(1,1) = pd->dir4[1]; rot(1,2) = pd->dir4[2];
-            // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+    switch(dir_idx)
+    {
+      case 1 :
+              step_translation = - this->aabb_objects[obj_idx].deep/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
 
-            rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-            rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
-            
+              rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
 
+              // we are now going to save the TCP pose 
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir1;
+              this->pushing_poses[obj_idx].pose_dir1.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
 
-            break; 
-    case 3 :
-            step_translation = - this->aabb_objects[obj_idx].width/2 +
-                               - this->ee_simple_model.deep/2 - pushing_object_distance;
-            x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
-                 new_centroid[0];
-            y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
-                 new_centroid[1];
-            z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
-                 new_centroid[2];
-            T.setValue(x,y,z);
+              break;
+      case 2 :
+              step_translation = - this->aabb_objects[obj_idx].deep/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance;           
+              x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
 
-            // old frame
-            // rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-            // rot(1,0) = pd->dir1[0]; rot(1,1) = pd->dir1[1]; rot(1,2) = pd->dir1[2];
-            // rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
+              rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
 
-            rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-            rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
-            
+              // TCP
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir2;
+              this->pushing_poses[obj_idx].pose_dir2.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
 
-            break; 
-    case 4 :
-            step_translation = - this->aabb_objects[obj_idx].width/2 +
-                               - this->ee_simple_model.deep/2 - pushing_object_distance; 
-            x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
-                 new_centroid[0];
-            y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
-                 new_centroid[1];
-            z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
-                 new_centroid[2];
-            T.setValue(x,y,z);
+              break; 
+      case 3 :
+              step_translation = - this->aabb_objects[obj_idx].width/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
 
-            // old frame
-            // rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-            // rot(1,0) = pd->dir2[0]; rot(1,1) = pd->dir2[1]; rot(1,2) = pd->dir2[2];
-            // rot(2,0) = -this->plane_normal[0]; rot(2,1) = -this->plane_normal[1]; rot(2,2) = -this->plane_normal[2];
+              rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
 
+              // TCP
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir3;
+              this->pushing_poses[obj_idx].pose_dir3.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
 
-            rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-            rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-            rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
-            
+              break; 
+      case 4 :
+              step_translation = - this->aabb_objects[obj_idx].width/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance; 
+              x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
 
+              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
 
-            break; 
-    default: break;
+              // TCP
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir4;
+              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
+
+              break; 
+      default: break;
+    }
+  }
+  else if(pushing_method == ORTHOGONAL_PUSHING)
+  {
+    // project centroid to the table 
+    Eigen::Vector3f eigen_point = pd->centroid.head<3>();
+    Eigen::Vector3f proj_eigen_point;
+    pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
+
+    Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * (this->aabb_objects[obj_idx].height);
+    
+    switch(dir_idx)
+    {
+      case 1 :
+              step_translation = - this->aabb_objects[obj_idx].deep/2 
+                                 - this->closed_fingers_model.finger_width/2
+                                 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+
+              rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+              rot(1,0) = -pd->dir1[0]; rot(1,1) = -pd->dir1[1]; rot(1,2) = -pd->dir1[2];
+              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
+
+              break;
+      case 2 :
+              step_translation = - this->aabb_objects[obj_idx].deep/2 
+                                 - this->closed_fingers_model.finger_width/2
+                                 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+
+              rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+              rot(1,0) = -pd->dir2[0]; rot(1,1) = -pd->dir2[1]; rot(1,2) = -pd->dir2[2];
+              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
+
+              break; 
+      case 3 :
+              step_translation = - this->aabb_objects[obj_idx].width/2 
+                                 - this->closed_fingers_model.finger_width/2
+                                 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+
+              rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+              rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
+              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
+
+              break; 
+      case 4 :
+              step_translation = - this->aabb_objects[obj_idx].width/2 
+                                 - this->closed_fingers_model.finger_width/2
+                                 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
+
+              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+              rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
+              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+
+              break; 
+      default: break;
+    }
   }
   //for all the other objects
 
   //we have to compute the rotation accordingly to the direction
 
   fcl::Matrix3f R; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
-  Eigen::Matrix3f mat_rot = rot.inverse();
+  mat_rot = rot.inverse();
   this->eigen2FclRotation(mat_rot,R);
 
   fcl::Transform3f pose_ee(R, T);
@@ -1430,17 +1714,40 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     Eigen::Quaternionf quat_ee;
     pcl::PointCloud<pcl::PointXYZ> ee_translated;
     this->fcl2EigenTransform(translation_ee, quat_ee, pose_ee);
-    pcl::transformPointCloud<pcl::PointXYZ>(this->ee_simple_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
-
-    viewer->addPolygonMesh<pcl::PointXYZ>(ee_translated.makeShared(), this->ee_simple_model.vertices,"ee");
+    switch(pushing_method)
+    {
+      case ORTHOGONAL_PUSHING:
+        pcl::transformPointCloud<pcl::PointXYZ>(this->closed_fingers_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
+        viewer->addPolygonMesh<pcl::PointXYZ>(ee_translated.makeShared(), this->closed_fingers_model.vertices,"ee");
+        break;
+      case PARALLEL_PUSHING:
+        pcl::transformPointCloud<pcl::PointXYZ>(this->ee_simple_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
+        viewer->addPolygonMesh<pcl::PointXYZ>(ee_translated.makeShared(), this->ee_simple_model.vertices,"ee");
+        break;
+      default:
+        break;
+    }
   }
 
   // check for all the other objects what are the ones that collide with it
   for (uint i = 0; i < this->objects.size(); ++i)
   {
     if(i != obj_idx)
+    {
       // is gripper colliding?
-      if(this->isEEColliding(i,pose_ee))
+      bool collision;
+      switch(pushing_method)
+      {
+        case ORTHOGONAL_PUSHING:
+          collision = this->isClosedFinderModelColliding(i,pose_ee);
+          break;
+        case PARALLEL_PUSHING:
+          collision = this->isEEColliding(i,pose_ee);
+          break;
+        default:
+          break;
+      }
+      if(collision)
       {
         //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
         switch(dir_idx)
@@ -1460,6 +1767,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
           default: break;
         }
       }
+    }
   }
 
   //remove duplicates 
@@ -2389,6 +2697,12 @@ void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer)
   viewer->addCoordinateSystem (0.3);
   viewer->addPointCloud(this->fingers_model.cloud.makeShared(),"fingers model");
   viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.cloud.makeShared(), this->fingers_model.vertices );  
+}
+void CTableClearingPlanning::viewerShowClosedFingersModel(Visualizer viewer)
+{
+ viewer->addCoordinateSystem (0.3);
+  viewer->addPointCloud(this->closed_fingers_model.cloud.makeShared(),"closed fingers model");
+  viewer->addPolygonMesh<pcl::PointXYZ>(this->closed_fingers_model.cloud.makeShared(), this->closed_fingers_model.vertices );   
 }
 
 void CTableClearingPlanning::reset()

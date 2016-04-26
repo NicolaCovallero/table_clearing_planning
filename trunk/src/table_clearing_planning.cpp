@@ -4,7 +4,8 @@ CTableClearingPlanning::CTableClearingPlanning()
 {
   this->n_objects = 0;
   this->pushing_step = this->PUSHING_STEP;
-  this-> pushing_object_distance = 0.05; //5 cm
+  this->pushing_object_distance = 0.05; //5 cm
+  this->approaching_distance = 0.1; // 10 cm 
   return;
 }
 
@@ -14,6 +15,7 @@ CTableClearingPlanning::CTableClearingPlanning(std::vector<PointCloudT> &objects
   this->n_objects = objects.size();
   this->pushing_step = this->PUSHING_STEP;
   this-> pushing_object_distance = 0.05; //5 cm
+  this->approaching_distance = 0.1; // 10 cm
   return;
 } 
 
@@ -266,7 +268,7 @@ CTableClearingPlanning::getClosedFingersMesh()
   fcl_mesh.triangles.resize(0);
 
   // check for correct input
-  if(this->closed_fingers_model.cloud.points.size() == 0 )
+  if(this->fingers_model.closed_cloud.points.size() == 0 )
   {
     PCL_ERROR("Gripper Model not set\n");
     return fcl_mesh;
@@ -274,21 +276,21 @@ CTableClearingPlanning::getClosedFingersMesh()
 
   // ----------------- fill vertices ----------------------------
   // for each vertex of the convex hull
-  for (uint i = 0; i < this->closed_fingers_model.cloud.points.size(); ++i)
+  for (uint i = 0; i < this->fingers_model.closed_cloud.points.size(); ++i)
   {
-    fcl::Vec3f vec_tmp(this->closed_fingers_model.cloud.points[i].x,
-                       this->closed_fingers_model.cloud.points[i].y,
-                       this->closed_fingers_model.cloud.points[i].z);
+    fcl::Vec3f vec_tmp(this->fingers_model.closed_cloud.points[i].x,
+                       this->fingers_model.closed_cloud.points[i].y,
+                       this->fingers_model.closed_cloud.points[i].z);
     fcl_mesh.vertices.push_back(vec_tmp);
   }
 
   // ----------------- fill triangles ---------------------------
-  for (uint i = 0; i < this->closed_fingers_model.vertices.size(); ++i)
+  for (uint i = 0; i < this->fingers_model.closed_vertices.size(); ++i)
   {
 
-    fcl::Triangle triangle_tmp(this->closed_fingers_model.vertices[i].vertices[0],
-                               this->closed_fingers_model.vertices[i].vertices[1],
-                               this->closed_fingers_model.vertices[i].vertices[2]);
+    fcl::Triangle triangle_tmp(this->fingers_model.closed_vertices[i].vertices[0],
+                               this->fingers_model.closed_vertices[i].vertices[1],
+                               this->fingers_model.closed_vertices[i].vertices[2]);
     fcl_mesh.triangles.push_back(triangle_tmp);
   }
 
@@ -304,7 +306,7 @@ CTableClearingPlanning::getFingersModelMesh()
   fcl_mesh.triangles.resize(0);
 
   // check for correct input
-  if(this->fingers_model.cloud.points.size() == 0 )
+  if(this->fingers_model.open_cloud.points.size() == 0 )
   {
     PCL_ERROR("Fingers Model not set\n");
     return fcl_mesh;
@@ -312,21 +314,21 @@ CTableClearingPlanning::getFingersModelMesh()
 
   // ----------------- fill vertices ----------------------------
   // for each vertex of the convex hull
-  for (uint i = 0; i < this->fingers_model.cloud.points.size(); ++i)
+  for (uint i = 0; i < this->fingers_model.open_cloud.points.size(); ++i)
   {
-    fcl::Vec3f vec_tmp(this->fingers_model.cloud.points[i].x,
-                       this->fingers_model.cloud.points[i].y,
-                       this->fingers_model.cloud.points[i].z);
+    fcl::Vec3f vec_tmp(this->fingers_model.open_cloud.points[i].x,
+                       this->fingers_model.open_cloud.points[i].y,
+                       this->fingers_model.open_cloud.points[i].z);
     fcl_mesh.vertices.push_back(vec_tmp);
   }
 
   // ----------------- fill triangles ---------------------------
-  for (uint i = 0; i < this->fingers_model.vertices.size(); ++i)
+  for (uint i = 0; i < this->fingers_model.open_vertices.size(); ++i)
   {
 
-    fcl::Triangle triangle_tmp(this->fingers_model.vertices[i].vertices[0],
-                               this->fingers_model.vertices[i].vertices[1],
-                               this->fingers_model.vertices[i].vertices[2]);
+    fcl::Triangle triangle_tmp(this->fingers_model.open_vertices[i].vertices[0],
+                               this->fingers_model.open_vertices[i].vertices[1],
+                               this->fingers_model.open_vertices[i].vertices[2]);
     fcl_mesh.triangles.push_back(triangle_tmp);
   }
 
@@ -497,15 +499,16 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
     OriginalPrincipalDirections* opd = &(this->original_principal_directions_objects[i]);
     PrincipalDirectionsProjected* pd = &(this->principal_directions_objects[i]);
     //we get the transformation matrices accordingly to the principal directions and grasping poses
-    GraspingPose gp;
+    GraspingPose gp,ap;
     //gp.translation = opd->centroid.head<3>();
     this->computeSurfaceGraspPoint(gp.translation,i);
 
+    Eigen::Vector3f new_axis;
     if(vertical_poses)
     {
       gp.rotation(0,0) = pd->dir3[0]; gp.rotation(0,1) = pd->dir3[1]; gp.rotation(0,2) = pd->dir3[2];   
       gp.rotation(1,0) = pd->dir2[0]; gp.rotation(1,1) = pd->dir2[1]; gp.rotation(1,2) = pd->dir2[2];   
-      Eigen::Vector3f new_axis = pd->dir3.cross(pd->dir2); 
+      new_axis = pd->dir3.cross(pd->dir2); 
       gp.rotation(2,0) = new_axis[0]; gp.rotation(2,1) = new_axis[1]; gp.rotation(2,2) = new_axis[2];  
       
       // this express the rotation from the desired position to the frame, we have to get the inverse to
@@ -515,6 +518,7 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
       gp.rotation = mat_rot;
       Eigen::Quaternionf quat(mat_rot);
       gp.quaternion = quat;
+
     }
     else
     {
@@ -522,7 +526,7 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
       // a rotation matrix in way that its x axis is aligned to the y axis of fingerModel 
    
       gp.rotation(0,0) = pd->dir3[0]; gp.rotation(0,1) = pd->dir3[1]; gp.rotation(0,2) = pd->dir3[2];   
-      Eigen::Vector3f new_axis = pd->dir3.cross(opd->p3); 
+      new_axis = pd->dir3.cross(opd->p3); 
       gp.rotation(1,0) = new_axis[0]; gp.rotation(1,1) = new_axis[1]; gp.rotation(1,2) = new_axis[2];   
       new_axis = pd->dir3.cross(new_axis);
       gp.rotation(2,0) = new_axis[0]; gp.rotation(2,1) = new_axis[1]; gp.rotation(2,2) = new_axis[2];   
@@ -535,7 +539,13 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
 
     }
 
+    ap = gp;
+
+    //translate (new axis is pointing forward the table)
+    ap.translation = ap.translation - new_axis * this->approaching_distance;
+
     this->grasping_poses.push_back(gp);
+    this->approaching_poses.push_back(ap);
   }
 }
 
@@ -600,47 +610,54 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
     return;
   }
 
+  this->fingers_model.opening_width = opening_width;
+  this->fingers_model.closing_width = closing_width;
+  this->fingers_model.finger_width = finger_width;
+  this->fingers_model.deep = deep;
+  this->fingers_model.height = height;
+  this->fingers_model.closing_height = closing_height;
+  
   // creating the cloud
   pcl::PointXYZ p;
   p.x = - opening_width/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
 
   p.x = - (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
 
   p.x = - (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);  
+  this->fingers_model.open_cloud.points.push_back(p);  
 
   p.x = (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
 
   p.x = (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
 
   p.x = (opening_width)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
 
   p.x = (opening_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);  
+  this->fingers_model.open_cloud.points.push_back(p);  
 
   p.x = - (opening_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->fingers_model.cloud.points.push_back(p);
+  this->fingers_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.cloud.points.push_back(p);  
+  this->fingers_model.open_cloud.points.push_back(p);  
 
   // make the z axis pointing down
   Eigen::Vector3f translation(0,0,0);
@@ -650,8 +667,7 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
   mat_rot(2,0) = 0;mat_rot(2,1) = 0;mat_rot(2,2) = -1;
   Eigen::Matrix3f rot = mat_rot.inverse();
   Eigen::Quaternionf quat(rot);
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.cloud, this->fingers_model.cloud, translation , quat);
-
+  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, this->fingers_model.open_cloud, translation , quat);
 
   //manually polygonal mesh reconstruction
   pcl::Vertices v;
@@ -659,122 +675,132 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
 
   //front side
   v.vertices[0] = 1;v.vertices[1] = 3;v.vertices[2] = 5;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 1;v.vertices[1] = 5;v.vertices[2] = 15;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 5;v.vertices[1] = 7;v.vertices[2] = 15;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 15;v.vertices[1] = 7;v.vertices[2] = 13;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 11;v.vertices[1] = 7;v.vertices[2] = 13;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 7;v.vertices[1] = 9;v.vertices[2] = 11;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
 
   //back side
   v.vertices[0] = 0;v.vertices[1] = 2;v.vertices[2] = 4;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 0;v.vertices[1] = 4;v.vertices[2] = 14;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 4;v.vertices[1] = 6;v.vertices[2] = 14;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 14;v.vertices[1] = 6;v.vertices[2] = 12;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 10;v.vertices[1] = 6;v.vertices[2] = 12;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 6;v.vertices[1] = 8;v.vertices[2] = 10;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
 
   v.vertices[0] = 0;v.vertices[1] = 1;v.vertices[2] = 2;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 3;v.vertices[1] = 1;v.vertices[2] = 2;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
 
   v.vertices[0] = 8;v.vertices[1] = 9;v.vertices[2] = 10;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 11;v.vertices[1] = 9;v.vertices[2] = 10;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
 
   v.vertices[0] = 2;v.vertices[1] = 3;v.vertices[2] = 4;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 5;v.vertices[1] = 3;v.vertices[2] = 4;
-  this->fingers_model.vertices.push_back(v);  
+  this->fingers_model.open_vertices.push_back(v);  
 
   v.vertices[0] = 8;v.vertices[1] = 7;v.vertices[2] = 6;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 8;v.vertices[1] = 9;v.vertices[2] = 7;
-  this->fingers_model.vertices.push_back(v);  
+  this->fingers_model.open_vertices.push_back(v);  
 
   //top "roof"
   v.vertices[0] = 4;v.vertices[1] = 5;v.vertices[2] = 6;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 5;v.vertices[1] = 6;v.vertices[2] = 7;
-  this->fingers_model.vertices.push_back(v);  
+  this->fingers_model.open_vertices.push_back(v);  
 
   //bottom "roof"
   v.vertices[0] = 14;v.vertices[1] = 15;v.vertices[2] = 12;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 12;v.vertices[1] = 15;v.vertices[2] = 13;
-  this->fingers_model.vertices.push_back(v);  
+  this->fingers_model.open_vertices.push_back(v);  
 
   //internal sides
   v.vertices[0] = 0;v.vertices[1] = 1;v.vertices[2] = 14;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 15;v.vertices[1] = 1;v.vertices[2] = 14;
-  this->fingers_model.vertices.push_back(v);  
+  this->fingers_model.open_vertices.push_back(v);  
 
   v.vertices[0] = 10;v.vertices[1] = 11;v.vertices[2] = 12;
-  this->fingers_model.vertices.push_back(v);
+  this->fingers_model.open_vertices.push_back(v);
   v.vertices[0] = 13;v.vertices[1] = 11;v.vertices[2] = 12;
-  this->fingers_model.vertices.push_back(v);  
+  this->fingers_model.open_vertices.push_back(v);  
 
   // creating the cloud
   p.x = - closing_width/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
 
   p.x = - (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
 
   p.x = - (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->closed_fingers_model.cloud.points.push_back(p);  
+  this->fingers_model.closed_cloud.points.push_back(p);  
 
   p.x = (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
 
   p.x = (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
 
   p.x = (closing_width)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
 
   p.x = (closing_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->closed_fingers_model.cloud.points.push_back(p);  
+  this->fingers_model.closed_cloud.points.push_back(p);  
 
   p.x = - (closing_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->closed_fingers_model.cloud.points.push_back(p);
+  this->fingers_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->closed_fingers_model.cloud.points.push_back(p);  
+  this->fingers_model.closed_cloud.points.push_back(p);  
 
   // make the z axis pointing down
-  pcl::transformPointCloud<pcl::PointXYZ>(this->closed_fingers_model.cloud, this->closed_fingers_model.cloud, translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.closed_cloud, this->fingers_model.closed_cloud, translation , quat);
 
 
   //manually polygonal mesh reconstruction
-  this->closed_fingers_model.vertices = this->fingers_model.vertices;
+  this->fingers_model.closed_vertices = this->fingers_model.open_vertices;
+
+  //shift both them up in order to make the origin being the fingers contact point
+  Eigen::Vector3f translation2(0,0,- closing_height/2);
+  Eigen::Quaternionf orientation = Eigen::Quaternionf::Identity ();
+  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, this->fingers_model.open_cloud, translation2 , orientation);
+  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.closed_cloud, this->fingers_model.closed_cloud, translation2 , orientation);
+
+  
+  
+
 }
 
 void CTableClearingPlanning::computeConvexHulls()
@@ -823,6 +849,11 @@ void CTableClearingPlanning::computeSurfaceGraspPoint(Eigen::Vector3f& surface_p
   {
     PCL_ERROR("Impossible finding a surface contact");
   }
+
+  // translate the contact point in order to make the center of the gripper concide with it
+  PrincipalDirectionsProjected* pd = &(this->principal_directions_objects[idx]);
+  Eigen::Vector3f new_axis = pd->dir3.cross(pd->dir2); 
+  surface_point = surface_point + new_axis * this->fingers_model.closing_height/2;
 }
 
 void CTableClearingPlanning::computeConcaveHulls()
@@ -924,6 +955,10 @@ void CTableClearingPlanning::computeOnTopPredicates(double th1, double th2, bool
 void CTableClearingPlanning::setPushingStep(double pushing_step)
 {
   this->pushing_step = pushing_step;
+}
+void CTableClearingPlanning::setApproachingDistance(double approaching_distance)
+{
+  this->approaching_distance = approaching_distance;
 }
 void CTableClearingPlanning::setPushingObjectDistance(double pushing_object_distance)
 {
@@ -1208,13 +1243,13 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
         Eigen::Vector3f proj_eigen_point;
         pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
 
-        Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * (this->aabb_objects[obj_idx].height);
-        
+        Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal *
+                       (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height/2);       
         switch(dir_idx)
         {
           case 1 :
                   step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                     - this->closed_fingers_model.finger_width/2
+                                     - this->fingers_model.finger_width/2
                                      - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                        new_centroid[0];
@@ -1241,7 +1276,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
                   break;
           case 2 :
                   step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                     - this->closed_fingers_model.finger_width/2
+                                     - this->fingers_model.finger_width/2
                                      - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
                        new_centroid[0];
@@ -1268,7 +1303,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
                   break; 
           case 3 :
                   step_translation = - this->aabb_objects[obj_idx].width/2 
-                                     - this->closed_fingers_model.finger_width/2
+                                     - this->fingers_model.finger_width/2
                                      - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
                        new_centroid[0];
@@ -1295,7 +1330,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
                   break; 
           case 4 :
                   step_translation = - this->aabb_objects[obj_idx].width/2 
-                                     - this->closed_fingers_model.finger_width/2
+                                     - this->fingers_model.finger_width/2
                                      - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
                        new_centroid[0];
@@ -1307,8 +1342,6 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
                   translation[0] = x;
                   translation[1] = y;
                   translation[2] = z;
-
-
 
                   rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
                   rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
@@ -1707,13 +1740,14 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     Eigen::Vector3f proj_eigen_point;
     pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
 
-    Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * (this->aabb_objects[obj_idx].height);
+    Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
+                       (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height/2);        
     
     switch(dir_idx)
     {
       case 1 :
               step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                 - this->closed_fingers_model.finger_width/2
+                                 - this->fingers_model.finger_width/2
                                  - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                    new_centroid[0];
@@ -1740,7 +1774,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               break;
       case 2 :
               step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                 - this->closed_fingers_model.finger_width/2
+                                 - this->fingers_model.finger_width/2
                                  - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
                    new_centroid[0];
@@ -1767,7 +1801,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               break; 
       case 3 :
               step_translation = - this->aabb_objects[obj_idx].width/2 
-                                 - this->closed_fingers_model.finger_width/2
+                                 - this->fingers_model.finger_width/2
                                  - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
                    new_centroid[0];
@@ -1794,7 +1828,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               break; 
       case 4 :
               step_translation = - this->aabb_objects[obj_idx].width/2 
-                                 - this->closed_fingers_model.finger_width/2
+                                 - this->fingers_model.finger_width/2
                                  - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
                    new_centroid[0];
@@ -1841,8 +1875,8 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     switch(pushing_method)
     {
       case ORTHOGONAL_PUSHING:
-        pcl::transformPointCloud<pcl::PointXYZ>(this->closed_fingers_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
-        viewer->addPolygonMesh<pcl::PointXYZ>(ee_translated.makeShared(), this->closed_fingers_model.vertices,"ee");
+        pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.closed_cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
+        viewer->addPolygonMesh<pcl::PointXYZ>(ee_translated.makeShared(), this->fingers_model.closed_vertices,"ee");
         break;
       case PARALLEL_PUSHING:
         pcl::transformPointCloud<pcl::PointXYZ>(this->ee_simple_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
@@ -2761,15 +2795,42 @@ void CTableClearingPlanning::viewerAddGraspingPose(Visualizer viewer,uint idx)
   pcl::PointCloud<pcl::PointXYZ> cloud;
   Eigen::Quaternionf quat(this->grasping_poses[idx].rotation);
   // Eigen::Quaternionf quat = Eigen::Quaternionf::Identity ();
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.cloud, cloud, this->grasping_poses[idx].translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud, this->grasping_poses[idx].translation , quat);
 
-  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->fingers_model.vertices, grasp_name );  
+  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->fingers_model.open_vertices, grasp_name );  
+}
+void CTableClearingPlanning::viewerAddApproachingPose(Visualizer viewer, uint idx)
+{
+  if(this->grasping_poses.size() == 0)
+  {
+    PCL_ERROR("Grasping Poses still not computed.");
+    return;
+  }
+
+  std::string grasp_name;
+  std::ostringstream convert;   // stream used for the conversion
+  grasp_name = "approaching_";
+  convert << idx;
+  grasp_name += convert.str();
+
+  pcl::PointCloud<pcl::PointXYZ> cloud;
+  Eigen::Quaternionf quat(this->approaching_poses[idx].rotation);
+  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud, this->approaching_poses[idx].translation , quat);
+
+  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->fingers_model.open_vertices, grasp_name );  
 }
 void CTableClearingPlanning::viewerAddGraspingPoses(Visualizer viewer)
 {
   for (int i = 0; i < this->n_objects; ++i)
   {
     this->viewerAddGraspingPose(viewer,i);
+  }
+}
+void CTableClearingPlanning::viewerAddApproachingPoses(Visualizer viewer)
+{
+  for (int i = 0; i < this->n_objects; ++i)
+  {
+    this->viewerAddApproachingPose(viewer,i);
   }
 }
 uint CTableClearingPlanning::getNumObjects()
@@ -2811,6 +2872,10 @@ std::vector<GraspingPose> CTableClearingPlanning::getGraspingPoses()
 {
   return this->grasping_poses;
 }
+std::vector<GraspingPose> CTableClearingPlanning::getApproachingPoses()
+{
+  return this->approaching_poses;
+}
 std::vector<PushingPose> CTableClearingPlanning::getPushingPoses()
 {
   return this->pushing_poses;
@@ -2819,14 +2884,14 @@ std::vector<PushingPose> CTableClearingPlanning::getPushingPoses()
 void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer)
 {
   viewer->addCoordinateSystem (0.3);
-  viewer->addPointCloud(this->fingers_model.cloud.makeShared(),"fingers model");
-  viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.cloud.makeShared(), this->fingers_model.vertices );  
+  viewer->addPointCloud(this->fingers_model.open_cloud.makeShared(),"fingers model");
+  viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.open_cloud.makeShared(), this->fingers_model.open_vertices );  
 }
 void CTableClearingPlanning::viewerShowClosedFingersModel(Visualizer viewer)
 {
  viewer->addCoordinateSystem (0.3);
-  viewer->addPointCloud(this->closed_fingers_model.cloud.makeShared(),"closed fingers model");
-  viewer->addPolygonMesh<pcl::PointXYZ>(this->closed_fingers_model.cloud.makeShared(), this->closed_fingers_model.vertices );   
+  viewer->addPointCloud(this->fingers_model.closed_cloud.makeShared(),"closed fingers model");
+  viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.closed_cloud.makeShared(), this->fingers_model.closed_vertices );   
 }
 
 void CTableClearingPlanning::reset()

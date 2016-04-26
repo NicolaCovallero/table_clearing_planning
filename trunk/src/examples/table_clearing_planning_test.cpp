@@ -130,6 +130,7 @@ int main(int argc, char *argv[])
   tcp.computeSimpleHeuristicGraspingPoses();
   tcp.computeBlockGraspPredicates(true);
   tcp.viewerAddGraspingPoses(viewer);
+  tcp.viewerAddApproachingPoses(viewer);
   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
   viewer->setBackgroundColor (0, 0, 0);
   viewer->addCoordinateSystem (0.3);

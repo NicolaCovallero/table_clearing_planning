@@ -165,16 +165,17 @@ class CTableClearingPlanning
 
   struct FingersModel{
     double opening_width;
+    double closing_width;
     double finger_width;
     double deep;
     double height;
     double closing_height;
 
     // convex hull
-    pcl::PointCloud<pcl::PointXYZ > cloud;
-    std::vector<pcl::Vertices> vertices;
+    pcl::PointCloud<pcl::PointXYZ > open_cloud,closed_cloud;
+    std::vector<pcl::Vertices> open_vertices,closed_vertices;
 
-  }fingers_model, closed_fingers_model;
+  }fingers_model;
 
 
 
@@ -191,7 +192,9 @@ class CTableClearingPlanning
 
   std::vector<AABB> aabb_objects;
 
-  std::vector<GraspingPose> grasping_poses;
+  std::vector<GraspingPose> grasping_poses,approaching_poses;
+  double approaching_distance;
+
   std::vector<PushingPose> pushing_poses;
 
   // projections on plane
@@ -455,6 +458,14 @@ class CTableClearingPlanning
     void setPushingStep(double pushing_step);
 
     /**
+     * @details distance in meter between the grasping pose and the approaching pose. 
+     * The approaching pose is the pose of the gripper where it will be opened.
+     * 
+     * @param approaching_distance Distance in meters
+     */
+    void setApproachingDistance(double approaching_distance);
+
+    /**
      * 
      * @details This distance is the distance of the end effector from the object, it is like an offset.
      * 
@@ -611,6 +622,8 @@ class CTableClearingPlanning
 
     void viewerAddGraspingPose(Visualizer viewer,uint idx);
     void viewerAddGraspingPoses(Visualizer viewer);
+    void viewerAddApproachingPose(Visualizer viewer, uint idx);
+    void viewerAddApproachingPoses(Visualizer viewer);
 
     uint getNumObjects();
     std::vector<ObjectFull> getFullObjects();
@@ -630,6 +643,8 @@ class CTableClearingPlanning
     std::vector<OriginalPrincipalDirections> getOriginalPrincipalDirections();
 
     std::vector<GraspingPose> getGraspingPoses();
+
+    std::vector<GraspingPose> getApproachingPoses();
 
     std::vector<PushingPose> getPushingPoses();
 

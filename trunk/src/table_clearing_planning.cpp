@@ -1244,7 +1244,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
         pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
 
         Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal *
-                       (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height/2);       
+                       (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height);       
         switch(dir_idx)
         {
           case 1 :
@@ -1741,7 +1741,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
 
     Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
-                       (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height/2);        
+                       (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height);        
     
     switch(dir_idx)
     {

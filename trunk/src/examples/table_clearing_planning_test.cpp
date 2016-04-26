@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   //tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
   tcp.setGripperSimpleModel(0.08, 0.1, 0.12, 0.025);
-  tcp.setFingersModel(0.08,0.04,0.02,0.03,0.08,0.06);
+  tcp.setFingersModel(0.07,0.025,0.03,0.03,0.055,0.045);
 
   tcp.computeProjectionsOnTable();
   tcp.computeRichConvexHulls();

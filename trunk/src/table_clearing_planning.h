@@ -648,6 +648,8 @@ class CTableClearingPlanning
 
     std::vector<PushingPose> getPushingPoses();
 
+    double getPushingObjectDistance();
+
     /**
      * @brief Delete all the data ot the class
      * @details Delete all the data ot the class

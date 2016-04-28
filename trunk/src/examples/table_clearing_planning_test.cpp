@@ -106,14 +106,19 @@ int main(int argc, char *argv[])
   // scene perception - planning part
   //
   //  TODO:
-  //  2) ON predicate
   //  4) filters -> check this "Radius Outlier Removal"
   //
   tcp.setObjectsPointCloud(segmented_objs);
   //tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
   tcp.setGripperSimpleModel(0.08, 0.1, 0.12, 0.025);
-  tcp.setFingersModel(0.07,0.025,0.03,0.03,0.055,0.045);
+  double opening_width = 0.08;
+  double closing_width = 0.025;
+  double finger_width = 0.03;
+  double deep = 0.03;
+  double height = 0.115;
+  double closing_height = 0.045;
+  tcp.setFingersModel(opening_width,closing_width,finger_width,deep,height,closing_height);
 
   tcp.computeProjectionsOnTable();
   tcp.computeRichConvexHulls();

@@ -494,6 +494,8 @@ void CTableClearingPlanning::computeAABBObjects(bool refine_centroids)
 
 void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_poses)
 {
+  this->grasping_poses.resize(0);
+  this->approaching_poses.resize(0);
   for (int i = 0; i < this->n_objects; ++i)
   {
     OriginalPrincipalDirections* opd = &(this->original_principal_directions_objects[i]);
@@ -1243,8 +1245,8 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
         Eigen::Vector3f proj_eigen_point;
         pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
 
-        Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal *
-                       (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height);       
+        Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
+                       (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height);        
         switch(dir_idx)
         {
           case 1 :
@@ -2879,6 +2881,10 @@ std::vector<GraspingPose> CTableClearingPlanning::getApproachingPoses()
 std::vector<PushingPose> CTableClearingPlanning::getPushingPoses()
 {
   return this->pushing_poses;
+}
+double CTableClearingPlanning::getPushingObjectDistance()
+{
+  return this->pushing_object_distance;
 }
 
 void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer)

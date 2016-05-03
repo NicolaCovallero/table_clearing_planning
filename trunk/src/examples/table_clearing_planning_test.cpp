@@ -84,6 +84,8 @@ int main(int argc, char *argv[])
   segmented_objs = seg.get_segmented_objects_simple();
   pcl::ModelCoefficients plane_coeff = seg.get_plane_coefficients();
   
+
+
   EdgeProcessing ep;
   ep.setOriginalPointCloud(*cloud);
   ep.setObjects(segmented_objs);
@@ -109,6 +111,7 @@ int main(int argc, char *argv[])
   //  4) filters -> check this "Radius Outlier Removal"
   //
   tcp.setObjectsPointCloud(segmented_objs);
+  tcp.setPlanePointCloud(*(seg.get_plane_cloud()));
   //tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
   tcp.setGripperSimpleModel(0.08, 0.1, 0.12, 0.025);
@@ -136,6 +139,7 @@ int main(int argc, char *argv[])
   tcp.computeBlockGraspPredicates(true);
   tcp.viewerAddGraspingPoses(viewer);
   tcp.viewerAddApproachingPoses(viewer);
+  tcp.viewerAddPlaneConvexHull(viewer);
   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
   viewer->setBackgroundColor (0, 0, 0);
   viewer->addCoordinateSystem (0.3);

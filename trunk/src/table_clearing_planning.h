@@ -180,6 +180,11 @@ class CTableClearingPlanning
 
 
   PointCloudT original_cloud;
+  
+  PointCloudT plane_cloud;
+  PointCloudT plane_convex_hull_2d;
+  std::vector<pcl::Vertices> plane_convex_hull_indices;
+
   std::vector<PointCloudT > objects;///< vector of objects point cloud
   std::vector<PointCloudT > rich_objects;
   std::vector<ObjectFull> objects_full;
@@ -269,18 +274,29 @@ class CTableClearingPlanning
 
 
   /**
-   * @brief   Convert the convex hull of the object with index "idx" from pcl to fcl format
-   * @details [long description]
+   * @details   Convert the convex hull of the object with index "idx" from pcl to fcl format
    * 
    * @param idx index of the convex hull to convert
    * @return struct which contains the vertices and triangle for the fcl format
    */
   FclMesh pcl2FclConvexHull(uint idx);
 
+  /**
+   * @details Convert the convex hull from pcl to fcl format
+   * 
+   * @param convex_hull_cloud 
+   * @param convex_hull_indices 
+   * 
+   * @return Fcl mesh
+   */
+  FclMesh pcl2FclConvexHull(PointCloudT convex_hull_cloud, std::vector<pcl::Vertices> convex_hull_indices);
+
   
   void fcl2EigenTransform( Eigen::Vector4f& translate, Eigen::Quaternionf& q_rot,
                            fcl::Transform3f& tf);
   void eigen2FclTransform(Eigen::Vector4f& translate, Eigen::Quaternionf& q_rot,
+                                                    fcl::Transform3f& tf);
+  void eigen2FclTransform(Eigen::Vector3f& translate, Eigen::Quaternionf& q_rot,
                                                     fcl::Transform3f& tf);
   void eigen2FclRotation(Eigen::Quaternionf& q_rot, fcl::Matrix3f& rot);
   void eigen2FclRotation(Eigen::Matrix3f eig_rot, fcl::Matrix3f& rot);
@@ -302,6 +318,36 @@ class CTableClearingPlanning
    * @param[in] idx Index of the object
    */
   void computeSurfaceGraspPoint(Eigen::Vector3f& surface_point, uint idx);
+
+  /**
+   * @details Refines the input grasping pose, that is if the gripper
+   *    is colliding with the table translate it along its approaching direction
+   * IT IS NOT WORKING - FCL does no detects collison with 2d convex hull (if we do 3D convex hull it is bad for the plane)
+   * 
+   * @param gp Input grasping pose
+   * @param translation_step 
+   * 
+   * @return True if there was initially in collision. 
+   */
+  bool refineGraspingPose(GraspingPose& gp, double translation_step = 0.01);
+
+  /**
+   * @details Refines the input grasping pose, that is if the gripper
+   * central point is further than the plane. It satisfy the following equation
+   * \code 
+   * a*x + b*y + c*(z+offset) * d > 0 
+   * \endcode
+   * If such an inequality is true the grasping pose has to be refine, it is translated along
+   * its approaching direction by translation_step until that inequalities is no more satisfied.
+   * 
+   * @param gp Input grasping pose
+   * @param translation_step 
+   * @param offset
+   * 
+   * @return True if there was initially in collision. 
+   */
+  bool refineSimpleGraspingPose(GraspingPose& gp, double translation_step = 0.005, double offset = 0.0f);
+
 
   public:
 
@@ -343,6 +389,13 @@ class CTableClearingPlanning
      */
     void setFingersModel(double opening_width, double closing_width, double finger_width,
                double deep, double height, double closing_height);
+
+    /**
+     * @brief Set the plane point cloud
+     * 
+     * @param plane_cloud 
+     */
+    void setPlanePointCloud(PointCloudT plane_cloud);
 
     /**
      * @brief Set the original point cloud, the one used for the segmentation. 
@@ -601,6 +654,8 @@ class CTableClearingPlanning
     void viewerAddObjectsClouds(Visualizer viewer);
     void viewerAddRichObjectsClouds(Visualizer viewer);
     void viewerAddFullObjectsClouds(Visualizer viewer);
+    void viewerAddPlaneCloud(Visualizer viewer);
+    void viewerAddPlaneConvexHull(Visualizer viewer);
 
     /**
      * @brief      Show the labels in the viewer as 3D text

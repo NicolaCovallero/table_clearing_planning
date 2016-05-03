@@ -28,7 +28,19 @@ void CTableClearingPlanning::setOriginalPointCloud(PointCloudT original_cloud)
 {
   this->original_cloud = original_cloud;
 }
+void CTableClearingPlanning::setPlanePointCloud(PointCloudT plane_cloud)
+{
+  this->plane_cloud = plane_cloud;
 
+  // compute the convex hull
+  pcl::ConvexHull<PointT> hull;
+  hull.setDimension(2);
+  hull.setInputCloud(plane_cloud.makeShared());
+  hull.reconstruct(this->plane_convex_hull_2d, this->plane_convex_hull_indices);
+  if (hull.getDimension() != 2)
+    PCL_ERROR ("No convex 3D surface found for the plane\n");
+
+}
 bool CTableClearingPlanning::areObjectCollidingFcl(uint idx_1, fcl::Transform3f tf, uint idx_2)
 {
   FclMesh mesh1,mesh2;
@@ -391,6 +403,45 @@ CTableClearingPlanning::pcl2FclConvexHull(uint idx)
   return fcl_mesh; 
 }
 
+CTableClearingPlanning::FclMesh
+CTableClearingPlanning::pcl2FclConvexHull(PointCloudT convex_hull_cloud, std::vector<pcl::Vertices> convex_hull_indices)
+{
+  FclMesh fcl_mesh;
+  // initialize the struct
+  fcl_mesh.vertices.resize(0);
+  fcl_mesh.triangles.resize(0);
+
+  // check for correct input
+  if (!((convex_hull_cloud.points.size() > 0) &&
+        (convex_hull_indices.size() > 0 )))
+  {
+    PCL_ERROR("In pcl2FclConvexHull : vertices or points are not computed\n");
+    return fcl_mesh;
+  }
+ 
+  // ----------------- fill vertices ----------------------------
+  // for each vertex of the convex hull
+  for (uint i = 0; i <convex_hull_cloud.points.size(); ++i)
+  {
+    fcl::Vec3f vec_tmp(convex_hull_cloud.points[i].x,
+                       convex_hull_cloud.points[i].y,
+                       convex_hull_cloud.points[i].z);
+    fcl_mesh.vertices.push_back(vec_tmp);
+  }
+
+  // ----------------- fill triangles ---------------------------
+  for (uint i = 0; i < convex_hull_indices.size(); ++i)
+  {
+
+    fcl::Triangle triangle_tmp(convex_hull_indices[i].vertices[0],
+                               convex_hull_indices[i].vertices[1],
+                               convex_hull_indices[i].vertices[2]);
+    fcl_mesh.triangles.push_back(triangle_tmp);
+  }
+
+  return fcl_mesh; 
+}
+
 void CTableClearingPlanning::translate(PointCloudT& cloud1, PointCloudT& cloud2, Eigen::Vector4f& translation)
 {
   Eigen::Quaternionf orientation = Eigen::Quaternionf::Identity ();
@@ -412,6 +463,13 @@ void CTableClearingPlanning::fcl2EigenTransform(Eigen::Vector4f& translate, Eige
 void CTableClearingPlanning::eigen2FclTransform(Eigen::Vector4f& translate, Eigen::Quaternionf& q_rot,
                                                     fcl::Transform3f& tf)
 { 
+  fcl::Quaternion3f q(q_rot.x(),q_rot.y(),q_rot.z(),q_rot.w());
+  fcl::Vec3f T(translate[0],translate[1],translate[2]);
+  tf.setTransform(q,T);
+}
+void CTableClearingPlanning::eigen2FclTransform(Eigen::Vector3f& translate, Eigen::Quaternionf& q_rot,
+                                                    fcl::Transform3f& tf)
+{
   fcl::Quaternion3f q(q_rot.x(),q_rot.y(),q_rot.z(),q_rot.w());
   fcl::Vec3f T(translate[0],translate[1],translate[2]);
   tf.setTransform(q,T);
@@ -505,6 +563,7 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
     //gp.translation = opd->centroid.head<3>();
     this->computeSurfaceGraspPoint(gp.translation,i);
 
+
     Eigen::Vector3f new_axis;
     if(vertical_poses)
     {
@@ -541,8 +600,11 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
 
     }
 
-    ap = gp;
+    // refine now the grasping pose
+    if (refineSimpleGraspingPose(gp))
+      PCL_WARN("The grasping pose of object %d was colliding with the table. It has been adjusted, don't worry.\n",i);
 
+    ap = gp;
     //translate (new axis is pointing forward the table)
     ap.translation = ap.translation - new_axis * this->approaching_distance;
 
@@ -856,6 +918,127 @@ void CTableClearingPlanning::computeSurfaceGraspPoint(Eigen::Vector3f& surface_p
   PrincipalDirectionsProjected* pd = &(this->principal_directions_objects[idx]);
   Eigen::Vector3f new_axis = pd->dir3.cross(pd->dir2); 
   surface_point = surface_point + new_axis * this->fingers_model.closing_height/2;
+}
+
+bool CTableClearingPlanning::refineGraspingPose(GraspingPose& gp, double translation_step)
+{
+  FclMesh mesh1,mesh2;
+
+  mesh1 = this->getFingersModelMesh();
+  mesh2 = this->pcl2FclConvexHull(this->plane_convex_hull_2d,this->plane_convex_hull_indices);
+
+  // BVHModel is a template class for mesh geometry, for default OBBRSS template is used
+  typedef fcl::BVHModel<fcl::OBBRSS> Model;
+  Model* finger_model = new Model();
+  finger_model->beginModel();
+  finger_model->addSubModel(mesh1.vertices, mesh1.triangles);
+  finger_model->endModel();
+
+  // get the bounding box 
+  //fcl::BVNode<fcl::OBBRSS> p = ee_model1->getBV(0);
+  //double a = p.bv.width();
+
+  Model* plane_model = new Model();
+  plane_model->beginModel();
+  plane_model->addSubModel(mesh2.vertices, mesh2.triangles);
+  plane_model->endModel();
+
+
+  // no rotation
+  fcl::Matrix3f R(1,0,0,
+                  0,1,0,
+                  0,0,1);
+  fcl::Vec3f T(0,0,0); // no translation
+  fcl::Transform3f pose(R, T); // pose of the table plane
+
+  bool enable_contact = true;
+  int num_max_contacts = std::numeric_limits<int>::max();
+  // set the collision request structure, here we just use the default setting
+  fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // result will be returned via the collision result structure
+  fcl::CollisionResult result;
+
+  bool contact = true;
+  uint iteration = 0; 
+  while(contact)
+  {
+    fcl::Transform3f grasp_pose;
+    eigen2FclTransform(gp.translation,gp.quaternion,grasp_pose); 
+
+    int num_contacts = fcl::collide(finger_model, grasp_pose, plane_model, pose, 
+                               request, result);
+    if(num_contacts > 0)
+      contact = true;
+    else
+      contact = false;
+
+    if(contact) // update iteration coutner and pose if there is a contact with the table
+    {
+      iteration ++;
+
+      // the approaching direction is saved in the third row of the rotation matrix of the 
+      // grasping pose (z is poiting down,that is why there is minus)
+      Eigen::Vector3f approaching_direction(gp.rotation(2,0), gp.rotation(2,1), gp.rotation(2,2));
+      gp.translation = gp.translation - translation_step * approaching_direction;
+      eigen2FclTransform(gp.translation,gp.quaternion,grasp_pose); 
+    }
+    if(iteration > 100)
+    {
+      PCL_ERROR("Something gone wrong in the refining of the grasping pose - Exceeded number of iterations");
+      return true;
+    }
+  }
+
+  if(iteration == 0) // no contact
+    return false;
+  else
+    return true;
+}
+bool CTableClearingPlanning::refineSimpleGraspingPose(GraspingPose& gp, double translation_step, double offset)
+{
+  bool plane_contact = true;
+  uint iteration = 0;
+  while(plane_contact)
+  {
+    // reminding the plane equation
+    // ax + by + cz + d = 0
+    // we can check if the gripper touch the plane by looking if its z coordinate is further the plane
+    // ax + by + cz + d > 0
+    // We also add an offset in the z because this method does not include the gripper shape
+    // ax + by + c(z+offset) + d > 0
+    double x = gp.translation[0];
+    double y = gp.translation[1];
+    double z = gp.translation[2];
+    double a = this->plane_coefficients.values[0];
+    double b = this->plane_coefficients.values[1];
+    double c = this->plane_coefficients.values[2];
+    double d = this->plane_coefficients.values[3];
+    if((a*x + b*y + c*(z+offset) + d) > 0)
+      plane_contact = true;
+    else
+      plane_contact = false; 
+      
+    if(plane_contact) // update iteration coutner and pose if there is a contact with the table
+    {
+      iteration ++;
+
+      // the approaching direction is saved in the third row of the rotation matrix of the 
+      // grasping pose (z is poiting down,that is why there is minus)
+      Eigen::Vector3f approaching_direction(gp.rotation(2,0), gp.rotation(2,1), gp.rotation(2,2));
+      gp.translation = gp.translation - translation_step * approaching_direction;
+
+    }
+    if(iteration > 100)
+    {
+      PCL_ERROR("Something gone wrong in the refining of the grasping pose - Exceeded number of iterations");
+      return true;
+    }
+
+  }
+  if(iteration == 0) // no contact
+    return false;
+  else
+    return true;
 }
 
 void CTableClearingPlanning::computeConcaveHulls()
@@ -2737,7 +2920,25 @@ void CTableClearingPlanning::viewerAddFullObjectsClouds(Visualizer viewer)
     viewer->addPointCloud(this->objects_full[i].cloud.makeShared(),cloud_name);
   }
 }
-
+void CTableClearingPlanning::viewerAddPlaneCloud(Visualizer viewer)
+{  
+  if(this->plane_cloud.points.size()==0)
+  {
+    std::cout << "Plane cloud not set - exiting \n";
+    return;
+  }
+  pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb(this->plane_cloud.makeShared());
+  viewer->addPointCloud<pcl::PointXYZRGBA> (this->plane_cloud.makeShared(), rgb, "plane_cloud");
+}
+void CTableClearingPlanning::viewerAddPlaneConvexHull(Visualizer viewer)
+{  
+  if(this->plane_convex_hull_2d.points.size()==0)
+  {
+    std::cout << "Plane convex hull not set - exiting \n";
+    return;
+  }
+  viewer->addPolygonMesh<pcl::PointXYZRGBA>(this->plane_convex_hull_2d.makeShared(), this->plane_convex_hull_indices, "plane_convex_hull" );  
+}
 void CTableClearingPlanning::viewerAddObjectsLabel(Visualizer viewer)
 {
   for (uint i = 0; i < this->principal_directions_objects.size(); ++i)

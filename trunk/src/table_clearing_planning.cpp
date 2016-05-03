@@ -4,8 +4,9 @@ CTableClearingPlanning::CTableClearingPlanning()
 {
   this->n_objects = 0;
   this->pushing_step = this->PUSHING_STEP;
-  this->pushing_object_distance = 0.05; //5 cm
-  this->approaching_distance = 0.1; // 10 cm 
+  this->pushing_object_distance = PUSHING_OBJECT_DISTANCE; //5 cm
+  this->approaching_distance = APPROACHING_DISTANCE; // 10 cm 
+  this->distance_from_plane_grasping_poses = DISTANCE_FROM_PLANE_GRASPING_POSES; // 1cm
   return;
 }
 
@@ -14,8 +15,10 @@ CTableClearingPlanning::CTableClearingPlanning(std::vector<PointCloudT> &objects
   this->objects = objects;
   this->n_objects = objects.size();
   this->pushing_step = this->PUSHING_STEP;
-  this-> pushing_object_distance = 0.05; //5 cm
-  this->approaching_distance = 0.1; // 10 cm
+  this->pushing_object_distance = PUSHING_OBJECT_DISTANCE; //5 cm
+  this->approaching_distance = APPROACHING_DISTANCE; // 10 cm 
+  this->distance_from_plane_grasping_poses = DISTANCE_FROM_PLANE_GRASPING_POSES; // 1cm
+
   return;
 } 
 
@@ -601,7 +604,7 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
     }
 
     // refine now the grasping pose
-    if (refineSimpleGraspingPose(gp))
+    if (refineSimpleGraspingPose(gp,distance_from_plane_grasping_poses))
       PCL_WARN("The grasping pose of object %d was colliding with the table. It has been adjusted, don't worry.\n",i);
 
     ap = gp;
@@ -920,107 +923,64 @@ void CTableClearingPlanning::computeSurfaceGraspPoint(Eigen::Vector3f& surface_p
   surface_point = surface_point + new_axis * this->fingers_model.closing_height/2;
 }
 
-bool CTableClearingPlanning::refineGraspingPose(GraspingPose& gp, double translation_step)
-{
-  FclMesh mesh1,mesh2;
-
-  mesh1 = this->getFingersModelMesh();
-  mesh2 = this->pcl2FclConvexHull(this->plane_convex_hull_2d,this->plane_convex_hull_indices);
-
-  // BVHModel is a template class for mesh geometry, for default OBBRSS template is used
-  typedef fcl::BVHModel<fcl::OBBRSS> Model;
-  Model* finger_model = new Model();
-  finger_model->beginModel();
-  finger_model->addSubModel(mesh1.vertices, mesh1.triangles);
-  finger_model->endModel();
-
-  // get the bounding box 
-  //fcl::BVNode<fcl::OBBRSS> p = ee_model1->getBV(0);
-  //double a = p.bv.width();
-
-  Model* plane_model = new Model();
-  plane_model->beginModel();
-  plane_model->addSubModel(mesh2.vertices, mesh2.triangles);
-  plane_model->endModel();
-
-
-  // no rotation
-  fcl::Matrix3f R(1,0,0,
-                  0,1,0,
-                  0,0,1);
-  fcl::Vec3f T(0,0,0); // no translation
-  fcl::Transform3f pose(R, T); // pose of the table plane
-
-  bool enable_contact = true;
-  int num_max_contacts = std::numeric_limits<int>::max();
-  // set the collision request structure, here we just use the default setting
-  fcl::CollisionRequest request(num_max_contacts, enable_contact);
-  // result will be returned via the collision result structure
-  fcl::CollisionResult result;
-
-  bool contact = true;
-  uint iteration = 0; 
-  while(contact)
-  {
-    fcl::Transform3f grasp_pose;
-    eigen2FclTransform(gp.translation,gp.quaternion,grasp_pose); 
-
-    int num_contacts = fcl::collide(finger_model, grasp_pose, plane_model, pose, 
-                               request, result);
-    if(num_contacts > 0)
-      contact = true;
-    else
-      contact = false;
-
-    if(contact) // update iteration coutner and pose if there is a contact with the table
-    {
-      iteration ++;
-
-      // the approaching direction is saved in the third row of the rotation matrix of the 
-      // grasping pose (z is poiting down,that is why there is minus)
-      Eigen::Vector3f approaching_direction(gp.rotation(2,0), gp.rotation(2,1), gp.rotation(2,2));
-      gp.translation = gp.translation - translation_step * approaching_direction;
-      eigen2FclTransform(gp.translation,gp.quaternion,grasp_pose); 
-    }
-    if(iteration > 100)
-    {
-      PCL_ERROR("Something gone wrong in the refining of the grasping pose - Exceeded number of iterations");
-      return true;
-    }
-  }
-
-  if(iteration == 0) // no contact
-    return false;
-  else
-    return true;
-}
-bool CTableClearingPlanning::refineSimpleGraspingPose(GraspingPose& gp, double translation_step, double offset)
+bool CTableClearingPlanning::refineSimpleGraspingPose(GraspingPose& gp, double translation_step, double distance_from_plane)
 {
   bool plane_contact = true;
   uint iteration = 0;
-  while(plane_contact)
+  double a = this->plane_coefficients.values[0];
+  double b = this->plane_coefficients.values[1];
+  double c = this->plane_coefficients.values[2];
+  double d = this->plane_coefficients.values[3];
+
+  bool distance_ok = false;
+  while(plane_contact || !distance_ok)
   {
     // reminding the plane equation
     // ax + by + cz + d = 0
     // we can check if the gripper touch the plane by looking if its z coordinate is further the plane
     // ax + by + cz + d > 0
-    // We also add an offset in the z because this method does not include the gripper shape
-    // ax + by + c(z+offset) + d > 0
-    double x = gp.translation[0];
-    double y = gp.translation[1];
-    double z = gp.translation[2];
-    double a = this->plane_coefficients.values[0];
-    double b = this->plane_coefficients.values[1];
-    double c = this->plane_coefficients.values[2];
-    double d = this->plane_coefficients.values[3];
-    if((a*x + b*y + c*(z+offset) + d) > 0)
-      plane_contact = true;
-    else
-      plane_contact = false; 
-      
-    if(plane_contact) // update iteration coutner and pose if there is a contact with the table
+    // We will do this for each point of the convex hull of the gripper
+
+    // transforming the fingers model point cloud
+    pcl::PointCloud<pcl::PointXYZ> cloud_tmp;
+    pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud_tmp, gp.translation, gp.quaternion);
+
+    // we also want the object to be not too much close to the plane
+    // project fingers contact point to the table 
+    Eigen::Vector3f proj_eigen_point;
+    pcl::geometry::project(gp.translation,this->plane_origin,this->plane_normal,proj_eigen_point);
+
+    Eigen::Vector3f scaled_diff = gp.translation - proj_eigen_point;
+    double distance = scaled_diff.norm();
+    distance_ok = false;
+    if(distance >= distance_from_plane)
+      distance_ok = true;
+
+    for (uint i = 0; i < cloud_tmp.points.size(); ++i)
     {
-      iteration ++;
+      // double x = gp.translation[0];
+      // double y = gp.translation[1];
+      // double z = gp.translation[2];
+
+      double x = cloud_tmp.points[i].x;
+      double y = cloud_tmp.points[i].y;
+      double z = cloud_tmp.points[i].z;
+      
+      if((a*x + b*y + c*z + d) > 0)
+      {
+        plane_contact = true;
+        break;
+      }
+      else
+      {
+        plane_contact = false; 
+        break;
+      }
+    }
+      
+    if(plane_contact || !distance_ok) // update iteration coutner and pose if there is a contact with the table
+    {
+      iteration++;
 
       // the approaching direction is saved in the third row of the rotation matrix of the 
       // grasping pose (z is poiting down,that is why there is minus)
@@ -1140,6 +1100,10 @@ void CTableClearingPlanning::computeOnTopPredicates(double th1, double th2, bool
 void CTableClearingPlanning::setPushingStep(double pushing_step)
 {
   this->pushing_step = pushing_step;
+}
+void CTableClearingPlanning::setDistanceFromPlaneForGripper(double distance_from_plane_grasping_poses)
+{
+  this->distance_from_plane_grasping_poses = distance_from_plane_grasping_poses;
 }
 void CTableClearingPlanning::setApproachingDistance(double approaching_distance)
 {

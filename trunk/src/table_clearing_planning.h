@@ -135,7 +135,13 @@ class CTableClearingPlanning
       std::vector<fcl::Triangle> triangles;
   };
 
+  // constant values
   static const double PUSHING_STEP = 1.5; // default value 1.5 the AABB dimension
+  static const double PUSHING_OBJECT_DISTANCE = 0.05; //5 cm
+  static const double APPROACHING_DISTANCE = 0.1; // 10 cm
+  static const double DISTANCE_FROM_PLANE_GRASPING_POSES = 0.01; // 1cm
+
+
   double pushing_limit; //used only from the block predicates computation functions
   double pushing_step;
   double pushing_object_distance; ///< Distance between the tcp and the object for the first point of the pushing action
@@ -172,7 +178,8 @@ class CTableClearingPlanning
     double closing_height;
 
     // convex hull
-    pcl::PointCloud<pcl::PointXYZ > open_cloud,closed_cloud;
+    pcl::PointCloud<pcl::PointXYZ > open_cloud; ///< point cloud of the gripper open
+    pcl::PointCloud<pcl::PointXYZ > closed_cloud; ///< point cloud of the gripper closed
     std::vector<pcl::Vertices> open_vertices,closed_vertices;
 
   }fingers_model;
@@ -199,6 +206,7 @@ class CTableClearingPlanning
 
   std::vector<GraspingPose> grasping_poses,approaching_poses;
   double approaching_distance;
+  double distance_from_plane_grasping_poses;
 
   std::vector<PushingPose> pushing_poses;
 
@@ -321,32 +329,22 @@ class CTableClearingPlanning
 
   /**
    * @details Refines the input grasping pose, that is if the gripper
-   *    is colliding with the table translate it along its approaching direction
-   * IT IS NOT WORKING - FCL does no detects collison with 2d convex hull (if we do 3D convex hull it is bad for the plane)
-   * 
-   * @param gp Input grasping pose
-   * @param translation_step 
-   * 
-   * @return True if there was initially in collision. 
-   */
-  bool refineGraspingPose(GraspingPose& gp, double translation_step = 0.01);
-
-  /**
-   * @details Refines the input grasping pose, that is if the gripper
    * central point is further than the plane. It satisfy the following equation
    * \code 
    * a*x + b*y + c*(z+offset) * d > 0 
    * \endcode
    * If such an inequality is true the grasping pose has to be refine, it is translated along
    * its approaching direction by translation_step until that inequalities is no more satisfied.
+   * Note the this method doesn't check if after the refining the grasp is still feasible, bu the height of
+   * the object should be coherent with the one of the distance from the plane. 
    * 
    * @param gp Input grasping pose
    * @param translation_step 
-   * @param offset
+   * @param distance_from_plane minimum distance from the plane, bigger it is further the plane it is. 
    * 
    * @return True if there was initially in collision. 
    */
-  bool refineSimpleGraspingPose(GraspingPose& gp, double translation_step = 0.005, double offset = 0.0f);
+  bool refineSimpleGraspingPose(GraspingPose& gp, double translation_step = 0.005, double distance_from_plane = 0.01);
 
 
   public:
@@ -509,6 +507,14 @@ class CTableClearingPlanning
      * @param[in] pushing_step Desired value for the pushing limit.
      */
     void setPushingStep(double pushing_step);
+
+    /**
+     * @details Minimum distance of the gripper from the plane, this is in case there are poses too close the plane.
+     * The default values is 1 cm.
+     * 
+     * @param distance_from_plane_grasping_poses 
+     */
+    void setDistanceFromPlaneForGripper(double distance_from_plane_grasping_poses);
 
     /**
      * @details distance in meter between the grasping pose and the approaching pose. 

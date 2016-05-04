@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
   tcp.setPlaneCoefficients(plane_coeff);
   tcp.setGripperSimpleModel(0.08, 0.1, 0.12, 0.025);
   double opening_width = 0.08;
-  double closing_width = 0.025;
+  double closing_width = 0.03;
   double finger_width = 0.03;
   double deep = 0.03;
   double height = 0.115;

@@ -604,7 +604,7 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
     }
 
     // refine now the grasping pose
-    if (refineSimpleGraspingPose(gp,distance_from_plane_grasping_poses))
+    if (refineSimpleGraspingPose(gp,0.005,distance_from_plane_grasping_poses))
       PCL_WARN("The grasping pose of object %d was colliding with the table. It has been adjusted, don't worry.\n",i);
 
     ap = gp;

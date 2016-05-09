@@ -31,6 +31,8 @@
 #include <stack>
 #include <ctime>
 #include <pcl/common/eigen.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 /**
  * @brief Axis Aligned Bounding Box
@@ -47,5 +49,33 @@ struct AABB{
 // reference: http://stackoverflow.com/questions/13485266/how-to-have-matlab-tic-toc-in-c
 void tic();
 void toc();
+
+namespace util{
+
+	/* Remove if already defined */
+	typedef long long int64; 
+	typedef unsigned long long uint64;
+
+	// reference: http://stackoverflow.com/questions/1861294/how-to-calculate-execution-time-of-a-code-snippet-in-c
+
+	/* Returns the amount of milliseconds elapsed since the UNIX epoch. Works on both
+	 * windows and linux. */
+	static uint64 GetTimeMs64()
+	{
+	 /* Linux */
+	 struct timeval tv;
+
+	 gettimeofday(&tv, NULL);
+
+	 uint64 ret = tv.tv_usec;
+	 /* Convert from micro seconds (10^-6) to milliseconds (10^-3) */
+	 ret /= 1000;
+
+	 /* Adds the seconds (10^0) after converting them to milliseconds (10^-3) */
+	 ret += (tv.tv_sec * 1000);
+
+	 return ret;
+	}
+}
 
 #endif

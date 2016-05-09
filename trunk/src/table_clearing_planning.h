@@ -104,6 +104,15 @@ struct PushingPose{
   Pose pose_dir1, pose_dir2, pose_dir3, pose_dir4;
 };
 
+struct ExecutionTimes{
+double on_predicates;
+double block_predicates;
+double block_grasp_predicates;
+double objects_collisions; ///< total time to compute the collision between all the objects O(n^2)
+double ee_collisions; ///< total time to compute the collision between the gripper and all the objects O(n^2)
+double average_objects_collision; ///< average time to compute a collision between two objects
+double average_ee_collision; ///< average time to compute a collision between two objects
+};
 
 // check this
 // http://hamelot.io/programming/using-bullet-only-for-collision-detection/
@@ -146,7 +155,7 @@ class CTableClearingPlanning
   double pushing_step;
   double pushing_object_distance; ///< Distance between the tcp and the object for the first point of the pushing action
 
-  double n_objects; ///< number of objects
+  uint n_objects; ///< number of objects
 
   // ----------- PREDICATES ---------------
   std::vector<BlocksPredicate> blocks_predicates;
@@ -184,7 +193,7 @@ class CTableClearingPlanning
 
   }fingers_model;
 
-
+  ExecutionTimes executionTimes;
 
   PointCloudT original_cloud;
   
@@ -709,6 +718,8 @@ class CTableClearingPlanning
 
     std::vector<PushingPose> getPushingPoses();
 
+    ExecutionTimes getExecutionTimes();
+
     double getPushingObjectDistance();
 
     /**
@@ -716,6 +727,11 @@ class CTableClearingPlanning
      * @details Delete all the data ot the class
      */
     void reset();
+
+    /**
+     * @details Print in the terminal the several execution times.
+     */
+    void printExecutionTimes();
 
 };
 

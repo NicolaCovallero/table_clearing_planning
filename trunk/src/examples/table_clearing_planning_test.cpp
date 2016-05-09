@@ -130,13 +130,14 @@ int main(int argc, char *argv[])
 
   tcp.computeBlockPredicates(true, ORTHOGONAL_PUSHING);
   tcp.computeOnTopPredicates(true);
+  tcp.computeSimpleHeuristicGraspingPoses();
+  tcp.computeBlockGraspPredicates(true);
+  tcp.printExecutionTimes();
 
   //----------- VISUALIZATIONS ----------------------
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
   
   tcp.viewerShowClosedFingersModel(viewer);
-  tcp.computeSimpleHeuristicGraspingPoses();
-  tcp.computeBlockGraspPredicates(true);
   tcp.viewerAddGraspingPoses(viewer);
   tcp.viewerAddApproachingPoses(viewer);
   tcp.viewerAddPlaneConvexHull(viewer);

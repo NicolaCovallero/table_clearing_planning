@@ -1053,6 +1053,8 @@ void CTableClearingPlanning::computeProjectionsConvexHull()
 
 void CTableClearingPlanning::computeOnTopPredicates(double th1, double th2, bool print)
 {
+  util::uint64 t_init_on_predicates = util::GetTimeMs64(); 
+
   pcl::CropHull<PointT> crop;
   crop.setCropOutside(true);
 
@@ -1095,6 +1097,14 @@ void CTableClearingPlanning::computeOnTopPredicates(double th1, double th2, bool
       }
     }
   }
+
+  // the folling lines was just to test if util::GetTimeMs64() is correct and it is
+  //util::uint64 t_init_on_predicates = util::GetTimeMs64(); 
+  //usleep(1000000); // wait 1000000 microseconds
+
+  util::uint64 t_end_on_predicates = util::GetTimeMs64();
+  this->executionTimes.on_predicates = (double)(t_end_on_predicates - t_init_on_predicates);
+  // std::cout << "Execution time on top predicates: " << this->executionTimes.on_predicates << std::endl;
 }
 
 void CTableClearingPlanning::setPushingStep(double pushing_step)
@@ -1115,6 +1125,10 @@ void CTableClearingPlanning::setPushingObjectDistance(double pushing_object_dist
 }
 void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_method)
 { 
+  util::uint64 t_init_block_predicates = util::GetTimeMs64();
+  this->executionTimes.objects_collisions = 0; // initialization
+  this->executionTimes.ee_collisions = 0;
+
   this->blocks_predicates.resize(this->n_objects);
   this->pushing_poses.resize(this->n_objects);
   if(this->convex_hull_objects.size() == 0)
@@ -1221,7 +1235,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
                         0,0,1);
         //for all the other objects
         fcl::Transform3f pose(R, T);
-
+        util::uint64 t_init_collision = util::GetTimeMs64();
         for (uint i = 0; i < this->objects.size(); ++i)
         {
           if(i != obj_idx)
@@ -1246,6 +1260,8 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
               }
             }
         }
+        this->executionTimes.objects_collisions += (double)(util::GetTimeMs64() - t_init_collision);
+
         n++;
       }
 
@@ -1537,6 +1553,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
       fcl::Transform3f pose_ee(R, T);
 
       // check for all the other objects what are the ones that collide with it
+      util::uint64 t_init_ee_collision = util::GetTimeMs64();
       for (uint i = 0; i < this->objects.size(); ++i)
       {
         if(i != obj_idx)
@@ -1576,6 +1593,8 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
           }
         }
       }
+      this->executionTimes.ee_collisions += (double)(util::GetTimeMs64() - t_init_ee_collision);
+
 
       //remove duplicates 
       std::vector<uint>* vec;
@@ -1627,7 +1646,17 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
       }    
     }
   }
+
+  // get the average to compute the collision between 2 objects dividing by (n_objects-1) the total 
+  // objects collison time.(-1 because the object are not tested to collide with themselves)
+  this->executionTimes.average_objects_collision = this->executionTimes.objects_collisions/(pow(n_objects-1,2));
+  this->executionTimes.average_ee_collision = this->executionTimes.ee_collisions/(pow(n_objects-1,2));
+
+
   //toc();
+  util::uint64 t_end_block_predicates = util::GetTimeMs64();
+  this->executionTimes.block_predicates = (double)(t_end_block_predicates - t_init_block_predicates);
+  // std::cout << "Execution time block predicates: " << this->executionTimes.block_predicates << std::endl;
 }
 
 void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,
@@ -2162,10 +2191,13 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
       std::cout << "Object " << obj_idx << " is colliding with object " <<  block_dir_pointer->at(i) << " in direction " << dir_idx << std::endl;
     }
   }
+
 }  
 
 void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
 {
+  util::uint64 t_init_block_grasp_predicates = util::GetTimeMs64();
+
   if(this->grasping_poses.size()==0)
   {
     PCL_ERROR("The grasping poses are still not computed.");
@@ -2196,6 +2228,9 @@ void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
         }
     }
   }
+  util::uint64 t_end_block_grasp_predicates = util::GetTimeMs64();
+  this->executionTimes.block_grasp_predicates = (double)(t_end_block_grasp_predicates - t_init_block_grasp_predicates);
+  //std::cout << "Execution time block grasp predicates: " << this->executionTimes.block_grasp_predicates << std::endl;
 }
 
 void CTableClearingPlanning::testFcl()
@@ -3088,6 +3123,10 @@ double CTableClearingPlanning::getPushingObjectDistance()
 {
   return this->pushing_object_distance;
 }
+ExecutionTimes CTableClearingPlanning::getExecutionTimes()
+{
+  return executionTimes;
+}
 
 void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer)
 {
@@ -3124,4 +3163,14 @@ void CTableClearingPlanning::reset()
   this->blocks_predicates.resize(0);
   this->on_top_predicates.resize(0);
   this->block_grasp_predicates.resize(0);
+}
+void CTableClearingPlanning::printExecutionTimes()
+{
+  std::cout << "Execution time on top predicates: " << this->executionTimes.on_predicates << std::endl
+            << "Execution time block predicates: " << this->executionTimes.block_predicates << std::endl
+            << "Execution time block grasp predicates: " << this->executionTimes.block_grasp_predicates << std::endl
+            << "Execution time objects collisions: " << this->executionTimes.objects_collisions << std::endl
+            << "Execution time ee collisions: " << this->executionTimes.ee_collisions << std::endl
+            << "Execution time average object collision: " << this->executionTimes.average_objects_collision << std::endl
+            << "Execution time average ee collision: " << this->executionTimes.average_ee_collision << std::endl;
 }

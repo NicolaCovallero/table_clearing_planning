@@ -1649,8 +1649,8 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
   // get the average to compute the collision between 2 objects dividing by (n_objects-1) the total 
   // objects collison time.(-1 because the object are not tested to collide with themselves)
-  this->executionTimes.average_objects_collision = this->executionTimes.objects_collisions/(pow(n_objects-1,2));
-  this->executionTimes.average_ee_collision = this->executionTimes.ee_collisions/(pow(n_objects-1,2));
+  this->executionTimes.average_objects_collision = this->executionTimes.objects_collisions/((n_objects-1)*n_objects);
+  this->executionTimes.average_ee_collision = this->executionTimes.ee_collisions/((n_objects-1)*n_objects);
 
 
   //toc();

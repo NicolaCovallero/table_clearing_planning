@@ -681,8 +681,27 @@ class CTableClearingPlanning
      */
     void viewerAddObjectsLabel(Visualizer viewer);
 
-    void viewerShowFingersModel(Visualizer viewer);
-    void viewerShowClosedFingersModel(Visualizer viewer);
+    /**
+     * @details Add in the viewer the open gripper model with colors specified as input [0-1].
+     * The gripper is not transformed, so you will see it at the frame of the point cloud.
+     * 
+     * @param viewer [description]
+     * @param r [description]
+     * @param g [description]
+     * @param b [description]
+     */
+    void viewerShowFingersModel(Visualizer viewer,double r=1,double g=1,double b=1);
+
+    /**
+     * @details Add in the viewer the closed gripper model with colors specified as input [0-1].
+     * The gripper is not transformed, so you will see it at the frame of the point cloud.
+     * 
+     * @param viewer [description]
+     * @param r [description]
+     * @param g [description]
+     * @param b [description]
+     */
+    void viewerShowClosedFingersModel(Visualizer viewer,double r=1,double g=1,double b=1);
 
     /**
      * @brief Show in the viewer associated to the class a transformed object. 

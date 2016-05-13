@@ -2752,7 +2752,7 @@ void CTableClearingPlanning::viewerAddPrincipalDirections(Visualizer viewer, uin
 {
   
   double length = 0.2;
-  viewer->addText(" dir1 : red \n dir2 : green \n dir3 : blue \n dir4 : white",0,100);
+  viewer->addText(" dir1 : red \n dir2 : green \n dir3 : blue \n dir4 : white",1,1,1,0,100);
   for (uint d = 1; d <= 4; ++d)
   { 
     PointT pd_1,pd_2;
@@ -3128,17 +3128,55 @@ ExecutionTimes CTableClearingPlanning::getExecutionTimes()
   return executionTimes;
 }
 
-void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer)
+void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer,double r,double g,double b)
 {
   viewer->addCoordinateSystem (0.3);
-  viewer->addPointCloud(this->fingers_model.open_cloud.makeShared(),"fingers model");
-  viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.open_cloud.makeShared(), this->fingers_model.open_vertices );  
+
+  // plot the mesh colored by a color
+  // create a new point cloud
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+  for (int i = 0; i < this->fingers_model.open_cloud.points.size(); ++i)
+  {
+    pcl::PointXYZRGB p;
+    p.x = this->fingers_model.open_cloud.points[i].x;
+    p.y = this->fingers_model.open_cloud.points[i].y;
+    p.z = this->fingers_model.open_cloud.points[i].z;
+    p.r = r;
+    p.g = g;
+    p.b = b;
+    cloud->points.push_back(p);
+  }
+
+  viewer->addPointCloud(cloud,"open fingers model"); 
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud, this->fingers_model.open_vertices);  
+
+  // viewer->addPointCloud(this->fingers_model.open_cloud.makeShared(),"fingers model"); 
+  // viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.open_cloud.makeShared(), this->fingers_model.open_vertices );  
 }
-void CTableClearingPlanning::viewerShowClosedFingersModel(Visualizer viewer)
+void CTableClearingPlanning::viewerShowClosedFingersModel(Visualizer viewer,double r,double g,double b)
 {
- viewer->addCoordinateSystem (0.3);
-  viewer->addPointCloud(this->fingers_model.closed_cloud.makeShared(),"closed fingers model");
-  viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.closed_cloud.makeShared(), this->fingers_model.closed_vertices );   
+  viewer->addCoordinateSystem (0.3);
+
+  // plot the mesh colored by a color
+  // create a new point cloud
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+  for (int i = 0; i < this->fingers_model.closed_cloud.points.size(); ++i)
+  {
+    pcl::PointXYZRGB p;
+    p.x = this->fingers_model.closed_cloud.points[i].x;
+    p.y = this->fingers_model.closed_cloud.points[i].y;
+    p.z = this->fingers_model.closed_cloud.points[i].z;
+    p.r = r;
+    p.g = g;
+    p.b = b;
+    cloud->points.push_back(p);
+  }
+
+  viewer->addPointCloud(cloud,"closed fingers model"); 
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud, this->fingers_model.closed_vertices);  
+
+  // viewer->addPointCloud(this->fingers_model.closed_cloud.makeShared(),"closed fingers model");
+  // viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.closed_cloud.makeShared(), this->fingers_model.closed_vertices );   
 }
 
 void CTableClearingPlanning::reset()

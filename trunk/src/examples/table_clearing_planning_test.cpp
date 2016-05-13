@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
   double opening_width = 0.08;
   double closing_width = 0.03;
   double finger_width = 0.03;
-  double deep = 0.03;
+  double deep = 0.06;  // it hsould be 0.03 but in order to consider the width of the gripper's base
   double height = 0.115;
   double closing_height = 0.045;
   tcp.setFingersModel(opening_width,closing_width,finger_width,deep,height,closing_height);
@@ -138,11 +138,12 @@ int main(int argc, char *argv[])
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
   
   tcp.viewerShowClosedFingersModel(viewer);
+  //tcp.viewerShowFingersModel(viewer);
   tcp.viewerAddGraspingPoses(viewer);
   tcp.viewerAddApproachingPoses(viewer);
   tcp.viewerAddPlaneConvexHull(viewer);
   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
-  viewer->setBackgroundColor (0, 0, 0);
+  viewer->setBackgroundColor (255, 255, 255);
   viewer->addCoordinateSystem (0.3);
   //tcp.viewerAddRichObjectsClouds(viewer); 
   tcp.viewerAddPrincipalDirections(viewer,obj_idx);

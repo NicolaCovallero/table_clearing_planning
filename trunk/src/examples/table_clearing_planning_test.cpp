@@ -36,6 +36,7 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
       tcp.cleanPolygonalMesh(viewer);
       tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx);
 
+
       if(dir_idx == 4)
       { 
         dir_idx = 1;
@@ -139,14 +140,14 @@ int main(int argc, char *argv[])
   
   tcp.viewerShowClosedFingersModel(viewer);
   //tcp.viewerShowFingersModel(viewer);
-  tcp.viewerAddGraspingPoses(viewer);
-  tcp.viewerAddApproachingPoses(viewer);
-  tcp.viewerAddPlaneConvexHull(viewer);
+  //tcp.viewerAddGraspingPoses(viewer);
+  //tcp.viewerAddApproachingPoses(viewer);
+  tcp.viewerAddPlaneConvexHull(viewer,255,255,255);
   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
   viewer->setBackgroundColor (255, 255, 255);
   viewer->addCoordinateSystem (0.3);
-  //tcp.viewerAddRichObjectsClouds(viewer); 
-  tcp.viewerAddPrincipalDirections(viewer,obj_idx);
+  tcp.viewerAddRichObjectsClouds(viewer); 
+  //tcp.viewerAddPrincipalDirections(viewer,obj_idx);
   //tcp.viewerAddPrincipalDirections(viewer);
   
   // std::vector<pcl::PointCloud<pcl::PointXYZRGBA> > occluded_sides;
@@ -155,7 +156,13 @@ int main(int argc, char *argv[])
   // tcp.voxelizeFullObjects();
   // tcp.viewerAddFullObjectsClouds(viewer);
 
-  tcp.viewerAddObjectsClouds(viewer);
+  //tcp.viewerAddObjectsClouds(viewer);
+  for (int i = 0; i < segmented_objs.size(); ++i)
+  {
+    tcp.viewerAddConvexHulls(viewer,i);  
+  }
+  
+
 
   while (!viewer->wasStopped() && !exit_)
     viewer->spinOnce (100);

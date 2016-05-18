@@ -670,7 +670,16 @@ class CTableClearingPlanning
     void viewerAddRichObjectsClouds(Visualizer viewer);
     void viewerAddFullObjectsClouds(Visualizer viewer);
     void viewerAddPlaneCloud(Visualizer viewer);
-    void viewerAddPlaneConvexHull(Visualizer viewer);
+
+    /**
+     * @details
+     * 
+     * @param viewer [description]
+     * @param r [description]
+     * @param g [description]
+     * @param b [description]
+     */
+    void viewerAddPlaneConvexHull(Visualizer viewer, double r=1,double g=1,double b=1);
 
     /**
      * @brief      Show the labels in the viewer as 3D text
@@ -696,10 +705,10 @@ class CTableClearingPlanning
      * @details Add in the viewer the closed gripper model with colors specified as input [0-1].
      * The gripper is not transformed, so you will see it at the frame of the point cloud.
      * 
-     * @param viewer [description]
-     * @param r [description]
-     * @param g [description]
-     * @param b [description]
+     * @param viewer 
+     * @param r [0-255]
+     * @param g [0-255]
+     * @param b [0-255]
      */
     void viewerShowClosedFingersModel(Visualizer viewer,double r=1,double g=1,double b=1);
 

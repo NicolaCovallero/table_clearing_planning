@@ -872,6 +872,12 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
 
 void CTableClearingPlanning::computeConvexHulls()
 {
+  // small trick
+  if(this->projections.size() == 0)
+  {
+    this->projections = this->objects; // if the projection ar enot computed
+  }
+
   pcl::ConvexHull<PointT> hull;
   this->convex_hull_objects.resize(this->objects.size());//prepare the conve hull vector
   this->convex_hull_vertices.resize(this->objects.size());
@@ -2364,7 +2370,13 @@ void CTableClearingPlanning::testFcl2()
 void CTableClearingPlanning::viewerAddConvexHulls(Visualizer viewer, uint idx)
 {
   if( (this->convex_hull_objects.size() >= (idx +1) ) && (this->convex_hull_vertices.size() >= (idx +1)) ) // check if the index is correct 
-    viewer->addPolygonMesh<PointT>(this->convex_hull_objects[idx].makeShared(), this->convex_hull_vertices[idx] );  
+  {
+    std::ostringstream convert;   // stream used for the conversion
+    std::string name = "convex_hull";
+    convert << idx;
+    name += convert.str();
+    viewer->addPolygonMesh<PointT>(this->convex_hull_objects[idx].makeShared(), this->convex_hull_vertices[idx] ,name);  
+  }
   else
     PCL_ERROR("In CTableClearingPlanning::showConvexHulls -> convex hull not properly defined. Probaly is an indexing problem.");
 }
@@ -2752,7 +2764,7 @@ void CTableClearingPlanning::viewerAddPrincipalDirections(Visualizer viewer, uin
 {
   
   double length = 0.2;
-  viewer->addText(" dir1 : red \n dir2 : green \n dir3 : blue \n dir4 : white",1,1,1,0,100);
+  viewer->addText(" dir1 : red \n dir2 : green \n dir3 : blue \n dir4 : cyan",1,1,1,0,100);
   for (uint d = 1; d <= 4; ++d)
   { 
     PointT pd_1,pd_2;
@@ -2817,7 +2829,7 @@ void CTableClearingPlanning::viewerAddPrincipalDirections(Visualizer viewer, uin
               convert << i;
               line_name += convert.str();
 
-              viewer->addLine<PointT>(pd_1,pd_2,1,1,1,line_name);
+              viewer->addLine<PointT>(pd_1,pd_2,0,1,1,line_name);
       default: break;
     }
   }
@@ -2882,8 +2894,10 @@ void CTableClearingPlanning::cleanPolygonalMesh(Visualizer viewer)
     convert << i;
     pol_name += convert.str();
     viewer->removePolygonMesh(pol_name);
-  }
-  
+    pol_name = "convex_hull";
+    pol_name += convert.str();
+    viewer->removePolygonMesh(pol_name);
+  }  
 }
 
 void CTableClearingPlanning::viewerAddPlaneNormal(Visualizer viewer)
@@ -2966,14 +2980,29 @@ void CTableClearingPlanning::viewerAddPlaneCloud(Visualizer viewer)
   pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb(this->plane_cloud.makeShared());
   viewer->addPointCloud<pcl::PointXYZRGBA> (this->plane_cloud.makeShared(), rgb, "plane_cloud");
 }
-void CTableClearingPlanning::viewerAddPlaneConvexHull(Visualizer viewer)
+void CTableClearingPlanning::viewerAddPlaneConvexHull(Visualizer viewer, double r,double g,double b)
 {  
+
   if(this->plane_convex_hull_2d.points.size()==0)
   {
     std::cout << "Plane convex hull not set - exiting \n";
     return;
   }
-  viewer->addPolygonMesh<pcl::PointXYZRGBA>(this->plane_convex_hull_2d.makeShared(), this->plane_convex_hull_indices, "plane_convex_hull" );  
+
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+  for (int i = 0; i < this->plane_convex_hull_2d.points.size(); ++i)
+  {
+    pcl::PointXYZRGB p;
+    p.x = this->plane_convex_hull_2d.points[i].x;
+    p.y = this->plane_convex_hull_2d.points[i].y;
+    p.z = this->plane_convex_hull_2d.points[i].z;
+    p.r = r;
+    p.g = g;
+    p.b = b;
+    cloud->points.push_back(p);
+  }
+
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud, this->plane_convex_hull_indices, "plane_convex_hull" );  
 }
 void CTableClearingPlanning::viewerAddObjectsLabel(Visualizer viewer)
 {

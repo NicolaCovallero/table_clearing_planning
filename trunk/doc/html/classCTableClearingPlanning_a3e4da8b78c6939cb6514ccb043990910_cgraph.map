@@ -1,5 +1,5 @@
 <map id="CTableClearingPlanning::computeBlockPredicates" name="CTableClearingPlanning::computeBlockPredicates">
 <area shape="rect" id="node2" href="$classCTableClearingPlanning.html#a29c77f988fa4dd19a4b22f6d0011cc17" title="compute the principal directions of the objects. " alt="" coords="232,5,421,46"/>
 <area shape="rect" id="node3" href="$classCTableClearingPlanning.html#a255fac249cb27a932582509731da5fcb" title="Compute the projections of the objects onto the table plane. " alt="" coords="229,70,424,111"/>
-<area shape="rect" id="node4" href="$classCTableClearingPlanning.html#a09319e4c77b7fe4386a8743c6f5f21af" title="Compute the convex hull of each object considering also the projections of the convex hulls on the pl..." alt="" coords="235,135,418,177"/>
+<area shape="rect" id="node4" href="$classCTableClearingPlanning.html#a45e234df0a448ba11dd1fda39db6765f" title="Compute the convex hull of each object considering also the projections of the convex hulls on the pl..." alt="" coords="235,135,418,177"/>
 </map>

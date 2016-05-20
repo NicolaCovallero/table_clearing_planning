@@ -451,7 +451,7 @@ class CTableClearingPlanning
     /**
      * @brief      Compute the convex hull of each object
      */
-    void computeConvexHulls();
+    void computeConvexHulls(bool rand_=true);
 
     /**
     * @brief      Compute the concave hull of each object
@@ -474,8 +474,10 @@ class CTableClearingPlanning
      *             convex hulls on the plane. These points are then added to the original point cloud 
      *             and the convex hull is recomputed.
      *             IMPORTANT: we can project all the coud and do the convex hull, so it is computed only once
+     *             
+     * @param rand_ If it is true a random color is assigned to each convex hull          
      */
-    void computeRichConvexHulls();
+    void computeRichConvexHulls(bool rand_=true);
 
 
     /**
@@ -670,6 +672,55 @@ class CTableClearingPlanning
     void viewerAddRichObjectsClouds(Visualizer viewer);
     void viewerAddFullObjectsClouds(Visualizer viewer);
     void viewerAddPlaneCloud(Visualizer viewer);
+
+    /**
+     * @details Add to the viewer the projections. Moreover each projection  point cloud 
+     * is colored with a random color. 
+     * 
+     * @param viewer viewer
+     */
+    void viewerAddProjections(Visualizer viewer);
+
+    /**
+     * @details Add to the viewer a projection colored with a random color.
+     * 
+     * @param viewer viewer
+     * @param idx index of the object
+     */
+    void viewerAddProjection(Visualizer viewer,uint idx);
+
+    /**
+     * @details Add to the viewer a projection colored with a specifed color.
+     * 
+     * @param viewer viewer
+     * @param idx index of the object
+     * @param r  red channel [0-255]
+     * @param g  green channel [0-255]
+     * @param b  blue channel [0-255]
+     */
+    void viewerAddProjection(Visualizer viewer,uint idx,float r, float g, float b);
+
+
+     /**
+     * @details Add to the viewer the convex hull of the projection of the idx object. 
+     * 
+     * @param viewer viewer
+     * @param idx index of the object
+     */
+    void viewerAddProjectionConvexHull(Visualizer viewer,uint idx);
+
+
+     /**
+     * @details Add to the viewer the convex hull of the projection of the idx object with the
+     * color of the convex hull given as input. 
+     * 
+     * @param viewer viewer
+     * @param idx index of the object
+     * @param r  red channel [0-255]
+     * @param g  green channel [0-255]
+     * @param b  blue channel [0-255]
+     */
+    void viewerAddProjectionConvexHull(Visualizer viewer,uint idx,float r, float g, float b);
 
     /**
      * @details

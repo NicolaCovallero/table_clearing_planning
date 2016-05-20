@@ -58,29 +58,59 @@
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#include &lt;stack&gt;</span></div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#include &lt;ctime&gt;</span></div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &lt;pcl/common/eigen.h&gt;</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;</div>
-<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="structAABB.html">   40</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structAABB.html">AABB</a>{</div>
-<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="structAABB.html#a29ebf68bcd53615e4a8fed32ddb7a8f9">   41</a></span>&#160;  <span class="keywordtype">double</span> <a class="code" href="structAABB.html#a29ebf68bcd53615e4a8fed32ddb7a8f9">deep</a>; </div>
-<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="structAABB.html#af15766075aeb48dce1da464277fedc64">   42</a></span>&#160;  <span class="keywordtype">double</span> <a class="code" href="structAABB.html#af15766075aeb48dce1da464277fedc64">width</a>; </div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="structAABB.html#aaa696275ade2822a7bdf2f27187afe10">   43</a></span>&#160;  <span class="keywordtype">double</span> <a class="code" href="structAABB.html#aaa696275ade2822a7bdf2f27187afe10">height</a>; </div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;};</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">// tic toc matla b style</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">// reference: http://stackoverflow.com/questions/13485266/how-to-have-matlab-tic-toc-in-c</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keywordtype">void</span> <a class="code" href="utilities_8h.html#a5ba73899fe15846cc99820005d978e24">tic</a>();</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keywordtype">void</span> <a class="code" href="utilities_8h.html#a3f604b0d492a343dd2c72ca7469b3cf7">toc</a>();</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &lt;sys/time.h&gt;</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#include &lt;unistd.h&gt;</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="structAABB.html">   42</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structAABB.html">AABB</a>{</div>
+<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="structAABB.html#a29ebf68bcd53615e4a8fed32ddb7a8f9">   43</a></span>&#160;  <span class="keywordtype">double</span> <a class="code" href="structAABB.html#a29ebf68bcd53615e4a8fed32ddb7a8f9">deep</a>; </div>
+<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="structAABB.html#af15766075aeb48dce1da464277fedc64">   44</a></span>&#160;  <span class="keywordtype">double</span> <a class="code" href="structAABB.html#af15766075aeb48dce1da464277fedc64">width</a>; </div>
+<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="structAABB.html#aaa696275ade2822a7bdf2f27187afe10">   45</a></span>&#160;  <span class="keywordtype">double</span> <a class="code" href="structAABB.html#aaa696275ade2822a7bdf2f27187afe10">height</a>; </div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;};</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">// tic toc matla b style</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">// reference: http://stackoverflow.com/questions/13485266/how-to-have-matlab-tic-toc-in-c</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="keywordtype">void</span> <a class="code" href="utilities_8h.html#a5ba73899fe15846cc99820005d978e24">tic</a>();</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keywordtype">void</span> <a class="code" href="utilities_8h.html#a3f604b0d492a343dd2c72ca7469b3cf7">toc</a>();</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keyword">namespace </span>util{</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <span class="comment">/* Remove if already defined */</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        <span class="keyword">typedef</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> int64; </div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> uint64;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        <span class="comment">// reference: http://stackoverflow.com/questions/1861294/how-to-calculate-execution-time-of-a-code-snippet-in-c</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        <span class="comment">/* Returns the amount of milliseconds elapsed since the UNIX epoch. Works on both</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">         * windows and linux. */</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        <span class="keyword">static</span> uint64 GetTimeMs64()</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        {</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;         <span class="comment">/* Linux */</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;         <span class="keyword">struct </span>timeval tv;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;         gettimeofday(&amp;tv, NULL);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;         uint64 ret = tv.tv_usec;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;         <span class="comment">/* Convert from micro seconds (10^-6) to milliseconds (10^-3) */</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;         ret /= 1000;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;         <span class="comment">/* Adds the seconds (10^0) after converting them to milliseconds (10^-3) */</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;         ret += (tv.tv_sec * 1000);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;         <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        }</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;}</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="utilities_8h_html_a5ba73899fe15846cc99820005d978e24"><div class="ttname"><a href="utilities_8h.html#a5ba73899fe15846cc99820005d978e24">tic</a></div><div class="ttdeci">void tic()</div><div class="ttdoc">Start measuring the time. </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8cpp_source.html#l00004">utilities.cpp:4</a></div></div>
-<div class="ttc" id="structAABB_html_a29ebf68bcd53615e4a8fed32ddb7a8f9"><div class="ttname"><a href="structAABB.html#a29ebf68bcd53615e4a8fed32ddb7a8f9">AABB::deep</a></div><div class="ttdeci">double deep</div><div class="ttdoc">x dimension - dir1 or 2 </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8h_source.html#l00041">utilities.h:41</a></div></div>
-<div class="ttc" id="structAABB_html_af15766075aeb48dce1da464277fedc64"><div class="ttname"><a href="structAABB.html#af15766075aeb48dce1da464277fedc64">AABB::width</a></div><div class="ttdeci">double width</div><div class="ttdoc">y dimension - dir 3 or 4 </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8h_source.html#l00042">utilities.h:42</a></div></div>
-<div class="ttc" id="structAABB_html"><div class="ttname"><a href="structAABB.html">AABB</a></div><div class="ttdoc">Axis Aligned Bounding Box. </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8h_source.html#l00040">utilities.h:40</a></div></div>
+<div class="ttc" id="structAABB_html_a29ebf68bcd53615e4a8fed32ddb7a8f9"><div class="ttname"><a href="structAABB.html#a29ebf68bcd53615e4a8fed32ddb7a8f9">AABB::deep</a></div><div class="ttdeci">double deep</div><div class="ttdoc">x dimension - dir1 or 2 </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8h_source.html#l00043">utilities.h:43</a></div></div>
+<div class="ttc" id="structAABB_html_af15766075aeb48dce1da464277fedc64"><div class="ttname"><a href="structAABB.html#af15766075aeb48dce1da464277fedc64">AABB::width</a></div><div class="ttdeci">double width</div><div class="ttdoc">y dimension - dir 3 or 4 </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8h_source.html#l00044">utilities.h:44</a></div></div>
+<div class="ttc" id="structAABB_html"><div class="ttname"><a href="structAABB.html">AABB</a></div><div class="ttdoc">Axis Aligned Bounding Box. </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8h_source.html#l00042">utilities.h:42</a></div></div>
 <div class="ttc" id="utilities_8h_html_a3f604b0d492a343dd2c72ca7469b3cf7"><div class="ttname"><a href="utilities_8h.html#a3f604b0d492a343dd2c72ca7469b3cf7">toc</a></div><div class="ttdeci">void toc()</div><div class="ttdoc">Stop measuring the time and print the elapsed time. </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8cpp_source.html#l00007">utilities.cpp:7</a></div></div>
-<div class="ttc" id="structAABB_html_aaa696275ade2822a7bdf2f27187afe10"><div class="ttname"><a href="structAABB.html#aaa696275ade2822a7bdf2f27187afe10">AABB::height</a></div><div class="ttdeci">double height</div><div class="ttdoc">z dimension </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8h_source.html#l00043">utilities.h:43</a></div></div>
+<div class="ttc" id="structAABB_html_aaa696275ade2822a7bdf2f27187afe10"><div class="ttname"><a href="structAABB.html#aaa696275ade2822a7bdf2f27187afe10">AABB::height</a></div><div class="ttdeci">double height</div><div class="ttdoc">z dimension </div><div class="ttdef"><b>Definition:</b> <a href="utilities_8h_source.html#l00045">utilities.h:45</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 3 2016 15:09:45 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 20 2016 14:41:03 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

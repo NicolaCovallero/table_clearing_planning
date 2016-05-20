@@ -76,8 +76,13 @@ int main(int argc, char *argv[])
   // For the segmentation: with our setup in the laboratory a 
   // simple euclidean clustering should work properly
   // segment point cloud
+  tos_supervoxels_parameters param;
+  param.voxel_resolution = 0.005;
+  param.seed_resolution = 0.02;
+  param.seed_resolution = 0.02;
+  param.concavity_tolerance_threshold = 20;
   tos_supervoxels seg;
-  seg.init(*cloud);
+  seg.init(*cloud,param);
   seg.set_zmin(0.03f);
   seg.print_parameters();
   seg.segment();
@@ -103,7 +108,6 @@ int main(int argc, char *argv[])
   viewer_edge->addPointCloud(cloud,"original_cloud");
   ep.viewerSpin();
   viewer_edge->close();
-
 
 
   // scene perception - planning part
@@ -138,18 +142,22 @@ int main(int argc, char *argv[])
   //----------- VISUALIZATIONS ----------------------
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
   
-  tcp.viewerShowClosedFingersModel(viewer);
+  //tcp.viewerShowClosedFingersModel(viewer);
   //tcp.viewerShowFingersModel(viewer);
   //tcp.viewerAddGraspingPoses(viewer);
   //tcp.viewerAddApproachingPoses(viewer);
   tcp.viewerAddPlaneConvexHull(viewer,255,255,255);
   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
   viewer->setBackgroundColor (255, 255, 255);
-  viewer->addCoordinateSystem (0.3);
-  tcp.viewerAddRichObjectsClouds(viewer); 
+  //viewer->addCoordinateSystem (0.3);
+
+  //tcp.viewerAddProjection(viewer,0,0,255,0);
+  //tcp.viewerAddProjection(viewer,0,0,255,0);
+  //tcp.viewerAddProjectionConvexHull(viewer,1,255,0,0);
+  //tcp.viewerAddRichObjectsClouds(viewer); 
   //tcp.viewerAddPrincipalDirections(viewer,obj_idx);
   //tcp.viewerAddPrincipalDirections(viewer);
-  
+  //tcp.viewerAddGraspingPose(viewer,0);
   // std::vector<pcl::PointCloud<pcl::PointXYZRGBA> > occluded_sides;
   // occluded_sides = ep.getObjectsOccludedSides(); 
   // tcp.buildFullObjectsCloud(occluded_sides);
@@ -157,11 +165,13 @@ int main(int argc, char *argv[])
   // tcp.viewerAddFullObjectsClouds(viewer);
 
   //tcp.viewerAddObjectsClouds(viewer);
-  for (int i = 0; i < segmented_objs.size(); ++i)
-  {
-    tcp.viewerAddConvexHulls(viewer,i);  
-  }
+  // for (uint i = 0; i < segmented_objs.size(); ++i)
+  // {
+  //   tcp.viewerAddConvexHulls(viewer,i);  
+  // }
   
+  tcp.viewerAddConvexHulls(viewer,1);  
+  tcp.viewerAddPrincipalDirections(viewer,1);
 
 
   while (!viewer->wasStopped() && !exit_)

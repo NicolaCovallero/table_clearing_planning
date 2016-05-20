@@ -148,354 +148,393 @@
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <a class="code" href="structPose.html">Pose</a> pose_dir1, pose_dir2, pose_dir3, pose_dir4;</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;};</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment">// check this</span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment">// http://hamelot.io/programming/using-bullet-only-for-collision-detection/</span></div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment">// for collision: http://stackoverflow.com/questions/5559482/how-would-i-set-up-collision-using-the-bullet-physics-library</span></div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="comment">// collision tutorial:</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="comment">// https://www.toptal.com/game/video-game-physics-part-ii-collision-detection-for-solid-objects </span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="comment">// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Callbacks_and_Triggers</span></div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="comment">// reduce convex hull for optimized collision detection - BULLET:</span></div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment">//http://www.bulletphysics.org/mediawiki-1.5.8/index.php?title=BtShapeHull_vertex_reduction_utility</span></div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
-<div class="line"><a name="l00125"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html">  125</a></span>&#160;<span class="keyword">class </span><a class="code" href="classCTableClearingPlanning.html">CTableClearingPlanning</a></div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;{</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  <span class="keyword">typedef</span> pcl::PointXYZRGBA PointT;</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  <span class="keyword">typedef</span> pcl::PointCloud&lt;PointT&gt; PointCloudT;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;  <span class="keyword">typedef</span> boost::shared_ptr&lt;pcl::visualization::PCLVisualizer&gt; Visualizer;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  <span class="keyword">struct </span>FclMesh</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;  {</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;      <span class="comment">// set mesh triangles and vertice indices</span></div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;      std::vector&lt;fcl::Vec3f&gt; vertices;</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;      std::vector&lt;fcl::Triangle&gt; triangles;</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;  };</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  <span class="comment">// constant values</span></div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> PUSHING_STEP = 1.5; <span class="comment">// default value 1.5 the AABB dimension</span></div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> PUSHING_OBJECT_DISTANCE = 0.05; <span class="comment">//5 cm</span></div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> APPROACHING_DISTANCE = 0.1; <span class="comment">// 10 cm</span></div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> DISTANCE_FROM_PLANE_GRASPING_POSES = 0.01; <span class="comment">// 1cm</span></div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="keywordtype">double</span> pushing_limit; <span class="comment">//used only from the block predicates computation functions</span></div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  <span class="keywordtype">double</span> pushing_step;</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  <span class="keywordtype">double</span> pushing_object_distance; </div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="keywordtype">double</span> n_objects; </div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;  <span class="comment">// ----------- PREDICATES ---------------</span></div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;  std::vector&lt;BlocksPredicate&gt; blocks_predicates;</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;  std::vector&lt;std::vector&lt;uint&gt; &gt; on_top_predicates;  </div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;  std::vector&lt;std::vector&lt;uint&gt; &gt; block_grasp_predicates;  </div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  <span class="comment">// --------------------------------------</span></div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;  <span class="comment">// ------------- Gripper Model ----------</span></div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  <span class="comment">// We here define the gripper model, we just use its AABB</span></div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;  <span class="keyword">struct </span>EndEffector{</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keywordtype">double</span> width;</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    <span class="keywordtype">double</span> deep;</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">double</span> height;</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keywordtype">double</span> distance_plane; </div>
+<div class="line"><a name="l00107"></a><span class="lineno"><a class="line" href="structExecutionTimes.html">  107</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structExecutionTimes.html">ExecutionTimes</a>{</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="keywordtype">double</span> on_predicates;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="keywordtype">double</span> block_predicates;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="keywordtype">double</span> block_grasp_predicates;</div>
+<div class="line"><a name="l00111"></a><span class="lineno"><a class="line" href="structExecutionTimes.html#ada50586bd4d3150aa2b64223e8539498">  111</a></span>&#160;<span class="keywordtype">double</span> <a class="code" href="structExecutionTimes.html#ada50586bd4d3150aa2b64223e8539498">objects_collisions</a>; </div>
+<div class="line"><a name="l00112"></a><span class="lineno"><a class="line" href="structExecutionTimes.html#a4f3e2f1b0ac7879d9a69c69e1f5cdde3">  112</a></span>&#160;<span class="keywordtype">double</span> <a class="code" href="structExecutionTimes.html#a4f3e2f1b0ac7879d9a69c69e1f5cdde3">ee_collisions</a>; </div>
+<div class="line"><a name="l00113"></a><span class="lineno"><a class="line" href="structExecutionTimes.html#a164a20b0d9d67d7c5c9a7b363a23c7d5">  113</a></span>&#160;<span class="keywordtype">double</span> <a class="code" href="structExecutionTimes.html#a164a20b0d9d67d7c5c9a7b363a23c7d5">average_objects_collision</a>; </div>
+<div class="line"><a name="l00114"></a><span class="lineno"><a class="line" href="structExecutionTimes.html#ad7e424c019f7fec31cd9b90c5e746800">  114</a></span>&#160;<span class="keywordtype">double</span> <a class="code" href="structExecutionTimes.html#ad7e424c019f7fec31cd9b90c5e746800">average_ee_collision</a>; </div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;};</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment">// check this</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="comment">// http://hamelot.io/programming/using-bullet-only-for-collision-detection/</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="comment">// for collision: http://stackoverflow.com/questions/5559482/how-would-i-set-up-collision-using-the-bullet-physics-library</span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="comment">// collision tutorial:</span></div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="comment">// https://www.toptal.com/game/video-game-physics-part-ii-collision-detection-for-solid-objects </span></div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="comment">// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Collision_Callbacks_and_Triggers</span></div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="comment">// reduce convex hull for optimized collision detection - BULLET:</span></div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="comment">//http://www.bulletphysics.org/mediawiki-1.5.8/index.php?title=BtShapeHull_vertex_reduction_utility</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;</div>
+<div class="line"><a name="l00134"></a><span class="lineno"><a class="line" href="classCTableClearingPlanning.html">  134</a></span>&#160;<span class="keyword">class </span><a class="code" href="classCTableClearingPlanning.html">CTableClearingPlanning</a></div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;{</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;  <span class="keyword">typedef</span> pcl::PointXYZRGBA PointT;</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="keyword">typedef</span> pcl::PointCloud&lt;PointT&gt; PointCloudT;</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  <span class="keyword">typedef</span> boost::shared_ptr&lt;pcl::visualization::PCLVisualizer&gt; Visualizer;</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;  <span class="keyword">struct </span>FclMesh</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  {</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;      <span class="comment">// set mesh triangles and vertice indices</span></div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;      std::vector&lt;fcl::Vec3f&gt; vertices;</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;      std::vector&lt;fcl::Triangle&gt; triangles;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  };</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  <span class="comment">// constant values</span></div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> PUSHING_STEP = 1.5; <span class="comment">// default value 1.5 the AABB dimension</span></div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> PUSHING_OBJECT_DISTANCE = 0.05; <span class="comment">//5 cm</span></div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> APPROACHING_DISTANCE = 0.1; <span class="comment">// 10 cm</span></div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> DISTANCE_FROM_PLANE_GRASPING_POSES = 0.01; <span class="comment">// 1cm</span></div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;  <span class="keywordtype">double</span> pushing_limit; <span class="comment">//used only from the block predicates computation functions</span></div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  <span class="keywordtype">double</span> pushing_step;</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;  <span class="keywordtype">double</span> pushing_object_distance; </div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  uint n_objects; </div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;  <span class="comment">// ----------- PREDICATES ---------------</span></div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;  std::vector&lt;BlocksPredicate&gt; blocks_predicates;</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;  std::vector&lt;std::vector&lt;uint&gt; &gt; on_top_predicates;  </div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;  std::vector&lt;std::vector&lt;uint&gt; &gt; block_grasp_predicates;  </div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;  <span class="comment">// --------------------------------------</span></div>
 <div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="comment">// convex hull</span></div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    pcl::PointCloud&lt;pcl::PointXYZ &gt; cloud;</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    std::vector&lt;pcl::Vertices&gt; vertices;</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;  }ee_simple_model;</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;  <span class="keyword">struct </span>FingersModel{</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    <span class="keywordtype">double</span> opening_width;</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <span class="keywordtype">double</span> closing_width;</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="keywordtype">double</span> finger_width;</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    <span class="keywordtype">double</span> deep;</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    <span class="keywordtype">double</span> height;</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="keywordtype">double</span> closing_height;</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;</div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <span class="comment">// convex hull</span></div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    pcl::PointCloud&lt;pcl::PointXYZ &gt; open_cloud; </div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    pcl::PointCloud&lt;pcl::PointXYZ &gt; closed_cloud; </div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    std::vector&lt;pcl::Vertices&gt; open_vertices,closed_vertices;</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;  }fingers_model;</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;  <span class="comment">// ------------- Gripper Model ----------</span></div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;  <span class="comment">// We here define the gripper model, we just use its AABB</span></div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;  <span class="keyword">struct </span>EndEffector{</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <span class="keywordtype">double</span> width;</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <span class="keywordtype">double</span> deep;</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="keywordtype">double</span> height;</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    <span class="keywordtype">double</span> distance_plane; </div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="comment">// convex hull</span></div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    pcl::PointCloud&lt;pcl::PointXYZ &gt; cloud;</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    std::vector&lt;pcl::Vertices&gt; vertices;</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;  }ee_simple_model;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;  <span class="keyword">struct </span>FingersModel{</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <span class="keywordtype">double</span> opening_width;</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <span class="keywordtype">double</span> closing_width;</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <span class="keywordtype">double</span> finger_width;</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keywordtype">double</span> deep;</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordtype">double</span> height;</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="keywordtype">double</span> closing_height;</div>
 <div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;  PointCloudT original_cloud;</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;  </div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;  PointCloudT plane_cloud;</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;  PointCloudT plane_convex_hull_2d;</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;  std::vector&lt;pcl::Vertices&gt; plane_convex_hull_indices;</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;  std::vector&lt;PointCloudT &gt; objects;</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;  std::vector&lt;PointCloudT &gt; rich_objects;</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;  std::vector&lt;ObjectFull&gt; objects_full;</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;  std::vector&lt;PointCloudT &gt; projections; </div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;  std::vector&lt;PointCloudT &gt; convex_hull_objects;</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;  std::vector&lt;PointCloudT &gt; concave_hull_objects;</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;  std::vector&lt;PrincipalDirectionsProjected&gt; principal_directions_objects;</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;  std::vector&lt;OriginalPrincipalDirections&gt; original_principal_directions_objects;</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;  std::vector&lt;std::vector&lt;pcl::Vertices&gt; &gt; convex_hull_vertices,concave_hull_vertices;</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;  std::vector&lt;AABB&gt; aabb_objects;</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;  std::vector&lt;GraspingPose&gt; grasping_poses,approaching_poses;</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;  <span class="keywordtype">double</span> approaching_distance;</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;  <span class="keywordtype">double</span> distance_from_plane_grasping_poses;</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;  std::vector&lt;PushingPose&gt; pushing_poses;</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;  <span class="comment">// projections on plane</span></div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;  std::vector&lt;PointCloudT &gt; concave_hull_projections; </div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;  std::vector&lt;std::vector&lt;pcl::Vertices&gt; &gt; concave_hull_vertices_projections;</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;  std::vector&lt;PointCloudT &gt; convex_hull_projections; </div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;  std::vector&lt;std::vector&lt;pcl::Vertices&gt; &gt; convex_hull_vertices_projections;</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="comment">// convex hull</span></div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    pcl::PointCloud&lt;pcl::PointXYZ &gt; open_cloud; </div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    pcl::PointCloud&lt;pcl::PointXYZ &gt; closed_cloud; </div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    std::vector&lt;pcl::Vertices&gt; open_vertices,closed_vertices;</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;  }fingers_model;</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;  <a class="code" href="structExecutionTimes.html">ExecutionTimes</a> executionTimes;</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;  PointCloudT original_cloud;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;  </div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;  PointCloudT plane_cloud;</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;  PointCloudT plane_convex_hull_2d;</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;  std::vector&lt;pcl::Vertices&gt; plane_convex_hull_indices;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;  std::vector&lt;PointCloudT &gt; objects;</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;  std::vector&lt;PointCloudT &gt; rich_objects;</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;  std::vector&lt;ObjectFull&gt; objects_full;</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;  std::vector&lt;PointCloudT &gt; projections; </div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;  std::vector&lt;PointCloudT &gt; convex_hull_objects;</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;  std::vector&lt;PointCloudT &gt; concave_hull_objects;</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;  std::vector&lt;PrincipalDirectionsProjected&gt; principal_directions_objects;</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;  std::vector&lt;OriginalPrincipalDirections&gt; original_principal_directions_objects;</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;  std::vector&lt;std::vector&lt;pcl::Vertices&gt; &gt; convex_hull_vertices,concave_hull_vertices;</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;  std::vector&lt;AABB&gt; aabb_objects;</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;  std::vector&lt;GraspingPose&gt; grasping_poses,approaching_poses;</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;  <span class="keywordtype">double</span> approaching_distance;</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;  <span class="keywordtype">double</span> distance_from_plane_grasping_poses;</div>
 <div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;  pcl::ModelCoefficients plane_coefficients; </div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;  Eigen::Vector3f plane_normal; </div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;  Eigen::Vector3f plane_origin; </div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;  <span class="keywordtype">bool</span> areObjectCollidingFcl(uint idx_1, fcl::Transform3f tf, uint idx_2);</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;  <span class="keywordtype">bool</span> isEEColliding(uint idx, fcl::Transform3f tf);</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;  <span class="keywordtype">bool</span> isClosedFinderModelColliding(uint idx, fcl::Transform3f tf);</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;  <span class="keywordtype">bool</span> isFingersModelColliding(uint idx, fcl::Transform3f tf);</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;  FclMesh getGripperMesh();</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;  std::vector&lt;PushingPose&gt; pushing_poses;</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;  <span class="comment">// projections on plane</span></div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;  std::vector&lt;PointCloudT &gt; concave_hull_projections; </div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;  std::vector&lt;std::vector&lt;pcl::Vertices&gt; &gt; concave_hull_vertices_projections;</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;  std::vector&lt;PointCloudT &gt; convex_hull_projections; </div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;  std::vector&lt;std::vector&lt;pcl::Vertices&gt; &gt; convex_hull_vertices_projections;</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;  pcl::ModelCoefficients plane_coefficients; </div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;  Eigen::Vector3f plane_normal; </div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;  Eigen::Vector3f plane_origin; </div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;  <span class="keywordtype">bool</span> areObjectCollidingFcl(uint idx_1, fcl::Transform3f tf, uint idx_2);</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;  <span class="keywordtype">bool</span> isEEColliding(uint idx, fcl::Transform3f tf);</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;  <span class="keywordtype">bool</span> isClosedFinderModelColliding(uint idx, fcl::Transform3f tf);</div>
 <div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;  FclMesh getClosedFingersMesh();</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;  FclMesh getFingersModelMesh();</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;  <span class="keywordtype">bool</span> isFingersModelColliding(uint idx, fcl::Transform3f tf);</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;  FclMesh getGripperMesh();</div>
 <div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;  <span class="comment">// --------- MY CONVERSIONS --------------------</span></div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;  Eigen::Vector3f  pointT2vector3f(PointT point);</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;  FclMesh getClosedFingersMesh();</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;  FclMesh getFingersModelMesh();</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;  <span class="comment">// --------- MY CONVERSIONS --------------------</span></div>
 <div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;  FclMesh pcl2FclConvexHull(uint idx);</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;  Eigen::Vector3f  pointT2vector3f(PointT point);</div>
 <div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;  FclMesh pcl2FclConvexHull(PointCloudT convex_hull_cloud, std::vector&lt;pcl::Vertices&gt; convex_hull_indices);</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;  </div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;  <span class="keywordtype">void</span> fcl2EigenTransform( Eigen::Vector4f&amp; translate, Eigen::Quaternionf&amp; q_rot,</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;                           fcl::Transform3f&amp; tf);</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;  <span class="keywordtype">void</span> eigen2FclTransform(Eigen::Vector4f&amp; translate, Eigen::Quaternionf&amp; q_rot,</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;                                                    fcl::Transform3f&amp; tf);</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;  <span class="keywordtype">void</span> eigen2FclTransform(Eigen::Vector3f&amp; translate, Eigen::Quaternionf&amp; q_rot,</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;                                                    fcl::Transform3f&amp; tf);</div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;  <span class="keywordtype">void</span> eigen2FclRotation(Eigen::Quaternionf&amp; q_rot, fcl::Matrix3f&amp; rot);</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;  <span class="keywordtype">void</span> eigen2FclRotation(Eigen::Matrix3f eig_rot, fcl::Matrix3f&amp; rot);</div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;  <span class="comment">// -----------------</span></div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;  </div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;  <span class="keywordtype">void</span> translate(PointCloudT&amp; cloud1, PointCloudT&amp; cloud2, Eigen::Vector4f&amp; translation);</div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;  <span class="keywordtype">void</span> computeSurfaceGraspPoint(Eigen::Vector3f&amp; surface_point, uint idx);</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;  FclMesh pcl2FclConvexHull(uint idx);</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;  FclMesh pcl2FclConvexHull(PointCloudT convex_hull_cloud, std::vector&lt;pcl::Vertices&gt; convex_hull_indices);</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;  </div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;  <span class="keywordtype">void</span> fcl2EigenTransform( Eigen::Vector4f&amp; translate, Eigen::Quaternionf&amp; q_rot,</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;                           fcl::Transform3f&amp; tf);</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;  <span class="keywordtype">void</span> eigen2FclTransform(Eigen::Vector4f&amp; translate, Eigen::Quaternionf&amp; q_rot,</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;                                                    fcl::Transform3f&amp; tf);</div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;  <span class="keywordtype">void</span> eigen2FclTransform(Eigen::Vector3f&amp; translate, Eigen::Quaternionf&amp; q_rot,</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;                                                    fcl::Transform3f&amp; tf);</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;  <span class="keywordtype">void</span> eigen2FclRotation(Eigen::Quaternionf&amp; q_rot, fcl::Matrix3f&amp; rot);</div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;  <span class="keywordtype">void</span> eigen2FclRotation(Eigen::Matrix3f eig_rot, fcl::Matrix3f&amp; rot);</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;  <span class="comment">// -----------------</span></div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;  </div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;  <span class="keywordtype">void</span> translate(PointCloudT&amp; cloud1, PointCloudT&amp; cloud2, Eigen::Vector4f&amp; translation);</div>
 <div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;</div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;  <span class="keywordtype">bool</span> refineSimpleGraspingPose(<a class="code" href="structGraspingPose.html">GraspingPose</a>&amp; gp, <span class="keywordtype">double</span> translation_step = 0.005, <span class="keywordtype">double</span> distance_from_plane = 0.01);</div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;</div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;</div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;</div>
-<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;    <a class="code" href="classCTableClearingPlanning.html">CTableClearingPlanning</a>();</div>
-<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;    <a class="code" href="classCTableClearingPlanning.html">CTableClearingPlanning</a>(std::vector&lt;PointCloudT &gt; &amp;objects);</div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;    ~<a class="code" href="classCTableClearingPlanning.html">CTableClearingPlanning</a>();</div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;</div>
-<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a8ec3fdc39866b18caa9d7b83c2486e76">setGripperSimpleModel</a>(<span class="keywordtype">double</span> height, <span class="keywordtype">double</span> deep, <span class="keywordtype">double</span> width, <span class="keywordtype">double</span> distance_plane);</div>
-<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;</div>
-<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;</div>
-<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a2ba375c6463bafd7af9194266190ccbd">setFingersModel</a>(<span class="keywordtype">double</span> opening_width, <span class="keywordtype">double</span> closing_width, <span class="keywordtype">double</span> finger_width,</div>
-<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;               <span class="keywordtype">double</span> deep, <span class="keywordtype">double</span> height, <span class="keywordtype">double</span> closing_height);</div>
-<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;</div>
-<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a796cb33de9b5ef27444fac43a98975e4">setPlanePointCloud</a>(PointCloudT plane_cloud);</div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;</div>
-<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a137370fbab10207adede2ad0dd79d910">setOriginalPointCloud</a>(PointCloudT original_cloud);</div>
-<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;</div>
-<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;</div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a2cd87120cf1abe06b96c0611cde50edf">setObjectsPointCloud</a>(std::vector&lt;PointCloudT &gt; &amp;objects);</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;  <span class="keywordtype">void</span> computeSurfaceGraspPoint(Eigen::Vector3f&amp; surface_point, uint idx);</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;</div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;  <span class="keywordtype">bool</span> refineSimpleGraspingPose(<a class="code" href="structGraspingPose.html">GraspingPose</a>&amp; gp, <span class="keywordtype">double</span> translation_step = 0.005, <span class="keywordtype">double</span> distance_from_plane = 0.01);</div>
+<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;</div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;  <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;</div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;    <a class="code" href="classCTableClearingPlanning.html">CTableClearingPlanning</a>();</div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;</div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;    <a class="code" href="classCTableClearingPlanning.html">CTableClearingPlanning</a>(std::vector&lt;PointCloudT &gt; &amp;objects);</div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;    ~<a class="code" href="classCTableClearingPlanning.html">CTableClearingPlanning</a>();</div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;</div>
+<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a8ec3fdc39866b18caa9d7b83c2486e76">setGripperSimpleModel</a>(<span class="keywordtype">double</span> height, <span class="keywordtype">double</span> deep, <span class="keywordtype">double</span> width, <span class="keywordtype">double</span> distance_plane);</div>
+<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;</div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;</div>
+<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a2ba375c6463bafd7af9194266190ccbd">setFingersModel</a>(<span class="keywordtype">double</span> opening_width, <span class="keywordtype">double</span> closing_width, <span class="keywordtype">double</span> finger_width,</div>
+<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;               <span class="keywordtype">double</span> deep, <span class="keywordtype">double</span> height, <span class="keywordtype">double</span> closing_height);</div>
+<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;</div>
+<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a796cb33de9b5ef27444fac43a98975e4">setPlanePointCloud</a>(PointCloudT plane_cloud);</div>
+<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;</div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a137370fbab10207adede2ad0dd79d910">setOriginalPointCloud</a>(PointCloudT original_cloud);</div>
 <div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;</div>
-<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f">setPlaneCoefficients</a>(pcl::ModelCoefficients &amp;plane_coefficients);</div>
-<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;</div>
-<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;    <span class="keywordtype">void</span> testTranslation(uint idx);</div>
+<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;</div>
+<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a2cd87120cf1abe06b96c0611cde50edf">setObjectsPointCloud</a>(std::vector&lt;PointCloudT &gt; &amp;objects);</div>
 <div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;</div>
-<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#ad235fde9e142bc1b99081f993014599b">computeAABBObjects</a>(<span class="keywordtype">bool</span> refine_centroids = <span class="keyword">true</span>);  </div>
+<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f">setPlaneCoefficients</a>(pcl::ModelCoefficients &amp;plane_coefficients);</div>
 <div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;</div>
-<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a2f9be9eb37c0b9d462bed1100675c6fc">computeSimpleHeuristicGraspingPoses</a>(<span class="keywordtype">bool</span> vertical_poses = <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;</div>
-<div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;</div>
-<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#ad945cae3b79e0fbacae1c5fbb4670bbe">computeConvexHulls</a>();</div>
-<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;</div>
-<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a962b92d4cb88368392ff984672d56617">computeConcaveHulls</a>();</div>
-<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;</div>
-<div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160;</div>
-<div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a255fac249cb27a932582509731da5fcb">computeProjectionsOnTable</a>();</div>
-<div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;</div>
-<div class="line"><a name="l00461"></a><span class="lineno">  461</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5e10f775eede6274ce3a4e25adfa0057">computeProjectionsConvexHull</a>();</div>
-<div class="line"><a name="l00462"></a><span class="lineno">  462</span>&#160;</div>
-<div class="line"><a name="l00469"></a><span class="lineno">  469</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a09319e4c77b7fe4386a8743c6f5f21af">computeRichConvexHulls</a>();</div>
-<div class="line"><a name="l00470"></a><span class="lineno">  470</span>&#160;</div>
+<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;    <span class="keywordtype">void</span> testTranslation(uint idx);</div>
+<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;</div>
+<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#ad235fde9e142bc1b99081f993014599b">computeAABBObjects</a>(<span class="keywordtype">bool</span> refine_centroids = <span class="keyword">true</span>);  </div>
+<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;</div>
+<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a2f9be9eb37c0b9d462bed1100675c6fc">computeSimpleHeuristicGraspingPoses</a>(<span class="keywordtype">bool</span> vertical_poses = <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;</div>
+<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160;</div>
+<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#ad945cae3b79e0fbacae1c5fbb4670bbe">computeConvexHulls</a>();</div>
+<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;</div>
+<div class="line"><a name="l00459"></a><span class="lineno">  459</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a962b92d4cb88368392ff984672d56617">computeConcaveHulls</a>();</div>
+<div class="line"><a name="l00460"></a><span class="lineno">  460</span>&#160;</div>
+<div class="line"><a name="l00461"></a><span class="lineno">  461</span>&#160;</div>
+<div class="line"><a name="l00465"></a><span class="lineno">  465</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a255fac249cb27a932582509731da5fcb">computeProjectionsOnTable</a>();</div>
+<div class="line"><a name="l00466"></a><span class="lineno">  466</span>&#160;</div>
+<div class="line"><a name="l00470"></a><span class="lineno">  470</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5e10f775eede6274ce3a4e25adfa0057">computeProjectionsConvexHull</a>();</div>
 <div class="line"><a name="l00471"></a><span class="lineno">  471</span>&#160;</div>
-<div class="line"><a name="l00479"></a><span class="lineno">  479</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a248d2f5aa18cabf1d172b2303dacebe3">computeRichConcaveHulls</a>();</div>
-<div class="line"><a name="l00480"></a><span class="lineno">  480</span>&#160;</div>
-<div class="line"><a name="l00498"></a><span class="lineno">  498</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a420d713d333d82cc9ff277ddeb35dcf8">computeOnTopPredicates</a>(<span class="keywordtype">double</span> th1 =100, <span class="keywordtype">double</span> th2 = 100, <span class="keywordtype">bool</span> print = <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00499"></a><span class="lineno">  499</span>&#160;</div>
-<div class="line"><a name="l00509"></a><span class="lineno">  509</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a532593f8d8bbd35fec92b7e77d45fd42">setPushingStep</a>(<span class="keywordtype">double</span> pushing_step);</div>
+<div class="line"><a name="l00480"></a><span class="lineno">  480</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a45e234df0a448ba11dd1fda39db6765f">computeRichConvexHulls</a>(<span class="keywordtype">bool</span> rand_=<span class="keyword">true</span>);</div>
+<div class="line"><a name="l00481"></a><span class="lineno">  481</span>&#160;</div>
+<div class="line"><a name="l00482"></a><span class="lineno">  482</span>&#160;</div>
+<div class="line"><a name="l00490"></a><span class="lineno">  490</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a248d2f5aa18cabf1d172b2303dacebe3">computeRichConcaveHulls</a>();</div>
+<div class="line"><a name="l00491"></a><span class="lineno">  491</span>&#160;</div>
+<div class="line"><a name="l00509"></a><span class="lineno">  509</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a420d713d333d82cc9ff277ddeb35dcf8">computeOnTopPredicates</a>(<span class="keywordtype">double</span> th1 =100, <span class="keywordtype">double</span> th2 = 100, <span class="keywordtype">bool</span> print = <span class="keyword">false</span>);</div>
 <div class="line"><a name="l00510"></a><span class="lineno">  510</span>&#160;</div>
-<div class="line"><a name="l00517"></a><span class="lineno">  517</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a203d209b3165c5a3efd87363c0ecf7de">setDistanceFromPlaneForGripper</a>(<span class="keywordtype">double</span> distance_from_plane_grasping_poses);</div>
-<div class="line"><a name="l00518"></a><span class="lineno">  518</span>&#160;</div>
-<div class="line"><a name="l00525"></a><span class="lineno">  525</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#ac74c62b35b59228c30662a0eb8337656">setApproachingDistance</a>(<span class="keywordtype">double</span> approaching_distance);</div>
-<div class="line"><a name="l00526"></a><span class="lineno">  526</span>&#160;</div>
-<div class="line"><a name="l00533"></a><span class="lineno">  533</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#ae9e59a298b6ea01411ce089d5ef7d84e">setPushingObjectDistance</a>(<span class="keywordtype">double</span> pushing_object_distance);</div>
-<div class="line"><a name="l00534"></a><span class="lineno">  534</span>&#160;</div>
-<div class="line"><a name="l00542"></a><span class="lineno">  542</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a3e4da8b78c6939cb6514ccb043990910">computeBlockPredicates</a>(<span class="keywordtype">bool</span> print=<span class="keyword">false</span>, uint pushing_method = ORTHOGONAL_PUSHING);</div>
-<div class="line"><a name="l00543"></a><span class="lineno">  543</span>&#160;</div>
-<div class="line"><a name="l00551"></a><span class="lineno">  551</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#aeb5f4c71bbef307c46ecac87eb32a9f9">computeBlockGraspPredicates</a>(<span class="keywordtype">bool</span> print=<span class="keyword">false</span>);</div>
-<div class="line"><a name="l00552"></a><span class="lineno">  552</span>&#160;</div>
-<div class="line"><a name="l00553"></a><span class="lineno">  553</span>&#160;</div>
-<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160;    <span class="keywordtype">void</span> testFcl();</div>
-<div class="line"><a name="l00555"></a><span class="lineno">  555</span>&#160;    <span class="keywordtype">void</span> testFcl2();</div>
-<div class="line"><a name="l00556"></a><span class="lineno">  556</span>&#160;</div>
-<div class="line"><a name="l00557"></a><span class="lineno">  557</span>&#160;</div>
-<div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a3f763527a90f01e72c048a6a13f7d579">computePrincipalDirectionsConvexHull</a>();</div>
-<div class="line"><a name="l00564"></a><span class="lineno">  564</span>&#160;    <span class="keywordtype">void</span> computePrincipalDirectionsConcaveHull();</div>
-<div class="line"><a name="l00565"></a><span class="lineno">  565</span>&#160;</div>
-<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a29c77f988fa4dd19a4b22f6d0011cc17">computePrincipalDirections</a>();</div>
-<div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160;</div>
-<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a8ea62df3e2073805823f5ed0eb149435">voxelizeObjects</a>(<span class="keywordtype">double</span> leaf_size = 0.01f);</div>
-<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;</div>
-<div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a75c00aa680729dd64ef1603699ce2032">voxelizeFullObjects</a>(<span class="keywordtype">double</span> leaf_size = 0.01f);</div>
-<div class="line"><a name="l00592"></a><span class="lineno">  592</span>&#160;</div>
-<div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160;</div>
-<div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160;    <span class="keywordtype">void</span> buildFullObjectsCloud(std::vector&lt;PointCloudT&gt;&amp; occluded_sides);</div>
+<div class="line"><a name="l00520"></a><span class="lineno">  520</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a532593f8d8bbd35fec92b7e77d45fd42">setPushingStep</a>(<span class="keywordtype">double</span> pushing_step);</div>
+<div class="line"><a name="l00521"></a><span class="lineno">  521</span>&#160;</div>
+<div class="line"><a name="l00528"></a><span class="lineno">  528</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a203d209b3165c5a3efd87363c0ecf7de">setDistanceFromPlaneForGripper</a>(<span class="keywordtype">double</span> distance_from_plane_grasping_poses);</div>
+<div class="line"><a name="l00529"></a><span class="lineno">  529</span>&#160;</div>
+<div class="line"><a name="l00536"></a><span class="lineno">  536</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#ac74c62b35b59228c30662a0eb8337656">setApproachingDistance</a>(<span class="keywordtype">double</span> approaching_distance);</div>
+<div class="line"><a name="l00537"></a><span class="lineno">  537</span>&#160;</div>
+<div class="line"><a name="l00544"></a><span class="lineno">  544</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#ae9e59a298b6ea01411ce089d5ef7d84e">setPushingObjectDistance</a>(<span class="keywordtype">double</span> pushing_object_distance);</div>
+<div class="line"><a name="l00545"></a><span class="lineno">  545</span>&#160;</div>
+<div class="line"><a name="l00553"></a><span class="lineno">  553</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a3e4da8b78c6939cb6514ccb043990910">computeBlockPredicates</a>(<span class="keywordtype">bool</span> print=<span class="keyword">false</span>, uint pushing_method = ORTHOGONAL_PUSHING);</div>
+<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160;</div>
+<div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#aeb5f4c71bbef307c46ecac87eb32a9f9">computeBlockGraspPredicates</a>(<span class="keywordtype">bool</span> print=<span class="keyword">false</span>);</div>
+<div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160;</div>
+<div class="line"><a name="l00564"></a><span class="lineno">  564</span>&#160;</div>
+<div class="line"><a name="l00565"></a><span class="lineno">  565</span>&#160;    <span class="keywordtype">void</span> testFcl();</div>
+<div class="line"><a name="l00566"></a><span class="lineno">  566</span>&#160;    <span class="keywordtype">void</span> testFcl2();</div>
+<div class="line"><a name="l00567"></a><span class="lineno">  567</span>&#160;</div>
+<div class="line"><a name="l00568"></a><span class="lineno">  568</span>&#160;</div>
+<div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a3f763527a90f01e72c048a6a13f7d579">computePrincipalDirectionsConvexHull</a>();</div>
+<div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;    <span class="keywordtype">void</span> computePrincipalDirectionsConcaveHull();</div>
+<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;</div>
+<div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a29c77f988fa4dd19a4b22f6d0011cc17">computePrincipalDirections</a>();</div>
+<div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;</div>
+<div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a8ea62df3e2073805823f5ed0eb149435">voxelizeObjects</a>(<span class="keywordtype">double</span> leaf_size = 0.01f);</div>
 <div class="line"><a name="l00595"></a><span class="lineno">  595</span>&#160;</div>
-<div class="line"><a name="l00596"></a><span class="lineno">  596</span>&#160;    <span class="comment">// ------------------- VISUALIZATIONS -----------------------------</span></div>
-<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160;</div>
-<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a488108e15bd0ab227f207f9f32a7f795">visualComputeBlockPredicates</a>(Visualizer viewer, uint obj_idx, uint dir_idx,<span class="keywordtype">bool</span> visualization = <span class="keyword">true</span>,</div>
-<div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;                                      <span class="keywordtype">bool</span> print = <span class="keyword">true</span>, uint pushing_method = ORTHOGONAL_PUSHING);</div>
-<div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160;</div>
-<div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;</div>
-<div class="line"><a name="l00622"></a><span class="lineno">  622</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a0fc6086e9bc90fe598bdeaa4345f9b46">viewerAddConvexHulls</a>(Visualizer viewer, uint idx);</div>
-<div class="line"><a name="l00623"></a><span class="lineno">  623</span>&#160;</div>
-<div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a25c74f67135de366fb7681746d6c7cc9">viewerAddConcaveHulls</a>(Visualizer viewer, uint idx);</div>
-<div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160;</div>
-<div class="line"><a name="l00636"></a><span class="lineno">  636</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">viewerAddPrincipalDirections</a>(Visualizer viewer, uint i);</div>
-<div class="line"><a name="l00637"></a><span class="lineno">  637</span>&#160;</div>
-<div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">viewerAddPrincipalDirections</a>(Visualizer viewer);</div>
-<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;</div>
-<div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a42760538c751780255cc2072bad0ebe7">cleanPrincipalDirections</a>(Visualizer viewer, uint i);</div>
-<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;</div>
-<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a36ae5ea802dcd7198f17ba7c5898715b">cleanPolygonalMesh</a>(Visualizer viewer);</div>
-<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;</div>
-<div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;</div>
-<div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;    <span class="keywordtype">void</span> viewerAddPlaneNormal(Visualizer viewer);</div>
-<div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;    <span class="keywordtype">void</span> viewerAddObjectsClouds(Visualizer viewer);</div>
-<div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160;    <span class="keywordtype">void</span> viewerAddRichObjectsClouds(Visualizer viewer);</div>
-<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;    <span class="keywordtype">void</span> viewerAddFullObjectsClouds(Visualizer viewer);</div>
-<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;    <span class="keywordtype">void</span> viewerAddPlaneCloud(Visualizer viewer);</div>
-<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;    <span class="keywordtype">void</span> viewerAddPlaneConvexHull(Visualizer viewer);</div>
-<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;</div>
-<div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a00bfbb4f6b61d5983026ed76e835421a">viewerAddObjectsLabel</a>(Visualizer viewer);</div>
-<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;</div>
-<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;    <span class="keywordtype">void</span> viewerShowFingersModel(Visualizer viewer);</div>
-<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;    <span class="keywordtype">void</span> viewerShowClosedFingersModel(Visualizer viewer);</div>
-<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160;</div>
-<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a3e322ec0f718a7bc830adae9265c98aa">viewerAddObjectsTransfomed</a>(Visualizer viewer);</div>
+<div class="line"><a name="l00602"></a><span class="lineno">  602</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a75c00aa680729dd64ef1603699ce2032">voxelizeFullObjects</a>(<span class="keywordtype">double</span> leaf_size = 0.01f);</div>
+<div class="line"><a name="l00603"></a><span class="lineno">  603</span>&#160;</div>
+<div class="line"><a name="l00604"></a><span class="lineno">  604</span>&#160;</div>
+<div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160;    <span class="keywordtype">void</span> buildFullObjectsCloud(std::vector&lt;PointCloudT&gt;&amp; occluded_sides);</div>
+<div class="line"><a name="l00606"></a><span class="lineno">  606</span>&#160;</div>
+<div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;    <span class="comment">// ------------------- VISUALIZATIONS -----------------------------</span></div>
+<div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;</div>
+<div class="line"><a name="l00624"></a><span class="lineno">  624</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a488108e15bd0ab227f207f9f32a7f795">visualComputeBlockPredicates</a>(Visualizer viewer, uint obj_idx, uint dir_idx,<span class="keywordtype">bool</span> visualization = <span class="keyword">true</span>,</div>
+<div class="line"><a name="l00625"></a><span class="lineno">  625</span>&#160;                                      <span class="keywordtype">bool</span> print = <span class="keyword">true</span>, uint pushing_method = ORTHOGONAL_PUSHING);</div>
+<div class="line"><a name="l00626"></a><span class="lineno">  626</span>&#160;</div>
+<div class="line"><a name="l00627"></a><span class="lineno">  627</span>&#160;</div>
+<div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a0fc6086e9bc90fe598bdeaa4345f9b46">viewerAddConvexHulls</a>(Visualizer viewer, uint idx);</div>
+<div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;</div>
+<div class="line"><a name="l00640"></a><span class="lineno">  640</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a25c74f67135de366fb7681746d6c7cc9">viewerAddConcaveHulls</a>(Visualizer viewer, uint idx);</div>
+<div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160;</div>
+<div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">viewerAddPrincipalDirections</a>(Visualizer viewer, uint i);</div>
+<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;</div>
+<div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">viewerAddPrincipalDirections</a>(Visualizer viewer);</div>
+<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;</div>
+<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a42760538c751780255cc2072bad0ebe7">cleanPrincipalDirections</a>(Visualizer viewer, uint i);</div>
+<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;</div>
+<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a36ae5ea802dcd7198f17ba7c5898715b">cleanPolygonalMesh</a>(Visualizer viewer);</div>
+<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;</div>
+<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;</div>
+<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;    <span class="keywordtype">void</span> viewerAddPlaneNormal(Visualizer viewer);</div>
+<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;    <span class="keywordtype">void</span> viewerAddObjectsClouds(Visualizer viewer);</div>
+<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;    <span class="keywordtype">void</span> viewerAddRichObjectsClouds(Visualizer viewer);</div>
+<div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;    <span class="keywordtype">void</span> viewerAddFullObjectsClouds(Visualizer viewer);</div>
+<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;    <span class="keywordtype">void</span> viewerAddPlaneCloud(Visualizer viewer);</div>
+<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;</div>
+<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a10d7960ca05baa7515e4e7622ee16568">viewerAddProjections</a>(Visualizer viewer);</div>
 <div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;</div>
-<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;    <span class="keywordtype">void</span> viewerAddGraspingPose(Visualizer viewer,uint idx);</div>
-<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;    <span class="keywordtype">void</span> viewerAddGraspingPoses(Visualizer viewer);</div>
-<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;    <span class="keywordtype">void</span> viewerAddApproachingPose(Visualizer viewer, uint idx);</div>
-<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;    <span class="keywordtype">void</span> viewerAddApproachingPoses(Visualizer viewer);</div>
-<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;</div>
-<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;    uint getNumObjects();</div>
-<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;    std::vector&lt;ObjectFull&gt; getFullObjects();</div>
+<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#af71fd311ab92bbd127bbb6f785e73370">viewerAddProjection</a>(Visualizer viewer,uint idx);</div>
 <div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;</div>
-<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160;    std::vector&lt;AABB&gt; getAABBObjects();</div>
-<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160;</div>
-<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160;    std::vector&lt;BlocksPredicate&gt; getBlockPredicates();</div>
-<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;    std::vector&lt;std::vector&lt;uint&gt; &gt; getOnTopPredicates();</div>
-<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;    std::vector&lt;std::vector&lt;uint&gt; &gt; getBlockGraspPredicates();</div>
-<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;</div>
-<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160;    std::vector&lt;PrincipalDirectionsProjected&gt; <a class="code" href="classCTableClearingPlanning.html#a9d5e8f35963f8ba2b01fd1265d8d6551">getProjectedPrincipalDirections</a>();</div>
+<div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#af71fd311ab92bbd127bbb6f785e73370">viewerAddProjection</a>(Visualizer viewer,uint idx,<span class="keywordtype">float</span> r, <span class="keywordtype">float</span> g, <span class="keywordtype">float</span> b);</div>
+<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160;</div>
 <div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160;</div>
-<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;    std::vector&lt;OriginalPrincipalDirections&gt; getOriginalPrincipalDirections();</div>
-<div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160;</div>
-<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;    std::vector&lt;GraspingPose&gt; getGraspingPoses();</div>
-<div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160;</div>
-<div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160;    std::vector&lt;GraspingPose&gt; getApproachingPoses();</div>
-<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160;</div>
-<div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160;    std::vector&lt;PushingPose&gt; getPushingPoses();</div>
+<div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#af14a783e559e87d002eb4b63d863b117">viewerAddProjectionConvexHull</a>(Visualizer viewer,uint idx);</div>
 <div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160;</div>
-<div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;    <span class="keywordtype">double</span> getPushingObjectDistance();</div>
-<div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160;</div>
-<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#ab7542f9da3c524b8a8e98e9279877c77">reset</a>();</div>
-<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;</div>
-<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;};</div>
-<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160;</div>
-<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;</div>
-<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160;</div>
-<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;</div>
+<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#af14a783e559e87d002eb4b63d863b117">viewerAddProjectionConvexHull</a>(Visualizer viewer,uint idx,<span class="keywordtype">float</span> r, <span class="keywordtype">float</span> g, <span class="keywordtype">float</span> b);</div>
+<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;</div>
+<div class="line"><a name="l00733"></a><span class="lineno">  733</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#af1dfe44c88698519b846375b6914c102">viewerAddPlaneConvexHull</a>(Visualizer viewer, <span class="keywordtype">double</span> r=1,<span class="keywordtype">double</span> g=1,<span class="keywordtype">double</span> b=1);</div>
+<div class="line"><a name="l00734"></a><span class="lineno">  734</span>&#160;</div>
+<div class="line"><a name="l00742"></a><span class="lineno">  742</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a00bfbb4f6b61d5983026ed76e835421a">viewerAddObjectsLabel</a>(Visualizer viewer);</div>
+<div class="line"><a name="l00743"></a><span class="lineno">  743</span>&#160;</div>
+<div class="line"><a name="l00753"></a><span class="lineno">  753</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a5b28ac87de19b744f3d2622a731f2e8a">viewerShowFingersModel</a>(Visualizer viewer,<span class="keywordtype">double</span> r=1,<span class="keywordtype">double</span> g=1,<span class="keywordtype">double</span> b=1);</div>
+<div class="line"><a name="l00754"></a><span class="lineno">  754</span>&#160;</div>
+<div class="line"><a name="l00764"></a><span class="lineno">  764</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#ae816b2d5a11cc3a038b84634af38d586">viewerShowClosedFingersModel</a>(Visualizer viewer,<span class="keywordtype">double</span> r=1,<span class="keywordtype">double</span> g=1,<span class="keywordtype">double</span> b=1);</div>
+<div class="line"><a name="l00765"></a><span class="lineno">  765</span>&#160;</div>
+<div class="line"><a name="l00770"></a><span class="lineno">  770</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#a3e322ec0f718a7bc830adae9265c98aa">viewerAddObjectsTransfomed</a>(Visualizer viewer);</div>
+<div class="line"><a name="l00771"></a><span class="lineno">  771</span>&#160;</div>
+<div class="line"><a name="l00772"></a><span class="lineno">  772</span>&#160;    <span class="keywordtype">void</span> viewerAddGraspingPose(Visualizer viewer,uint idx);</div>
+<div class="line"><a name="l00773"></a><span class="lineno">  773</span>&#160;    <span class="keywordtype">void</span> viewerAddGraspingPoses(Visualizer viewer);</div>
+<div class="line"><a name="l00774"></a><span class="lineno">  774</span>&#160;    <span class="keywordtype">void</span> viewerAddApproachingPose(Visualizer viewer, uint idx);</div>
+<div class="line"><a name="l00775"></a><span class="lineno">  775</span>&#160;    <span class="keywordtype">void</span> viewerAddApproachingPoses(Visualizer viewer);</div>
+<div class="line"><a name="l00776"></a><span class="lineno">  776</span>&#160;</div>
+<div class="line"><a name="l00777"></a><span class="lineno">  777</span>&#160;    uint getNumObjects();</div>
+<div class="line"><a name="l00778"></a><span class="lineno">  778</span>&#160;    std::vector&lt;ObjectFull&gt; getFullObjects();</div>
+<div class="line"><a name="l00779"></a><span class="lineno">  779</span>&#160;</div>
+<div class="line"><a name="l00780"></a><span class="lineno">  780</span>&#160;    std::vector&lt;AABB&gt; getAABBObjects();</div>
+<div class="line"><a name="l00781"></a><span class="lineno">  781</span>&#160;</div>
+<div class="line"><a name="l00782"></a><span class="lineno">  782</span>&#160;    std::vector&lt;BlocksPredicate&gt; getBlockPredicates();</div>
+<div class="line"><a name="l00783"></a><span class="lineno">  783</span>&#160;    std::vector&lt;std::vector&lt;uint&gt; &gt; getOnTopPredicates();</div>
+<div class="line"><a name="l00784"></a><span class="lineno">  784</span>&#160;    std::vector&lt;std::vector&lt;uint&gt; &gt; getBlockGraspPredicates();</div>
+<div class="line"><a name="l00785"></a><span class="lineno">  785</span>&#160;</div>
+<div class="line"><a name="l00790"></a><span class="lineno">  790</span>&#160;    std::vector&lt;PrincipalDirectionsProjected&gt; <a class="code" href="classCTableClearingPlanning.html#a9d5e8f35963f8ba2b01fd1265d8d6551">getProjectedPrincipalDirections</a>();</div>
+<div class="line"><a name="l00791"></a><span class="lineno">  791</span>&#160;</div>
+<div class="line"><a name="l00792"></a><span class="lineno">  792</span>&#160;    std::vector&lt;OriginalPrincipalDirections&gt; getOriginalPrincipalDirections();</div>
+<div class="line"><a name="l00793"></a><span class="lineno">  793</span>&#160;</div>
+<div class="line"><a name="l00794"></a><span class="lineno">  794</span>&#160;    std::vector&lt;GraspingPose&gt; getGraspingPoses();</div>
+<div class="line"><a name="l00795"></a><span class="lineno">  795</span>&#160;</div>
+<div class="line"><a name="l00796"></a><span class="lineno">  796</span>&#160;    std::vector&lt;GraspingPose&gt; getApproachingPoses();</div>
+<div class="line"><a name="l00797"></a><span class="lineno">  797</span>&#160;</div>
+<div class="line"><a name="l00798"></a><span class="lineno">  798</span>&#160;    std::vector&lt;PushingPose&gt; getPushingPoses();</div>
+<div class="line"><a name="l00799"></a><span class="lineno">  799</span>&#160;</div>
+<div class="line"><a name="l00800"></a><span class="lineno">  800</span>&#160;    <a class="code" href="structExecutionTimes.html">ExecutionTimes</a> getExecutionTimes();</div>
+<div class="line"><a name="l00801"></a><span class="lineno">  801</span>&#160;</div>
+<div class="line"><a name="l00802"></a><span class="lineno">  802</span>&#160;    <span class="keywordtype">double</span> getPushingObjectDistance();</div>
+<div class="line"><a name="l00803"></a><span class="lineno">  803</span>&#160;</div>
+<div class="line"><a name="l00808"></a><span class="lineno">  808</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#ab7542f9da3c524b8a8e98e9279877c77">reset</a>();</div>
+<div class="line"><a name="l00809"></a><span class="lineno">  809</span>&#160;</div>
+<div class="line"><a name="l00813"></a><span class="lineno">  813</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classCTableClearingPlanning.html#afa36260ffe11962faf6a42cdb0d88edc">printExecutionTimes</a>();</div>
+<div class="line"><a name="l00814"></a><span class="lineno">  814</span>&#160;</div>
+<div class="line"><a name="l00815"></a><span class="lineno">  815</span>&#160;};</div>
+<div class="line"><a name="l00816"></a><span class="lineno">  816</span>&#160;</div>
+<div class="line"><a name="l00817"></a><span class="lineno">  817</span>&#160;</div>
+<div class="line"><a name="l00818"></a><span class="lineno">  818</span>&#160;</div>
+<div class="line"><a name="l00819"></a><span class="lineno">  819</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00820"></a><span class="lineno">  820</span>&#160;<span class="preprocessor"></span></div>
 <div class="ttc" id="structOriginalPrincipalDirections_html"><div class="ttname"><a href="structOriginalPrincipalDirections.html">OriginalPrincipalDirections</a></div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00067">table_clearing_planning.h:67</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a00bfbb4f6b61d5983026ed76e835421a"><div class="ttname"><a href="classCTableClearingPlanning.html#a00bfbb4f6b61d5983026ed76e835421a">CTableClearingPlanning::viewerAddObjectsLabel</a></div><div class="ttdeci">void viewerAddObjectsLabel(Visualizer viewer)</div><div class="ttdoc">Show the labels in the viewer as 3D text. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02906">table_clearing_planning.cpp:2906</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a75c00aa680729dd64ef1603699ce2032"><div class="ttname"><a href="classCTableClearingPlanning.html#a75c00aa680729dd64ef1603699ce2032">CTableClearingPlanning::voxelizeFullObjects</a></div><div class="ttdeci">void voxelizeFullObjects(double leaf_size=0.01f)</div><div class="ttdoc">Voxelize Full Objects. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02574">table_clearing_planning.cpp:2574</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a42760538c751780255cc2072bad0ebe7"><div class="ttname"><a href="classCTableClearingPlanning.html#a42760538c751780255cc2072bad0ebe7">CTableClearingPlanning::cleanPrincipalDirections</a></div><div class="ttdeci">void cleanPrincipalDirections(Visualizer viewer, uint i)</div><div class="ttdoc">Remove from the the viewer associated to the class the principal directions of a specific object...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02762">table_clearing_planning.cpp:2762</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_ac74c62b35b59228c30662a0eb8337656"><div class="ttname"><a href="classCTableClearingPlanning.html#ac74c62b35b59228c30662a0eb8337656">CTableClearingPlanning::setApproachingDistance</a></div><div class="ttdeci">void setApproachingDistance(double approaching_distance)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01108">table_clearing_planning.cpp:1108</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a00bfbb4f6b61d5983026ed76e835421a"><div class="ttname"><a href="classCTableClearingPlanning.html#a00bfbb4f6b61d5983026ed76e835421a">CTableClearingPlanning::viewerAddObjectsLabel</a></div><div class="ttdeci">void viewerAddObjectsLabel(Visualizer viewer)</div><div class="ttdoc">Show the labels in the viewer as 3D text. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03024">table_clearing_planning.cpp:3024</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a75c00aa680729dd64ef1603699ce2032"><div class="ttname"><a href="classCTableClearingPlanning.html#a75c00aa680729dd64ef1603699ce2032">CTableClearingPlanning::voxelizeFullObjects</a></div><div class="ttdeci">void voxelizeFullObjects(double leaf_size=0.01f)</div><div class="ttdoc">Voxelize Full Objects. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02675">table_clearing_planning.cpp:2675</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a42760538c751780255cc2072bad0ebe7"><div class="ttname"><a href="classCTableClearingPlanning.html#a42760538c751780255cc2072bad0ebe7">CTableClearingPlanning::cleanPrincipalDirections</a></div><div class="ttdeci">void cleanPrincipalDirections(Visualizer viewer, uint i)</div><div class="ttdoc">Remove from the the viewer associated to the class the principal directions of a specific object...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02863">table_clearing_planning.cpp:2863</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_ac74c62b35b59228c30662a0eb8337656"><div class="ttname"><a href="classCTableClearingPlanning.html#ac74c62b35b59228c30662a0eb8337656">CTableClearingPlanning::setApproachingDistance</a></div><div class="ttdeci">void setApproachingDistance(double approaching_distance)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01124">table_clearing_planning.cpp:1124</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a45e234df0a448ba11dd1fda39db6765f"><div class="ttname"><a href="classCTableClearingPlanning.html#a45e234df0a448ba11dd1fda39db6765f">CTableClearingPlanning::computeRichConvexHulls</a></div><div class="ttdeci">void computeRichConvexHulls(bool rand_=true)</div><div class="ttdoc">Compute the convex hull of each object considering also the projections of the convex hulls on the pl...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02393">table_clearing_planning.cpp:2393</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a137370fbab10207adede2ad0dd79d910"><div class="ttname"><a href="classCTableClearingPlanning.html#a137370fbab10207adede2ad0dd79d910">CTableClearingPlanning::setOriginalPointCloud</a></div><div class="ttdeci">void setOriginalPointCloud(PointCloudT original_cloud)</div><div class="ttdoc">Set the original point cloud, the one used for the segmentation. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00030">table_clearing_planning.cpp:30</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a255fac249cb27a932582509731da5fcb"><div class="ttname"><a href="classCTableClearingPlanning.html#a255fac249cb27a932582509731da5fcb">CTableClearingPlanning::computeProjectionsOnTable</a></div><div class="ttdeci">void computeProjectionsOnTable()</div><div class="ttdoc">Compute the projections of the objects onto the table plane. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01016">table_clearing_planning.cpp:1016</a></div></div>
+<div class="ttc" id="structExecutionTimes_html_ada50586bd4d3150aa2b64223e8539498"><div class="ttname"><a href="structExecutionTimes.html#ada50586bd4d3150aa2b64223e8539498">ExecutionTimes::objects_collisions</a></div><div class="ttdeci">double objects_collisions</div><div class="ttdoc">total time to compute the collision between all the objects O(n^2) </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00111">table_clearing_planning.h:111</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a255fac249cb27a932582509731da5fcb"><div class="ttname"><a href="classCTableClearingPlanning.html#a255fac249cb27a932582509731da5fcb">CTableClearingPlanning::computeProjectionsOnTable</a></div><div class="ttdeci">void computeProjectionsOnTable()</div><div class="ttdoc">Compute the projections of the objects onto the table plane. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01022">table_clearing_planning.cpp:1022</a></div></div>
 <div class="ttc" id="utilities_8h_html"><div class="ttname"><a href="utilities_8h.html">utilities.h</a></div><div class="ttdoc">A file with utilities functions. </div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a488108e15bd0ab227f207f9f32a7f795"><div class="ttname"><a href="classCTableClearingPlanning.html#a488108e15bd0ab227f207f9f32a7f795">CTableClearingPlanning::visualComputeBlockPredicates</a></div><div class="ttdeci">void visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx, bool visualization=true, bool print=true, uint pushing_method=ORTHOGONAL_PUSHING)</div><div class="ttdoc">Compute the block predicates. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01614">table_clearing_planning.cpp:1614</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a488108e15bd0ab227f207f9f32a7f795"><div class="ttname"><a href="classCTableClearingPlanning.html#a488108e15bd0ab227f207f9f32a7f795">CTableClearingPlanning::visualComputeBlockPredicates</a></div><div class="ttdeci">void visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx, bool visualization=true, bool print=true, uint pushing_method=ORTHOGONAL_PUSHING)</div><div class="ttdoc">Compute the block predicates. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01668">table_clearing_planning.cpp:1668</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a2ba375c6463bafd7af9194266190ccbd"><div class="ttname"><a href="classCTableClearingPlanning.html#a2ba375c6463bafd7af9194266190ccbd">CTableClearingPlanning::setFingersModel</a></div><div class="ttdeci">void setFingersModel(double opening_width, double closing_width, double finger_width, double deep, double height, double closing_height)</div><div class="ttdoc">Set the fingers model. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00671">table_clearing_planning.cpp:671</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a532593f8d8bbd35fec92b7e77d45fd42"><div class="ttname"><a href="classCTableClearingPlanning.html#a532593f8d8bbd35fec92b7e77d45fd42">CTableClearingPlanning::setPushingStep</a></div><div class="ttdeci">void setPushingStep(double pushing_step)</div><div class="ttdoc">Set the pushing limit. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01100">table_clearing_planning.cpp:1100</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a532593f8d8bbd35fec92b7e77d45fd42"><div class="ttname"><a href="classCTableClearingPlanning.html#a532593f8d8bbd35fec92b7e77d45fd42">CTableClearingPlanning::setPushingStep</a></div><div class="ttdeci">void setPushingStep(double pushing_step)</div><div class="ttdoc">Set the pushing limit. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01116">table_clearing_planning.cpp:1116</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a796cb33de9b5ef27444fac43a98975e4"><div class="ttname"><a href="classCTableClearingPlanning.html#a796cb33de9b5ef27444fac43a98975e4">CTableClearingPlanning::setPlanePointCloud</a></div><div class="ttdeci">void setPlanePointCloud(PointCloudT plane_cloud)</div><div class="ttdoc">Set the plane point cloud. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00034">table_clearing_planning.cpp:34</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a0fc6086e9bc90fe598bdeaa4345f9b46"><div class="ttname"><a href="classCTableClearingPlanning.html#a0fc6086e9bc90fe598bdeaa4345f9b46">CTableClearingPlanning::viewerAddConvexHulls</a></div><div class="ttdeci">void viewerAddConvexHulls(Visualizer viewer, uint idx)</div><div class="ttdoc">Show the convex hulls. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02292">table_clearing_planning.cpp:2292</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a0fc6086e9bc90fe598bdeaa4345f9b46"><div class="ttname"><a href="classCTableClearingPlanning.html#a0fc6086e9bc90fe598bdeaa4345f9b46">CTableClearingPlanning::viewerAddConvexHulls</a></div><div class="ttdeci">void viewerAddConvexHulls(Visualizer viewer, uint idx)</div><div class="ttdoc">Show the convex hulls. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02370">table_clearing_planning.cpp:2370</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a2f9be9eb37c0b9d462bed1100675c6fc"><div class="ttname"><a href="classCTableClearingPlanning.html#a2f9be9eb37c0b9d462bed1100675c6fc">CTableClearingPlanning::computeSimpleHeuristicGraspingPoses</a></div><div class="ttdeci">void computeSimpleHeuristicGraspingPoses(bool vertical_poses=false)</div><div class="ttdoc">Compute the grasping pose with a simple heuristic. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00556">table_clearing_planning.cpp:556</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_af71fd311ab92bbd127bbb6f785e73370"><div class="ttname"><a href="classCTableClearingPlanning.html#af71fd311ab92bbd127bbb6f785e73370">CTableClearingPlanning::viewerAddProjection</a></div><div class="ttdeci">void viewerAddProjection(Visualizer viewer, uint idx)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03299">table_clearing_planning.cpp:3299</a></div></div>
 <div class="ttc" id="structPrincipalDirectionsProjected_html"><div class="ttname"><a href="structPrincipalDirectionsProjected.html">PrincipalDirectionsProjected</a></div><div class="ttdoc">structure to represent the first 2 pricipal directions as a 3D vector and the centroid of the object...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00059">table_clearing_planning.h:59</a></div></div>
 <div class="ttc" id="structBlocksPredicate_html"><div class="ttname"><a href="structBlocksPredicate.html">BlocksPredicate</a></div><div class="ttdoc">Block predicates structure. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00077">table_clearing_planning.h:77</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a8ea62df3e2073805823f5ed0eb149435"><div class="ttname"><a href="classCTableClearingPlanning.html#a8ea62df3e2073805823f5ed0eb149435">CTableClearingPlanning::voxelizeObjects</a></div><div class="ttdeci">void voxelizeObjects(double leaf_size=0.01f)</div><div class="ttdoc">Voxelize objects. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02562">table_clearing_planning.cpp:2562</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a29c77f988fa4dd19a4b22f6d0011cc17"><div class="ttname"><a href="classCTableClearingPlanning.html#a29c77f988fa4dd19a4b22f6d0011cc17">CTableClearingPlanning::computePrincipalDirections</a></div><div class="ttdeci">void computePrincipalDirections()</div><div class="ttdoc">compute the principal directions of the objects. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02478">table_clearing_planning.cpp:2478</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a5b28ac87de19b744f3d2622a731f2e8a"><div class="ttname"><a href="classCTableClearingPlanning.html#a5b28ac87de19b744f3d2622a731f2e8a">CTableClearingPlanning::viewerShowFingersModel</a></div><div class="ttdeci">void viewerShowFingersModel(Visualizer viewer, double r=1, double g=1, double b=1)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03177">table_clearing_planning.cpp:3177</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a8ea62df3e2073805823f5ed0eb149435"><div class="ttname"><a href="classCTableClearingPlanning.html#a8ea62df3e2073805823f5ed0eb149435">CTableClearingPlanning::voxelizeObjects</a></div><div class="ttdeci">void voxelizeObjects(double leaf_size=0.01f)</div><div class="ttdoc">Voxelize objects. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02663">table_clearing_planning.cpp:2663</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a29c77f988fa4dd19a4b22f6d0011cc17"><div class="ttname"><a href="classCTableClearingPlanning.html#a29c77f988fa4dd19a4b22f6d0011cc17">CTableClearingPlanning::computePrincipalDirections</a></div><div class="ttdeci">void computePrincipalDirections()</div><div class="ttdoc">compute the principal directions of the objects. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02579">table_clearing_planning.cpp:2579</a></div></div>
 <div class="ttc" id="structPose_html"><div class="ttname"><a href="structPose.html">Pose</a></div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00097">table_clearing_planning.h:97</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a962b92d4cb88368392ff984672d56617"><div class="ttname"><a href="classCTableClearingPlanning.html#a962b92d4cb88368392ff984672d56617">CTableClearingPlanning::computeConcaveHulls</a></div><div class="ttdeci">void computeConcaveHulls()</div><div class="ttdoc">Compute the concave hull of each object. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01004">table_clearing_planning.cpp:1004</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a962b92d4cb88368392ff984672d56617"><div class="ttname"><a href="classCTableClearingPlanning.html#a962b92d4cb88368392ff984672d56617">CTableClearingPlanning::computeConcaveHulls</a></div><div class="ttdeci">void computeConcaveHulls()</div><div class="ttdoc">Compute the concave hull of each object. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01010">table_clearing_planning.cpp:1010</a></div></div>
 <div class="ttc" id="structObjectFull_html"><div class="ttname"><a href="structObjectFull.html">ObjectFull</a></div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00048">table_clearing_planning.h:48</a></div></div>
 <div class="ttc" id="structObjectFull_html_a8f56c9cadd8ebf5ffe19410a2d3b716d"><div class="ttname"><a href="structObjectFull.html#a8f56c9cadd8ebf5ffe19410a2d3b716d">ObjectFull::index_sides</a></div><div class="ttdeci">uint index_sides</div><div class="ttdoc">Index of the point cloud that correspond to the index of the first point of the occluded sides...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00051">table_clearing_planning.h:51</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a3e322ec0f718a7bc830adae9265c98aa"><div class="ttname"><a href="classCTableClearingPlanning.html#a3e322ec0f718a7bc830adae9265c98aa">CTableClearingPlanning::viewerAddObjectsTransfomed</a></div><div class="ttdeci">void viewerAddObjectsTransfomed(Visualizer viewer)</div><div class="ttdoc">Show in the viewer associated to the class a transformed object. ONLY FOR DEBUGGING PURPOSE - USELESS...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02922">table_clearing_planning.cpp:2922</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a3e322ec0f718a7bc830adae9265c98aa"><div class="ttname"><a href="classCTableClearingPlanning.html#a3e322ec0f718a7bc830adae9265c98aa">CTableClearingPlanning::viewerAddObjectsTransfomed</a></div><div class="ttdeci">void viewerAddObjectsTransfomed(Visualizer viewer)</div><div class="ttdoc">Show in the viewer associated to the class a transformed object. ONLY FOR DEBUGGING PURPOSE - USELESS...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03040">table_clearing_planning.cpp:3040</a></div></div>
 <div class="ttc" id="structObjectFull_html_a4a9f7aee420ab09e69aa26ede1797911"><div class="ttname"><a href="structObjectFull.html#a4a9f7aee420ab09e69aa26ede1797911">ObjectFull::index_projection</a></div><div class="ttdeci">uint index_projection</div><div class="ttdoc">Index of the point cloud that correspond to the index of the first point of the projection. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00052">table_clearing_planning.h:52</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a09319e4c77b7fe4386a8743c6f5f21af"><div class="ttname"><a href="classCTableClearingPlanning.html#a09319e4c77b7fe4386a8743c6f5f21af">CTableClearingPlanning::computeRichConvexHulls</a></div><div class="ttdeci">void computeRichConvexHulls()</div><div class="ttdoc">Compute the convex hull of each object considering also the projections of the convex hulls on the pl...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02308">table_clearing_planning.cpp:2308</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a5ff3b414b34ead8871bd9faf9c3db02f"><div class="ttname"><a href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f">CTableClearingPlanning::setPlaneCoefficients</a></div><div class="ttdeci">void setPlaneCoefficients(pcl::ModelCoefficients &amp;plane_coefficients)</div><div class="ttdoc">Set the coefficients of the table plane. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02646">table_clearing_planning.cpp:2646</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a420d713d333d82cc9ff277ddeb35dcf8"><div class="ttname"><a href="classCTableClearingPlanning.html#a420d713d333d82cc9ff277ddeb35dcf8">CTableClearingPlanning::computeOnTopPredicates</a></div><div class="ttdeci">void computeOnTopPredicates(double th1=100, double th2=100, bool print=false)</div><div class="ttdoc">Compute the on predicates. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01054">table_clearing_planning.cpp:1054</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a5ff3b414b34ead8871bd9faf9c3db02f"><div class="ttname"><a href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f">CTableClearingPlanning::setPlaneCoefficients</a></div><div class="ttdeci">void setPlaneCoefficients(pcl::ModelCoefficients &amp;plane_coefficients)</div><div class="ttdoc">Set the coefficients of the table plane. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02747">table_clearing_planning.cpp:2747</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a420d713d333d82cc9ff277ddeb35dcf8"><div class="ttname"><a href="classCTableClearingPlanning.html#a420d713d333d82cc9ff277ddeb35dcf8">CTableClearingPlanning::computeOnTopPredicates</a></div><div class="ttdeci">void computeOnTopPredicates(double th1=100, double th2=100, bool print=false)</div><div class="ttdoc">Compute the on predicates. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01060">table_clearing_planning.cpp:1060</a></div></div>
 <div class="ttc" id="structPrincipalDirectionsProjected_html_a38d05d8fda61c0b4e5c940645e5762d0"><div class="ttname"><a href="structPrincipalDirectionsProjected.html#a38d05d8fda61c0b4e5c940645e5762d0">PrincipalDirectionsProjected::dir4</a></div><div class="ttdeci">Eigen::Vector3f dir4</div><div class="ttdoc">direction of the principal direction (dir1 &amp; dir2) and the orthogonal (dir3 &amp; dir4) ...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00060">table_clearing_planning.h:60</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_ae9e59a298b6ea01411ce089d5ef7d84e"><div class="ttname"><a href="classCTableClearingPlanning.html#ae9e59a298b6ea01411ce089d5ef7d84e">CTableClearingPlanning::setPushingObjectDistance</a></div><div class="ttdeci">void setPushingObjectDistance(double pushing_object_distance)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01112">table_clearing_planning.cpp:1112</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_ae9e59a298b6ea01411ce089d5ef7d84e"><div class="ttname"><a href="classCTableClearingPlanning.html#ae9e59a298b6ea01411ce089d5ef7d84e">CTableClearingPlanning::setPushingObjectDistance</a></div><div class="ttdeci">void setPushingObjectDistance(double pushing_object_distance)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01128">table_clearing_planning.cpp:1128</a></div></div>
 <div class="ttc" id="structPrincipalDirectionsProjected_html_aa432aed64d91b6f60ff032eb55c18dc0"><div class="ttname"><a href="structPrincipalDirectionsProjected.html#aa432aed64d91b6f60ff032eb55c18dc0">PrincipalDirectionsProjected::centroid</a></div><div class="ttdeci">Eigen::Vector4f centroid</div><div class="ttdoc">centroid of the object </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00061">table_clearing_planning.h:61</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a25c74f67135de366fb7681746d6c7cc9"><div class="ttname"><a href="classCTableClearingPlanning.html#a25c74f67135de366fb7681746d6c7cc9">CTableClearingPlanning::viewerAddConcaveHulls</a></div><div class="ttdeci">void viewerAddConcaveHulls(Visualizer viewer, uint idx)</div><div class="ttdoc">Show the concave hulls. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02300">table_clearing_planning.cpp:2300</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a248d2f5aa18cabf1d172b2303dacebe3"><div class="ttname"><a href="classCTableClearingPlanning.html#a248d2f5aa18cabf1d172b2303dacebe3">CTableClearingPlanning::computeRichConcaveHulls</a></div><div class="ttdeci">void computeRichConcaveHulls()</div><div class="ttdoc">Compute the concave hull of each object considering also the projections of the convex hulls on the p...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02338">table_clearing_planning.cpp:2338</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a203d209b3165c5a3efd87363c0ecf7de"><div class="ttname"><a href="classCTableClearingPlanning.html#a203d209b3165c5a3efd87363c0ecf7de">CTableClearingPlanning::setDistanceFromPlaneForGripper</a></div><div class="ttdeci">void setDistanceFromPlaneForGripper(double distance_from_plane_grasping_poses)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01104">table_clearing_planning.cpp:1104</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_af14a783e559e87d002eb4b63d863b117"><div class="ttname"><a href="classCTableClearingPlanning.html#af14a783e559e87d002eb4b63d863b117">CTableClearingPlanning::viewerAddProjectionConvexHull</a></div><div class="ttdeci">void viewerAddProjectionConvexHull(Visualizer viewer, uint idx)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03354">table_clearing_planning.cpp:3354</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a25c74f67135de366fb7681746d6c7cc9"><div class="ttname"><a href="classCTableClearingPlanning.html#a25c74f67135de366fb7681746d6c7cc9">CTableClearingPlanning::viewerAddConcaveHulls</a></div><div class="ttdeci">void viewerAddConcaveHulls(Visualizer viewer, uint idx)</div><div class="ttdoc">Show the concave hulls. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02385">table_clearing_planning.cpp:2385</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a248d2f5aa18cabf1d172b2303dacebe3"><div class="ttname"><a href="classCTableClearingPlanning.html#a248d2f5aa18cabf1d172b2303dacebe3">CTableClearingPlanning::computeRichConcaveHulls</a></div><div class="ttdeci">void computeRichConcaveHulls()</div><div class="ttdoc">Compute the concave hull of each object considering also the projections of the convex hulls on the p...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02439">table_clearing_planning.cpp:2439</a></div></div>
+<div class="ttc" id="structExecutionTimes_html_ad7e424c019f7fec31cd9b90c5e746800"><div class="ttname"><a href="structExecutionTimes.html#ad7e424c019f7fec31cd9b90c5e746800">ExecutionTimes::average_ee_collision</a></div><div class="ttdeci">double average_ee_collision</div><div class="ttdoc">average time to compute a collision between two objects </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00114">table_clearing_planning.h:114</a></div></div>
+<div class="ttc" id="structExecutionTimes_html_a164a20b0d9d67d7c5c9a7b363a23c7d5"><div class="ttname"><a href="structExecutionTimes.html#a164a20b0d9d67d7c5c9a7b363a23c7d5">ExecutionTimes::average_objects_collision</a></div><div class="ttdeci">double average_objects_collision</div><div class="ttdoc">average time to compute a collision between two objects </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00113">table_clearing_planning.h:113</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a203d209b3165c5a3efd87363c0ecf7de"><div class="ttname"><a href="classCTableClearingPlanning.html#a203d209b3165c5a3efd87363c0ecf7de">CTableClearingPlanning::setDistanceFromPlaneForGripper</a></div><div class="ttdeci">void setDistanceFromPlaneForGripper(double distance_from_plane_grasping_poses)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01120">table_clearing_planning.cpp:1120</a></div></div>
 <div class="ttc" id="structObjectFull_html_ab04b7ba5497879dcbf02dfbf5f6936bb"><div class="ttname"><a href="structObjectFull.html#ab04b7ba5497879dcbf02dfbf5f6936bb">ObjectFull::cloud</a></div><div class="ttdeci">pcl::PointCloud&lt; pcl::PointXYZRGBA &gt; cloud</div><div class="ttdoc">Point cloud of the object composed of [object + occluded_sides + projection]. It is an unorganized on...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00050">table_clearing_planning.h:50</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_a8ec3fdc39866b18caa9d7b83c2486e76"><div class="ttname"><a href="classCTableClearingPlanning.html#a8ec3fdc39866b18caa9d7b83c2486e76">CTableClearingPlanning::setGripperSimpleModel</a></div><div class="ttdeci">void setGripperSimpleModel(double height, double deep, double width, double distance_plane)</div><div class="ttdoc">Set the gripper model. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00619">table_clearing_planning.cpp:619</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a2cd87120cf1abe06b96c0611cde50edf"><div class="ttname"><a href="classCTableClearingPlanning.html#a2cd87120cf1abe06b96c0611cde50edf">CTableClearingPlanning::setObjectsPointCloud</a></div><div class="ttdeci">void setObjectsPointCloud(std::vector&lt; PointCloudT &gt; &amp;objects)</div><div class="ttdoc">set point clouds of the objects, reference to project the principal direction to the plane: http://ww...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02640">table_clearing_planning.cpp:2640</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_ab7542f9da3c524b8a8e98e9279877c77"><div class="ttname"><a href="classCTableClearingPlanning.html#ab7542f9da3c524b8a8e98e9279877c77">CTableClearingPlanning::reset</a></div><div class="ttdeci">void reset()</div><div class="ttdoc">Delete all the data ot the class. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03068">table_clearing_planning.cpp:3068</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a2cd87120cf1abe06b96c0611cde50edf"><div class="ttname"><a href="classCTableClearingPlanning.html#a2cd87120cf1abe06b96c0611cde50edf">CTableClearingPlanning::setObjectsPointCloud</a></div><div class="ttdeci">void setObjectsPointCloud(std::vector&lt; PointCloudT &gt; &amp;objects)</div><div class="ttdoc">set point clouds of the objects, reference to project the principal direction to the plane: http://ww...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02741">table_clearing_planning.cpp:2741</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a10d7960ca05baa7515e4e7622ee16568"><div class="ttname"><a href="classCTableClearingPlanning.html#a10d7960ca05baa7515e4e7622ee16568">CTableClearingPlanning::viewerAddProjections</a></div><div class="ttdeci">void viewerAddProjections(Visualizer viewer)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03261">table_clearing_planning.cpp:3261</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_ab7542f9da3c524b8a8e98e9279877c77"><div class="ttname"><a href="classCTableClearingPlanning.html#ab7542f9da3c524b8a8e98e9279877c77">CTableClearingPlanning::reset</a></div><div class="ttdeci">void reset()</div><div class="ttdoc">Delete all the data ot the class. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03228">table_clearing_planning.cpp:3228</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_ad945cae3b79e0fbacae1c5fbb4670bbe"><div class="ttname"><a href="classCTableClearingPlanning.html#ad945cae3b79e0fbacae1c5fbb4670bbe">CTableClearingPlanning::computeConvexHulls</a></div><div class="ttdeci">void computeConvexHulls()</div><div class="ttdoc">Compute the convex hull of each object. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00873">table_clearing_planning.cpp:873</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a5e10f775eede6274ce3a4e25adfa0057"><div class="ttname"><a href="classCTableClearingPlanning.html#a5e10f775eede6274ce3a4e25adfa0057">CTableClearingPlanning::computeProjectionsConvexHull</a></div><div class="ttdeci">void computeProjectionsConvexHull()</div><div class="ttdoc">Compute the convex hulls of the projections onto the table plane. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01038">table_clearing_planning.cpp:1038</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a36ae5ea802dcd7198f17ba7c5898715b"><div class="ttname"><a href="classCTableClearingPlanning.html#a36ae5ea802dcd7198f17ba7c5898715b">CTableClearingPlanning::cleanPolygonalMesh</a></div><div class="ttdeci">void cleanPolygonalMesh(Visualizer viewer)</div><div class="ttdoc">Remove the viewer associated to the class all the polygonal mesh. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02801">table_clearing_planning.cpp:2801</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a5a89a7c5aed9db43af745d5f341c5367"><div class="ttname"><a href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">CTableClearingPlanning::viewerAddPrincipalDirections</a></div><div class="ttdeci">void viewerAddPrincipalDirections(Visualizer viewer, uint i)</div><div class="ttdoc">Shows the projections of the principal directions of a specific object. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02679">table_clearing_planning.cpp:2679</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a3f763527a90f01e72c048a6a13f7d579"><div class="ttname"><a href="classCTableClearingPlanning.html#a3f763527a90f01e72c048a6a13f7d579">CTableClearingPlanning::computePrincipalDirectionsConvexHull</a></div><div class="ttdeci">void computePrincipalDirectionsConvexHull()</div><div class="ttdoc">compute the principal directions of the objects using the point cloud of the convex hull...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02364">table_clearing_planning.cpp:2364</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a9d5e8f35963f8ba2b01fd1265d8d6551"><div class="ttname"><a href="classCTableClearingPlanning.html#a9d5e8f35963f8ba2b01fd1265d8d6551">CTableClearingPlanning::getProjectedPrincipalDirections</a></div><div class="ttdeci">std::vector&lt; PrincipalDirectionsProjected &gt; getProjectedPrincipalDirections()</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03030">table_clearing_planning.cpp:3030</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html"><div class="ttname"><a href="classCTableClearingPlanning.html">CTableClearingPlanning</a></div><div class="ttdoc">This class computes the predicates of the table top objects for the planning part The class needs as ...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00125">table_clearing_planning.h:125</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a5e10f775eede6274ce3a4e25adfa0057"><div class="ttname"><a href="classCTableClearingPlanning.html#a5e10f775eede6274ce3a4e25adfa0057">CTableClearingPlanning::computeProjectionsConvexHull</a></div><div class="ttdeci">void computeProjectionsConvexHull()</div><div class="ttdoc">Compute the convex hulls of the projections onto the table plane. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01044">table_clearing_planning.cpp:1044</a></div></div>
+<div class="ttc" id="structExecutionTimes_html_a4f3e2f1b0ac7879d9a69c69e1f5cdde3"><div class="ttname"><a href="structExecutionTimes.html#a4f3e2f1b0ac7879d9a69c69e1f5cdde3">ExecutionTimes::ee_collisions</a></div><div class="ttdeci">double ee_collisions</div><div class="ttdoc">total time to compute the collision between the gripper and all the objects O(n^2) ...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00112">table_clearing_planning.h:112</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_af1dfe44c88698519b846375b6914c102"><div class="ttname"><a href="classCTableClearingPlanning.html#af1dfe44c88698519b846375b6914c102">CTableClearingPlanning::viewerAddPlaneConvexHull</a></div><div class="ttdeci">void viewerAddPlaneConvexHull(Visualizer viewer, double r=1, double g=1, double b=1)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03000">table_clearing_planning.cpp:3000</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a36ae5ea802dcd7198f17ba7c5898715b"><div class="ttname"><a href="classCTableClearingPlanning.html#a36ae5ea802dcd7198f17ba7c5898715b">CTableClearingPlanning::cleanPolygonalMesh</a></div><div class="ttdeci">void cleanPolygonalMesh(Visualizer viewer)</div><div class="ttdoc">Remove the viewer associated to the class all the polygonal mesh. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02902">table_clearing_planning.cpp:2902</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a5a89a7c5aed9db43af745d5f341c5367"><div class="ttname"><a href="classCTableClearingPlanning.html#a5a89a7c5aed9db43af745d5f341c5367">CTableClearingPlanning::viewerAddPrincipalDirections</a></div><div class="ttdeci">void viewerAddPrincipalDirections(Visualizer viewer, uint i)</div><div class="ttdoc">Shows the projections of the principal directions of a specific object. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02780">table_clearing_planning.cpp:2780</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a3f763527a90f01e72c048a6a13f7d579"><div class="ttname"><a href="classCTableClearingPlanning.html#a3f763527a90f01e72c048a6a13f7d579">CTableClearingPlanning::computePrincipalDirectionsConvexHull</a></div><div class="ttdeci">void computePrincipalDirectionsConvexHull()</div><div class="ttdoc">compute the principal directions of the objects using the point cloud of the convex hull...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02465">table_clearing_planning.cpp:2465</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a9d5e8f35963f8ba2b01fd1265d8d6551"><div class="ttname"><a href="classCTableClearingPlanning.html#a9d5e8f35963f8ba2b01fd1265d8d6551">CTableClearingPlanning::getProjectedPrincipalDirections</a></div><div class="ttdeci">std::vector&lt; PrincipalDirectionsProjected &gt; getProjectedPrincipalDirections()</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03148">table_clearing_planning.cpp:3148</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html"><div class="ttname"><a href="classCTableClearingPlanning.html">CTableClearingPlanning</a></div><div class="ttdoc">This class computes the predicates of the table top objects for the planning part The class needs as ...</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00134">table_clearing_planning.h:134</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_ae816b2d5a11cc3a038b84634af38d586"><div class="ttname"><a href="classCTableClearingPlanning.html#ae816b2d5a11cc3a038b84634af38d586">CTableClearingPlanning::viewerShowClosedFingersModel</a></div><div class="ttdeci">void viewerShowClosedFingersModel(Visualizer viewer, double r=1, double g=1, double b=1)</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03202">table_clearing_planning.cpp:3202</a></div></div>
 <div class="ttc" id="classCTableClearingPlanning_html_ad235fde9e142bc1b99081f993014599b"><div class="ttname"><a href="classCTableClearingPlanning.html#ad235fde9e142bc1b99081f993014599b">CTableClearingPlanning::computeAABBObjects</a></div><div class="ttdeci">void computeAABBObjects(bool refine_centroids=true)</div><div class="ttdoc">Compute the Axis Aligned Bounding Box of each object. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l00502">table_clearing_planning.cpp:502</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_a3e4da8b78c6939cb6514ccb043990910"><div class="ttname"><a href="classCTableClearingPlanning.html#a3e4da8b78c6939cb6514ccb043990910">CTableClearingPlanning::computeBlockPredicates</a></div><div class="ttdeci">void computeBlockPredicates(bool print=false, uint pushing_method=ORTHOGONAL_PUSHING)</div><div class="ttdoc">Get block predicates. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01116">table_clearing_planning.cpp:1116</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_a3e4da8b78c6939cb6514ccb043990910"><div class="ttname"><a href="classCTableClearingPlanning.html#a3e4da8b78c6939cb6514ccb043990910">CTableClearingPlanning::computeBlockPredicates</a></div><div class="ttdeci">void computeBlockPredicates(bool print=false, uint pushing_method=ORTHOGONAL_PUSHING)</div><div class="ttdoc">Get block predicates. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l01132">table_clearing_planning.cpp:1132</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_afa36260ffe11962faf6a42cdb0d88edc"><div class="ttname"><a href="classCTableClearingPlanning.html#afa36260ffe11962faf6a42cdb0d88edc">CTableClearingPlanning::printExecutionTimes</a></div><div class="ttdeci">void printExecutionTimes()</div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l03251">table_clearing_planning.cpp:3251</a></div></div>
 <div class="ttc" id="structPushingPose_html"><div class="ttname"><a href="structPushingPose.html">PushingPose</a></div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00103">table_clearing_planning.h:103</a></div></div>
 <div class="ttc" id="structGraspingPose_html"><div class="ttname"><a href="structGraspingPose.html">GraspingPose</a></div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00091">table_clearing_planning.h:91</a></div></div>
-<div class="ttc" id="classCTableClearingPlanning_html_aeb5f4c71bbef307c46ecac87eb32a9f9"><div class="ttname"><a href="classCTableClearingPlanning.html#aeb5f4c71bbef307c46ecac87eb32a9f9">CTableClearingPlanning::computeBlockGraspPredicates</a></div><div class="ttdeci">void computeBlockGraspPredicates(bool print=false)</div><div class="ttdoc">Get block grasp predicates. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02130">table_clearing_planning.cpp:2130</a></div></div>
+<div class="ttc" id="classCTableClearingPlanning_html_aeb5f4c71bbef307c46ecac87eb32a9f9"><div class="ttname"><a href="classCTableClearingPlanning.html#aeb5f4c71bbef307c46ecac87eb32a9f9">CTableClearingPlanning::computeBlockGraspPredicates</a></div><div class="ttdeci">void computeBlockGraspPredicates(bool print=false)</div><div class="ttdoc">Get block grasp predicates. </div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8cpp_source.html#l02203">table_clearing_planning.cpp:2203</a></div></div>
+<div class="ttc" id="structExecutionTimes_html"><div class="ttname"><a href="structExecutionTimes.html">ExecutionTimes</a></div><div class="ttdef"><b>Definition:</b> <a href="table__clearing__planning_8h_source.html#l00107">table_clearing_planning.h:107</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 3 2016 15:09:45 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri May 20 2016 14:41:03 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

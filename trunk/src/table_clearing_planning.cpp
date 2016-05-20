@@ -505,7 +505,7 @@ void CTableClearingPlanning::computeAABBObjects(bool refine_centroids)
     this->computePrincipalDirections();
 
   this->aabb_objects.resize(this->n_objects);
-  for (int i = 0; i < n_objects; ++i)
+  for (uint i = 0; i < n_objects; ++i)
   {
     PrincipalDirectionsProjected* pd = &(principal_directions_objects[i]);
     // we have to compute the transformation
@@ -557,7 +557,7 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
 {
   this->grasping_poses.resize(0);
   this->approaching_poses.resize(0);
-  for (int i = 0; i < this->n_objects; ++i)
+  for (uint i = 0; i < this->n_objects; ++i)
   {
     OriginalPrincipalDirections* opd = &(this->original_principal_directions_objects[i]);
     PrincipalDirectionsProjected* pd = &(this->principal_directions_objects[i]);
@@ -870,7 +870,7 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
 
 }
 
-void CTableClearingPlanning::computeConvexHulls()
+void CTableClearingPlanning::computeConvexHulls(bool rand_)
 {
   // small trick
   if(this->projections.size() == 0)
@@ -886,6 +886,21 @@ void CTableClearingPlanning::computeConvexHulls()
     hull.setInputCloud(this->objects[i].makeShared());
     hull.reconstruct(this->convex_hull_objects[i], this->convex_hull_vertices[i]);
     
+    if(rand_)
+    {
+      // set random color to the point cloud 
+      float r,g,b;
+      r = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+      g = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+      b = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+      for (uint h = 0; h < this->convex_hull_objects[i].points.size(); ++h)
+      {
+        this->convex_hull_objects[i].points[h].r = r;
+        this->convex_hull_objects[i].points[h].g = g;
+        this->convex_hull_objects[i].points[h].b = b;
+      }
+    }
+
     if (hull.getDimension() != 3)
       PCL_ERROR ("No convex 3D surface found for object %d.\n",i);
   }
@@ -1141,7 +1156,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
   {
       this->computeProjectionsOnTable();
       this->computeRichConvexHulls();
-  }
+  } 
   if(this->principal_directions_objects.size() == 0)
   {
     this->computePrincipalDirections();
@@ -2212,7 +2227,7 @@ void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
 
 
   this->block_grasp_predicates.resize(this->n_objects);
-  for (int i = 0; i < this->n_objects; ++i)
+  for (uint i = 0; i < this->n_objects; ++i)
   {
     this->block_grasp_predicates[i].resize(0);
     GraspingPose* gp = &(this->grasping_poses[i]);
@@ -2223,7 +2238,7 @@ void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
                 gp->translation[1],
                 gp->translation[2]);
     fcl::Transform3f grasp_pose(R, T);
-    for (int o = 0; o < this->n_objects; ++o)
+    for (uint o = 0; o < this->n_objects; ++o)
     {
       if(i != o)
         if(this->isFingersModelColliding(o,grasp_pose))
@@ -2369,6 +2384,7 @@ void CTableClearingPlanning::testFcl2()
 
 void CTableClearingPlanning::viewerAddConvexHulls(Visualizer viewer, uint idx)
 {
+
   if( (this->convex_hull_objects.size() >= (idx +1) ) && (this->convex_hull_vertices.size() >= (idx +1)) ) // check if the index is correct 
   {
     std::ostringstream convert;   // stream used for the conversion
@@ -2389,7 +2405,7 @@ void CTableClearingPlanning::viewerAddConcaveHulls(Visualizer viewer,uint idx)
     PCL_ERROR("In CTableClearingPlanning::showConcaveHulls -> concave hull not properly defined. Probaly is an indexing problem.");
 }
 
-void CTableClearingPlanning::computeRichConvexHulls()
+void CTableClearingPlanning::computeRichConvexHulls(bool rand_)
 {
   if(this->projections.size() == 0)
   {
@@ -2409,6 +2425,22 @@ void CTableClearingPlanning::computeRichConvexHulls()
     if (hull.getDimension() != 3)
       PCL_ERROR ("No convex 3D surface found for object %d.\n",i);
     
+
+    if(rand_)
+    {
+      // set random color to the point cloud 
+      float r,g,b;
+      r = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+      g = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+      b = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+      for (uint h = 0; h < this->convex_hull_objects[i].points.size(); ++h)
+      {
+        this->convex_hull_objects[i].points[h].r = r;
+        this->convex_hull_objects[i].points[h].g = g;
+        this->convex_hull_objects[i].points[h].b = b;
+      }
+    }
+
     //only for test, check if the vertices define a triangle
     // for (uint h = 0; h < this->convex_hull_vertices[i].size() ; ++h)
     // {
@@ -2837,7 +2869,7 @@ void CTableClearingPlanning::viewerAddPrincipalDirections(Visualizer viewer, uin
 
 void CTableClearingPlanning::viewerAddPrincipalDirections(Visualizer viewer)
 {
-  for (int i = 0; i < n_objects; ++i)
+  for (uint i = 0; i < n_objects; ++i)
   {
     this->viewerAddPrincipalDirections(viewer,i);
   }
@@ -2886,7 +2918,7 @@ void CTableClearingPlanning::cleanPolygonalMesh(Visualizer viewer)
 {
   viewer->removePolygonMesh("ee");
 
-  for (int i = 0; i < 100; ++i) //high value -> ineficcient but fast to implement -> it is only for visualization
+  for (uint i = 0; i < 100; ++i) //high value -> ineficcient but fast to implement -> it is only for visualization
   {
     std::string pol_name;
     std::ostringstream convert;   // stream used for the conversion
@@ -2894,9 +2926,9 @@ void CTableClearingPlanning::cleanPolygonalMesh(Visualizer viewer)
     convert << i;
     pol_name += convert.str();
     viewer->removePolygonMesh(pol_name);
-    pol_name = "convex_hull";
-    pol_name += convert.str();
-    viewer->removePolygonMesh(pol_name);
+    // pol_name = "convex_hull";
+    // pol_name += convert.str();
+    // viewer->removePolygonMesh(pol_name);
   }  
 }
 
@@ -2990,7 +3022,7 @@ void CTableClearingPlanning::viewerAddPlaneConvexHull(Visualizer viewer, double 
   }
 
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-  for (int i = 0; i < this->plane_convex_hull_2d.points.size(); ++i)
+  for (uint i = 0; i < this->plane_convex_hull_2d.points.size(); ++i)
   {
     pcl::PointXYZRGB p;
     p.x = this->plane_convex_hull_2d.points[i].x;
@@ -3089,14 +3121,14 @@ void CTableClearingPlanning::viewerAddApproachingPose(Visualizer viewer, uint id
 }
 void CTableClearingPlanning::viewerAddGraspingPoses(Visualizer viewer)
 {
-  for (int i = 0; i < this->n_objects; ++i)
+  for (uint i = 0; i < this->n_objects; ++i)
   {
     this->viewerAddGraspingPose(viewer,i);
   }
 }
 void CTableClearingPlanning::viewerAddApproachingPoses(Visualizer viewer)
 {
-  for (int i = 0; i < this->n_objects; ++i)
+  for (uint i = 0; i < this->n_objects; ++i)
   {
     this->viewerAddApproachingPose(viewer,i);
   }
@@ -3164,7 +3196,7 @@ void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer,double r,d
   // plot the mesh colored by a color
   // create a new point cloud
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-  for (int i = 0; i < this->fingers_model.open_cloud.points.size(); ++i)
+  for (uint i = 0; i < this->fingers_model.open_cloud.points.size(); ++i)
   {
     pcl::PointXYZRGB p;
     p.x = this->fingers_model.open_cloud.points[i].x;
@@ -3189,7 +3221,7 @@ void CTableClearingPlanning::viewerShowClosedFingersModel(Visualizer viewer,doub
   // plot the mesh colored by a color
   // create a new point cloud
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-  for (int i = 0; i < this->fingers_model.closed_cloud.points.size(); ++i)
+  for (uint i = 0; i < this->fingers_model.closed_cloud.points.size(); ++i)
   {
     pcl::PointXYZRGB p;
     p.x = this->fingers_model.closed_cloud.points[i].x;
@@ -3240,4 +3272,149 @@ void CTableClearingPlanning::printExecutionTimes()
             << "Execution time ee collisions: " << this->executionTimes.ee_collisions << std::endl
             << "Execution time average object collision: " << this->executionTimes.average_objects_collision << std::endl
             << "Execution time average ee collision: " << this->executionTimes.average_ee_collision << std::endl;
+}
+void CTableClearingPlanning::viewerAddProjections(Visualizer viewer)
+{
+  if(projections.size() == 0)
+  {
+    std::cout << "Impossible to visualize proejctions : proejctions not computed.\n";
+    return;
+  }
+
+  for (uint i = 0; i < projections.size(); ++i)
+  {
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
+    //we now construct manually the point cloud
+    //choose a random color for each segmented object
+    float r,g,b;
+    r = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+    g = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+    b = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+    for (uint h = 0; h < projections[i].points.size(); ++h)
+    {
+      pcl::PointXYZRGB p;
+      p.x = projections[i].points[h].x;
+      p.y = projections[i].points[h].y;
+      p.z = projections[i].points[h].z;
+      p.r = r;
+      p.g = g;
+      p.b = b;
+      cloud->points.push_back(p); 
+    }
+    std::ostringstream convert;   // stream used for the conversion
+    std::string projection_name = "projection_";
+    convert << i;
+    projection_name += convert.str();
+    // pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb(projections[i].makeShared());
+    // viewer->addPointCloud<pcl::PointXYZRGBA> (projections[i].makeShared(), rgb, projection_name);
+    pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
+    viewer->addPointCloud<pcl::PointXYZRGB> (cloud, rgb, projection_name);
+  }
+}
+void CTableClearingPlanning::viewerAddProjection(Visualizer viewer,uint idx)
+{
+  uint i = idx;
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
+  //we now construct manually the point cloud
+  //choose a random color for each segmented object
+  float r,g,b;
+  r = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+  g = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+  b = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+  for (uint h = 0; h < projections[i].points.size(); ++h)
+  {
+    pcl::PointXYZRGB p;
+    p.x = projections[i].points[h].x;
+    p.y = projections[i].points[h].y;
+    p.z = projections[i].points[h].z;
+    p.r = r;
+    p.g = g;
+    p.b = b;
+    cloud->points.push_back(p); 
+  }
+  std::ostringstream convert;   // stream used for the conversion
+  std::string projection_name = "projection_";
+  convert << i;
+  projection_name += convert.str();
+  // pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb(projections[i].makeShared());
+  // viewer->addPointCloud<pcl::PointXYZRGBA> (projections[i].makeShared(), rgb, projection_name);
+  pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
+  viewer->addPointCloud<pcl::PointXYZRGB> (cloud, rgb, projection_name);
+}
+void CTableClearingPlanning::viewerAddProjection(Visualizer viewer,uint idx,float r, float g, float b)
+{
+  uint i = idx;
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
+
+  for (uint h = 0; h < projections[i].points.size(); ++h)
+  {
+    pcl::PointXYZRGB p;
+    p.x = projections[i].points[h].x;
+    p.y = projections[i].points[h].y;
+    p.z = projections[i].points[h].z;
+    p.r = r;
+    p.g = g;
+    p.b = b;
+    cloud->points.push_back(p); 
+  }
+  std::ostringstream convert;   // stream used for the conversion
+  std::string projection_name = "projection_";
+  convert << i;
+  projection_name += convert.str();
+  // pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBA> rgb(projections[i].makeShared());
+  // viewer->addPointCloud<pcl::PointXYZRGBA> (projections[i].makeShared(), rgb, projection_name);
+  pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
+  viewer->addPointCloud<pcl::PointXYZRGB> (cloud, rgb, projection_name);
+}
+void CTableClearingPlanning::viewerAddProjectionConvexHull(Visualizer viewer,uint idx)
+{
+  if(projections.size() == 0)
+  {
+    std::cout << "Impossible to visualize proejctions : proejctions not computed.\n";
+    return;
+  }
+
+  uint i = idx;
+
+  //we now construct manually the point cloud
+  //choose a random color for each segmented object
+  float r,g,b;
+  r = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+  g = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+  b = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX))*255;
+  for (uint h = 0; h < convex_hull_projections[i].points.size(); ++h)
+  {
+    convex_hull_projections[i].points[h].r = r;
+    convex_hull_projections[i].points[h].g = g;
+    convex_hull_projections[i].points[h].b = b;    
+  }
+  std::ostringstream convert;   // stream used for the conversion
+  std::string projection_name = "projection_convex_hull_";
+  convert << i;
+  projection_name += convert.str();
+  viewer->addPolygonMesh<pcl::PointXYZRGBA>(convex_hull_projections[i].makeShared(), convex_hull_vertices_projections[i]);  
+  
+}
+void CTableClearingPlanning::viewerAddProjectionConvexHull(Visualizer viewer,uint idx,float r, float g, float b)
+{
+  if(projections.size() == 0)
+  {
+    std::cout << "Impossible to visualize proejctions : proejctions not computed.\n";
+    return;
+  }
+
+  uint i = idx;
+
+  for (uint h = 0; h < convex_hull_projections[i].points.size(); ++h)
+  {
+    convex_hull_projections[i].points[h].r = r;
+    convex_hull_projections[i].points[h].g = g;
+    convex_hull_projections[i].points[h].b = b;    
+  }
+  std::ostringstream convert;   // stream used for the conversion
+  std::string projection_name = "projection_convex_hull_";
+  convert << i;
+  projection_name += convert.str();
+  viewer->addPolygonMesh<pcl::PointXYZRGBA>(convex_hull_projections[i].makeShared(), convex_hull_vertices_projections[i]);  
+  
 }

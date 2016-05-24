@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
   
   //tcp.viewerShowClosedFingersModel(viewer);
   //tcp.viewerShowFingersModel(viewer);
-  //tcp.viewerAddGraspingPoses(viewer);
+  tcp.viewerAddGraspingPoses(viewer);
   //tcp.viewerAddApproachingPoses(viewer);
   tcp.viewerAddPlaneConvexHull(viewer,255,255,255);
   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
@@ -164,14 +164,13 @@ int main(int argc, char *argv[])
   // tcp.voxelizeFullObjects();
   // tcp.viewerAddFullObjectsClouds(viewer);
 
-  //tcp.viewerAddObjectsClouds(viewer);
-  // for (uint i = 0; i < segmented_objs.size(); ++i)
-  // {
-  //   tcp.viewerAddConvexHulls(viewer,i);  
-  // }
+  tcp.viewerAddObjectsClouds(viewer);
+  for (uint i = 0; i < segmented_objs.size(); ++i)
+  {
+    tcp.viewerAddConvexHulls(viewer,i);  
+  }
   
-  tcp.viewerAddConvexHulls(viewer,1);  
-  tcp.viewerAddPrincipalDirections(viewer,1);
+  
 
 
   while (!viewer->wasStopped() && !exit_)

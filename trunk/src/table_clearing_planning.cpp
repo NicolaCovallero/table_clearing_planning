@@ -570,9 +570,11 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
     Eigen::Vector3f new_axis;
     if(vertical_poses)
     {
-      gp.rotation(0,0) = pd->dir3[0]; gp.rotation(0,1) = pd->dir3[1]; gp.rotation(0,2) = pd->dir3[2];   
+      new_axis = pd->dir2.cross(this->plane_normal);
+      gp.rotation(0,0) = new_axis[0]; gp.rotation(0,1) = new_axis[1]; gp.rotation(0,2) = new_axis[2];   
+
       gp.rotation(1,0) = pd->dir2[0]; gp.rotation(1,1) = pd->dir2[1]; gp.rotation(1,2) = pd->dir2[2];   
-      new_axis = pd->dir3.cross(pd->dir2); 
+      new_axis = new_axis.cross(pd->dir2); 
       gp.rotation(2,0) = new_axis[0]; gp.rotation(2,1) = new_axis[1]; gp.rotation(2,2) = new_axis[2];  
       
       // this express the rotation from the desired position to the frame, we have to get the inverse to
@@ -589,12 +591,25 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
       // the gripper has its x axis aligned with the p3, so we have to define
       // a rotation matrix in way that its x axis is aligned to the y axis of fingerModel 
    
-      gp.rotation(0,0) = pd->dir3[0]; gp.rotation(0,1) = pd->dir3[1]; gp.rotation(0,2) = pd->dir3[2];   
-      new_axis = pd->dir3.cross(opd->p3); 
-      gp.rotation(1,0) = new_axis[0]; gp.rotation(1,1) = new_axis[1]; gp.rotation(1,2) = new_axis[2];   
-      new_axis = pd->dir3.cross(new_axis);
-      gp.rotation(2,0) = new_axis[0]; gp.rotation(2,1) = new_axis[1]; gp.rotation(2,2) = new_axis[2];   
+      // gp.rotation(0,0) = pd->dir3[0]; gp.rotation(0,1) = pd->dir3[1]; gp.rotation(0,2) = pd->dir3[2];   
+      // new_axis = pd->dir3.cross(opd->p3); 
+      // gp.rotation(1,0) = new_axis[0]; gp.rotation(1,1) = new_axis[1]; gp.rotation(1,2) = new_axis[2];   
+      // new_axis = pd->dir3.cross(new_axis);
+      // gp.rotation(2,0) = new_axis[0]; gp.rotation(2,1) = new_axis[1]; gp.rotation(2,2) = new_axis[2];   
 
+      
+      new_axis = opd->p1.cross(opd->p2);
+      if(new_axis.dot(this->plane_normal) > 0)
+        new_axis = - opd->p2;
+      else
+        new_axis = opd->p2;
+      new_axis.normalize();
+      gp.rotation(0,0) = new_axis[0]; gp.rotation(0,1) = new_axis[1]; gp.rotation(0,2) = new_axis[2];   
+      gp.rotation(1,0) = opd->p1[0]; gp.rotation(1,1) = opd->p1[1]; gp.rotation(1,2) = opd->p1[2];   
+
+      new_axis =  new_axis.cross(opd->p1); 
+      new_axis.normalize();
+      gp.rotation(2,0) = new_axis[0]; gp.rotation(2,1) = new_axis[1]; gp.rotation(2,2) = new_axis[2];   
 
       Eigen::Matrix3f mat_rot = gp.rotation.inverse();
       gp.rotation = mat_rot;
@@ -869,6 +884,7 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
   
 
 }
+
 
 void CTableClearingPlanning::computeConvexHulls(bool rand_)
 {
@@ -2875,6 +2891,80 @@ void CTableClearingPlanning::viewerAddPrincipalDirections(Visualizer viewer)
   }
 }
 
+void CTableClearingPlanning::viewerAddOriginalPrincipalDirections(Visualizer viewer, uint i)
+{
+  double length = 0.2;
+  viewer->addText(" dir1 : red \n dir2 : green \n dir3 : blue \n dir4 : cyan",1,1,1,0,100);
+  for (uint d = 1; d <= 4; ++d)
+  { 
+    PointT pd_1,pd_2;
+    std::string line_name;
+    std::ostringstream convert;   // stream used for the conversion
+
+    switch(d)
+    {
+      case 1:
+              pd_1.x = this->original_principal_directions_objects[i].centroid[0] + this->original_principal_directions_objects[i].p1[0]*length;
+              pd_1.y = this->original_principal_directions_objects[i].centroid[1] + this->original_principal_directions_objects[i].p1[1]*length;
+              pd_1.z = this->original_principal_directions_objects[i].centroid[2] + this->original_principal_directions_objects[i].p1[2]*length;
+
+              pd_2.x = this->original_principal_directions_objects[i].centroid[0];
+              pd_2.y = this->original_principal_directions_objects[i].centroid[1];
+              pd_2.z = this->original_principal_directions_objects[i].centroid[2];
+
+              line_name = "orig_prin_dir1_o";
+              convert << i;
+              line_name += convert.str();
+
+              viewer->addLine<PointT>(pd_1,pd_2,1,0,0,line_name);
+      case 2:
+              pd_1.x = this->original_principal_directions_objects[i].centroid[0] - this->original_principal_directions_objects[i].p1[0]*length;
+              pd_1.y = this->original_principal_directions_objects[i].centroid[1] - this->original_principal_directions_objects[i].p1[1]*length;
+              pd_1.z = this->original_principal_directions_objects[i].centroid[2] - this->original_principal_directions_objects[i].p1[2]*length;
+
+              pd_2.x = this->original_principal_directions_objects[i].centroid[0];
+              pd_2.y = this->original_principal_directions_objects[i].centroid[1];
+              pd_2.z = this->original_principal_directions_objects[i].centroid[2];
+
+              line_name = "orig_prin_dir2_o";
+              convert << i;
+              line_name += convert.str();
+
+              viewer->addLine<PointT>(pd_2,pd_1,0,1,0,line_name);
+      case 3:
+
+              pd_1.x = this->original_principal_directions_objects[i].centroid[0] + this->original_principal_directions_objects[i].p2[0]*length;
+              pd_1.y = this->original_principal_directions_objects[i].centroid[1] + this->original_principal_directions_objects[i].p2[1]*length;
+              pd_1.z = this->original_principal_directions_objects[i].centroid[2] + this->original_principal_directions_objects[i].p2[2]*length;
+
+              pd_2.x = this->original_principal_directions_objects[i].centroid[0];
+              pd_2.y = this->original_principal_directions_objects[i].centroid[1];
+              pd_2.z = this->original_principal_directions_objects[i].centroid[2];
+
+              line_name = "orig_prin_dir3_o";
+              convert << i;
+              line_name += convert.str();
+
+              viewer->addLine<PointT>(pd_1,pd_2,0,0,1,line_name);
+      case 4:
+              pd_1.x = this->original_principal_directions_objects[i].centroid[0] - this->original_principal_directions_objects[i].p2[0]*length;
+              pd_1.y = this->original_principal_directions_objects[i].centroid[1] - this->original_principal_directions_objects[i].p2[1]*length;
+              pd_1.z = this->original_principal_directions_objects[i].centroid[2] - this->original_principal_directions_objects[i].p2[2]*length;
+
+              pd_2.x = this->original_principal_directions_objects[i].centroid[0];
+              pd_2.y = this->original_principal_directions_objects[i].centroid[1];
+              pd_2.z = this->original_principal_directions_objects[i].centroid[2];
+
+              line_name = "orig_prin_dir4_o";
+              convert << i;
+              line_name += convert.str();
+
+              viewer->addLine<PointT>(pd_1,pd_2,0,1,1,line_name);
+      default: break;
+    }
+  }
+}
+
 void CTableClearingPlanning::cleanPrincipalDirections(Visualizer viewer, uint i)
 {
   for (uint d = 1; d <= 4; ++d)
@@ -2889,13 +2979,18 @@ void CTableClearingPlanning::cleanPrincipalDirections(Visualizer viewer, uint i)
               line_name = "prin_dir1_o";
               convert << i;
               line_name += convert.str();
-
+              
+              viewer->removeShape(line_name);
+              line_name = "orig_prin_dir1_o";
+              line_name += convert.str();
               viewer->removeShape(line_name);
       case 2:
               line_name = "prin_dir2_o";
               convert << i;
               line_name += convert.str();
-
+              viewer->removeShape(line_name);
+              line_name = "orig_prin_dir2_o";
+              line_name += convert.str();
               viewer->removeShape(line_name);
       case 3:
               line_name = "prin_dir3_o";
@@ -2903,11 +2998,17 @@ void CTableClearingPlanning::cleanPrincipalDirections(Visualizer viewer, uint i)
               line_name += convert.str();
 
               viewer->removeShape(line_name);
+              line_name = "orig_prin_dir3_o";
+              line_name += convert.str();
+              viewer->removeShape(line_name);
       case 4:
               line_name = "prin_dir4_o";
               convert << i;
               line_name += convert.str();
 
+              viewer->removeShape(line_name);
+              line_name = "orig_prin_dir4_o";
+              line_name += convert.str();
               viewer->removeShape(line_name);
       default: break;
     }

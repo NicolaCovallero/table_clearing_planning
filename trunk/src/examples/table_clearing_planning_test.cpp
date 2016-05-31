@@ -32,7 +32,7 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
     if(obj_idx < tcp.getNumObjects())
     {
       viewer->removeAllShapes();
-      tcp.viewerAddPrincipalDirections(viewer,obj_idx);
+      tcp.viewerAddOriginalPrincipalDirections(viewer,obj_idx);
       tcp.cleanPolygonalMesh(viewer);
       tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx);
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
   param.voxel_resolution = 0.005;
   param.seed_resolution = 0.02;
   param.seed_resolution = 0.02;
-  param.concavity_tolerance_threshold = 20;
+  param.concavity_tolerance_threshold = 15;
   tos_supervoxels seg;
   seg.init(*cloud,param);
   seg.set_zmin(0.03f);
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 
   tcp.computeBlockPredicates(true, ORTHOGONAL_PUSHING);
   tcp.computeOnTopPredicates(true);
-  tcp.computeSimpleHeuristicGraspingPoses();
+  tcp.computeSimpleHeuristicGraspingPoses(PCA_GRASPING);
   tcp.computeBlockGraspPredicates(true);
   tcp.printExecutionTimes();
 
@@ -145,11 +145,12 @@ int main(int argc, char *argv[])
   //tcp.viewerShowClosedFingersModel(viewer);
   //tcp.viewerShowFingersModel(viewer);
   tcp.viewerAddGraspingPoses(viewer);
+  //tcp.viewerAddGraspingPose(viewer,2);
   //tcp.viewerAddApproachingPoses(viewer);
   tcp.viewerAddPlaneConvexHull(viewer,255,255,255);
   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
   viewer->setBackgroundColor (255, 255, 255);
-  //viewer->addCoordinateSystem (0.3);
+  viewer->addCoordinateSystem (0.3);
 
   //tcp.viewerAddProjection(viewer,0,0,255,0);
   //tcp.viewerAddProjection(viewer,0,0,255,0);

@@ -44,6 +44,8 @@
 
 #define ORTHOGONAL_PUSHING 0
 #define PARALLEL_PUSHING 1
+#define VERTICAL_GRASPING 1
+#define PCA_GRASPING 0
 
 struct ObjectFull
 {
@@ -147,7 +149,7 @@ class CTableClearingPlanning
   // constant values
   static const double PUSHING_STEP = 1.5; // default value 1.5 the AABB dimension
   static const double PUSHING_OBJECT_DISTANCE = 0.05; //5 cm
-  static const double APPROACHING_DISTANCE = 0.1; // 10 cm
+  static const double APPROACHING_DISTANCE = 0.10; // 10 cm
   static const double DISTANCE_FROM_PLANE_GRASPING_POSES = 0.01; // 1cm
 
 
@@ -445,7 +447,7 @@ class CTableClearingPlanning
      * 
      * @param vertical_poses If it is set to true consider only vertical poses, with respect the table.
      */
-    void computeSimpleHeuristicGraspingPoses(bool vertical_poses = false);
+    void computeSimpleHeuristicGraspingPoses(bool vertical_poses = PCA_GRASPING);
 
 
     /**
@@ -652,6 +654,13 @@ class CTableClearingPlanning
      *
      */
     void viewerAddPrincipalDirections(Visualizer viewer);
+
+    /**
+     * @brief      Add to the viewer associated to the class the projections 
+     *              of the original principal directions of each object.
+     *
+     */
+    void viewerAddOriginalPrincipalDirections(Visualizer viewer, uint i);
 
     /**
      * @brief Remove from the the viewer associated to the class the principal

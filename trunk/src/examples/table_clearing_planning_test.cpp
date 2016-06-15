@@ -144,15 +144,16 @@ int main(int argc, char *argv[])
   
   //tcp.viewerShowClosedFingersModel(viewer);
   //tcp.viewerShowFingersModel(viewer);
-  tcp.viewerAddGraspingPoses(viewer);
-  //tcp.viewerAddGraspingPose(viewer,2);
+  //tcp.viewerAddGraspingPoses(viewer);
+  tcp.viewerAddGraspingPose(viewer,5);
   //tcp.viewerAddApproachingPoses(viewer);
   tcp.viewerAddPlaneConvexHull(viewer,255,255,255);
   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
   viewer->setBackgroundColor (255, 255, 255);
   viewer->addCoordinateSystem (0.3);
 
-  //tcp.viewerAddProjection(viewer,0,0,255,0);
+
+  tcp.viewerAddObjectsClouds(viewer);
   //tcp.viewerAddProjection(viewer,0,0,255,0);
   //tcp.viewerAddProjectionConvexHull(viewer,1,255,0,0);
   //tcp.viewerAddRichObjectsClouds(viewer); 
@@ -165,11 +166,11 @@ int main(int argc, char *argv[])
   // tcp.voxelizeFullObjects();
   // tcp.viewerAddFullObjectsClouds(viewer);
 
-  tcp.viewerAddObjectsClouds(viewer);
-  for (uint i = 0; i < segmented_objs.size(); ++i)
-  {
-    tcp.viewerAddConvexHulls(viewer,i);  
-  }
+  // tcp.viewerAddObjectsClouds(viewer);
+  // for (uint i = 0; i < segmented_objs.size(); ++i)
+  // {
+  //   tcp.viewerAddConvexHulls(viewer,i);  
+  // }
   
   
 

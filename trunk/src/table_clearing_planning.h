@@ -13,6 +13,7 @@
 #include <pcl/common/common.h>
 #include <pcl/surface/convex_hull.h>
 #include <pcl/surface/concave_hull.h>
+#include <pcl/filters/crop_hull.h>
 #include <pcl/common/pca.h>
 #include <Eigen/Dense>
 #include <string>
@@ -94,6 +95,14 @@ struct GraspingPose{
   Eigen::Matrix3f rotation;
   Eigen::Vector3f translation;
   Eigen::Quaternionf quaternion;
+};
+
+/**
+ * @details Grasping poses after pushing
+ * 
+ */
+struct PushingGraspingPose{
+  GraspingPose gp_dir1,gp_dir2,gp_dir3,gp_dir4;
 };
 
 struct Pose{
@@ -213,6 +222,18 @@ class CTableClearingPlanning
   std::vector<OriginalPrincipalDirections> original_principal_directions_objects;
   std::vector<std::vector<pcl::Vertices> > convex_hull_vertices,concave_hull_vertices;
 
+  /**
+   * @details Struct which defines the pushing length for each direction
+   * 
+   */
+  struct PushingLength
+  {
+    double dir1,dir2,dir3,dir4;
+  };
+  std::vector<PushingLength> pushing_lengths;
+  std::vector<PushingGraspingPose> pushing_grasping_poses; // grasping poses estimated for the object once pushed
+
+
   std::vector<AABB> aabb_objects;
 
   std::vector<GraspingPose> grasping_poses,approaching_poses;
@@ -245,6 +266,8 @@ class CTableClearingPlanning
    */
   bool areObjectCollidingFcl(uint idx_1, fcl::Transform3f tf, uint idx_2);
 
+
+
   /**
   * @brief Check if the gripper is colliding with object indexed by "idx"
   * @details [long description]
@@ -262,6 +285,15 @@ class CTableClearingPlanning
    */
   bool isClosedFinderModelColliding(uint idx, fcl::Transform3f tf);
 
+  /**
+   * @brief Check if the opene gripper model is colliding with other objects
+   * @details Check if the opene gripper model is colliding with other objects
+   * 
+   * @param idx Index of the other object we check the collision for
+   * @param tf transformation of the grasping pose
+   * 
+   * @return true if there is collision, false otherwise
+   */
   bool isFingersModelColliding(uint idx, fcl::Transform3f tf);
 
   /**
@@ -552,7 +584,7 @@ class CTableClearingPlanning
      *          with the current one, along each principal direction. The length of the push
      *          considered in saved in the private memeber 
      */
-    void computeBlockPredicates(bool print=false, uint pushing_method = ORTHOGONAL_PUSHING);
+    void computeBlockPredicates(bool print=false, uint pushing_method = ORTHOGONAL_PUSHING, double resolution = 0.05, double pushing_limit = 0.2);
 
     /**
      * @brief Get block grasp predicates
@@ -624,7 +656,8 @@ class CTableClearingPlanning
      * @param[in] print True to print in the terminal each block predicate
      */
     void visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,bool visualization = true,
-                                      bool print = true, uint pushing_method = ORTHOGONAL_PUSHING);
+                                      bool print = true, uint pushing_method = ORTHOGONAL_PUSHING,
+                                      double resolution = 0.05, double pushing_limit = 0.2);
 
 
     /**
@@ -780,6 +813,17 @@ class CTableClearingPlanning
 
     void viewerAddGraspingPose(Visualizer viewer,uint idx);
     void viewerAddGraspingPoses(Visualizer viewer);
+
+    /**
+     * @brief Add to the viewer the grasping pose estimated after having pushed the object
+     * @details Add to the viewer the grasping pose estimated after having pushed the object
+     * 
+     * @param viewer 
+     * @param obj_idx index of the obejct 
+     * @param dir_idx index of the direction
+     */
+    void viewerAddPushingGraspingPose(Visualizer viewer, uint obj_idx, uint dir_idx);
+
     void viewerAddApproachingPose(Visualizer viewer, uint idx);
     void viewerAddApproachingPoses(Visualizer viewer);
 
@@ -820,6 +864,8 @@ class CTableClearingPlanning
      * @details Print in the terminal the several execution times.
      */
     void printExecutionTimes();
+
+    void printPushingLengths();
 
 };
 

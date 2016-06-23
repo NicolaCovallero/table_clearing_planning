@@ -103,6 +103,7 @@ struct GraspingPose{
  */
 struct PushingGraspingPose{
   GraspingPose gp_dir1,gp_dir2,gp_dir3,gp_dir4;
+  GraspingPose app_dir1,app_dir2,app_dir3,app_dir4;
 };
 
 struct Pose{
@@ -123,6 +124,15 @@ double objects_collisions; ///< total time to compute the collision between all 
 double ee_collisions; ///< total time to compute the collision between the gripper and all the objects O(n^2)
 double average_objects_collision; ///< average time to compute a collision between two objects
 double average_ee_collision; ///< average time to compute a collision between two objects
+};
+
+/**
+ * @details Struct which defines the pushing length for each direction
+ * 
+ */
+struct PushingLength
+{
+  double dir1,dir2,dir3,dir4;
 };
 
 // check this
@@ -222,14 +232,7 @@ class CTableClearingPlanning
   std::vector<OriginalPrincipalDirections> original_principal_directions_objects;
   std::vector<std::vector<pcl::Vertices> > convex_hull_vertices,concave_hull_vertices;
 
-  /**
-   * @details Struct which defines the pushing length for each direction
-   * 
-   */
-  struct PushingLength
-  {
-    double dir1,dir2,dir3,dir4;
-  };
+
   std::vector<PushingLength> pushing_lengths;
   std::vector<PushingGraspingPose> pushing_grasping_poses; // grasping poses estimated for the object once pushed
 
@@ -850,9 +853,19 @@ class CTableClearingPlanning
 
     std::vector<PushingPose> getPushingPoses();
 
+    std::vector<PushingGraspingPose> getPushingGraspingPoses(); 
+
+
+
     ExecutionTimes getExecutionTimes();
 
     double getPushingObjectDistance();
+
+    /**
+     * @brief Return the pushing lengths per each object and per each direction
+     * @details Return the pushing lengths per each object and per each direction
+     */    
+     std::vector<PushingLength> getPushingLengths();
 
     /**
      * @brief Delete all the data ot the class

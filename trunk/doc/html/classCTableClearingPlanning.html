@@ -45,7 +45,11 @@
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
-<a href="#pub-methods">Public Member Functions</a>  </div>
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pri-types">Private Types</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
+<a href="#pri-static-attribs">Static Private Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">CTableClearingPlanning Class Reference</div>  </div>
 </div><!--header-->
@@ -55,36 +59,52 @@
  <a href="classCTableClearingPlanning.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="table__clearing__planning_8h_source.html">table_clearing_planning.h</a>&gt;</code></p>
+<div class="dynheader">
+Collaboration diagram for CTableClearingPlanning:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning__coll__graph.png" border="0" usemap="#CTableClearingPlanning_coll__map" alt="Collaboration graph"/></div>
+<map name="CTableClearingPlanning_coll__map" id="CTableClearingPlanning_coll__map">
+<area shape="rect" id="node2" href="structExecutionTimes.html" title="ExecutionTimes" alt="" coords="29,5,145,32"/><area shape="rect" id="node3" href="structCTableClearingPlanning_1_1GripperModel.html" title="CTableClearingPlanning\l::GripperModel" alt="" coords="5,57,168,98"/><area shape="rect" id="node4" href="structCTableClearingPlanning_1_1EndEffector.html" title="CTableClearingPlanning\l::EndEffector" alt="" coords="5,122,168,163"/></map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structCTableClearingPlanning_1_1EndEffector.html">EndEffector</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">FclMesh</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structCTableClearingPlanning_1_1GripperModel.html">GripperModel</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a9f5dd72c3566d426f1a985dd06e720ec"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a9f5dd72c3566d426f1a985dd06e720ec">CTableClearingPlanning</a> (std::vector&lt; PointCloudT &gt; &amp;objects)</td></tr>
+<tr class="memitem:a9f5dd72c3566d426f1a985dd06e720ec"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a9f5dd72c3566d426f1a985dd06e720ec">CTableClearingPlanning</a> (std::vector&lt; PointCloudT &gt; &amp;<a class="el" href="classCTableClearingPlanning.html#a02acca23fc71d641ddf687cc7861a6ef">objects</a>)</td></tr>
 <tr class="memdesc:a9f5dd72c3566d426f1a985dd06e720ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the class with the objects.  <a href="#a9f5dd72c3566d426f1a985dd06e720ec">More...</a><br/></td></tr>
 <tr class="separator:a9f5dd72c3566d426f1a985dd06e720ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ec3fdc39866b18caa9d7b83c2486e76"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a8ec3fdc39866b18caa9d7b83c2486e76">setGripperSimpleModel</a> (double height, double deep, double width, double distance_plane)</td></tr>
 <tr class="memdesc:a8ec3fdc39866b18caa9d7b83c2486e76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the gripper model.  <a href="#a8ec3fdc39866b18caa9d7b83c2486e76">More...</a><br/></td></tr>
 <tr class="separator:a8ec3fdc39866b18caa9d7b83c2486e76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2ba375c6463bafd7af9194266190ccbd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a2ba375c6463bafd7af9194266190ccbd">setFingersModel</a> (double opening_width, double closing_width, double finger_width, double deep, double height, double closing_height)</td></tr>
-<tr class="memdesc:a2ba375c6463bafd7af9194266190ccbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the fingers model.  <a href="#a2ba375c6463bafd7af9194266190ccbd">More...</a><br/></td></tr>
-<tr class="separator:a2ba375c6463bafd7af9194266190ccbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a259b85172c8246c3129a0a0616837608"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a259b85172c8246c3129a0a0616837608">setGripperModel</a> (double opening_width, double closing_width, double finger_width, double deep, double height, double closing_height)</td></tr>
+<tr class="memdesc:a259b85172c8246c3129a0a0616837608"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the fingers model.  <a href="#a259b85172c8246c3129a0a0616837608">More...</a><br/></td></tr>
+<tr class="separator:a259b85172c8246c3129a0a0616837608"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a796cb33de9b5ef27444fac43a98975e4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a796cb33de9b5ef27444fac43a98975e4">setPlanePointCloud</a> (PointCloudT plane_cloud)</td></tr>
 <tr class="memdesc:a796cb33de9b5ef27444fac43a98975e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the plane point cloud.  <a href="#a796cb33de9b5ef27444fac43a98975e4">More...</a><br/></td></tr>
 <tr class="separator:a796cb33de9b5ef27444fac43a98975e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a137370fbab10207adede2ad0dd79d910"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a137370fbab10207adede2ad0dd79d910">setOriginalPointCloud</a> (PointCloudT original_cloud)</td></tr>
 <tr class="memdesc:a137370fbab10207adede2ad0dd79d910"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the original point cloud, the one used for the segmentation.  <a href="#a137370fbab10207adede2ad0dd79d910">More...</a><br/></td></tr>
 <tr class="separator:a137370fbab10207adede2ad0dd79d910"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2cd87120cf1abe06b96c0611cde50edf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a2cd87120cf1abe06b96c0611cde50edf">setObjectsPointCloud</a> (std::vector&lt; PointCloudT &gt; &amp;objects)</td></tr>
-<tr class="memdesc:a2cd87120cf1abe06b96c0611cde50edf"><td class="mdescLeft">&#160;</td><td class="mdescRight">set point clouds of the objects, reference to project the principal direction to the plane: <a href="http://www.maplesoft.com/support/help/Maple/view.aspx?path=MathApps%2FProjectionOfVectorOntoPlane">http://www.maplesoft.com/support/help/Maple/view.aspx?path=MathApps%2FProjectionOfVectorOntoPlane</a>  <a href="#a2cd87120cf1abe06b96c0611cde50edf">More...</a><br/></td></tr>
-<tr class="separator:a2cd87120cf1abe06b96c0611cde50edf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ff3b414b34ead8871bd9faf9c3db02f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f">setPlaneCoefficients</a> (pcl::ModelCoefficients &amp;plane_coefficients)</td></tr>
+<tr class="memitem:ad118cec422061d0710b672218326db4d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#ad118cec422061d0710b672218326db4d">setObjectsPointCloud</a> (std::vector&lt; PointCloudT &gt; &amp;<a class="el" href="classCTableClearingPlanning.html#a02acca23fc71d641ddf687cc7861a6ef">objects</a>, bool convert_to_label=true)</td></tr>
+<tr class="memdesc:ad118cec422061d0710b672218326db4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">set point clouds of the objects, reference to project the principal direction to the plane: <a href="http://www.maplesoft.com/support/help/Maple/view.aspx?path=MathApps%2FProjectionOfVectorOntoPlane">http://www.maplesoft.com/support/help/Maple/view.aspx?path=MathApps%2FProjectionOfVectorOntoPlane</a>  <a href="#ad118cec422061d0710b672218326db4d">More...</a><br/></td></tr>
+<tr class="separator:ad118cec422061d0710b672218326db4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ff3b414b34ead8871bd9faf9c3db02f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a5ff3b414b34ead8871bd9faf9c3db02f">setPlaneCoefficients</a> (pcl::ModelCoefficients &amp;<a class="el" href="classCTableClearingPlanning.html#a27649b4ad8f1126bcd45a1ab77ffa94b">plane_coefficients</a>)</td></tr>
 <tr class="memdesc:a5ff3b414b34ead8871bd9faf9c3db02f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the coefficients of the table plane.  <a href="#a5ff3b414b34ead8871bd9faf9c3db02f">More...</a><br/></td></tr>
 <tr class="separator:a5ff3b414b34ead8871bd9faf9c3db02f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a4545c6582b369ee32c863d603ba74a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a4545c6582b369ee32c863d603ba74a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>testTranslation</b> (uint idx)</td></tr>
 <tr class="separator:a7a4545c6582b369ee32c863d603ba74a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad235fde9e142bc1b99081f993014599b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#ad235fde9e142bc1b99081f993014599b">computeAABBObjects</a> (bool refine_centroids=true)</td></tr>
-<tr class="memdesc:ad235fde9e142bc1b99081f993014599b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the Axis Aligned Bounding Box of each object.  <a href="#ad235fde9e142bc1b99081f993014599b">More...</a><br/></td></tr>
-<tr class="separator:ad235fde9e142bc1b99081f993014599b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbcbd9bb2b34204ccd5a0c9817b5c129"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#adbcbd9bb2b34204ccd5a0c9817b5c129">computeOBBObjects</a> (bool refine_centroids=true)</td></tr>
+<tr class="memdesc:adbcbd9bb2b34204ccd5a0c9817b5c129"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the Axis Aligned Bounding Box of each object.  <a href="#adbcbd9bb2b34204ccd5a0c9817b5c129">More...</a><br/></td></tr>
+<tr class="separator:adbcbd9bb2b34204ccd5a0c9817b5c129"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade7904177738234a20cac9c9abe59da8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#ade7904177738234a20cac9c9abe59da8">computeSimpleHeuristicGraspingPoses</a> (bool vertical_poses=PCA_GRASPING)</td></tr>
 <tr class="memdesc:ade7904177738234a20cac9c9abe59da8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the grasping pose with a simple heuristic.  <a href="#ade7904177738234a20cac9c9abe59da8">More...</a><br/></td></tr>
 <tr class="separator:ade7904177738234a20cac9c9abe59da8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -121,11 +141,11 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="separator:a203d209b3165c5a3efd87363c0ecf7de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac74c62b35b59228c30662a0eb8337656"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#ac74c62b35b59228c30662a0eb8337656">setApproachingDistance</a> (double approaching_distance)</td></tr>
 <tr class="separator:ac74c62b35b59228c30662a0eb8337656"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9e59a298b6ea01411ce089d5ef7d84e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#ae9e59a298b6ea01411ce089d5ef7d84e">setPushingObjectDistance</a> (double pushing_object_distance)</td></tr>
+<tr class="memitem:ae9e59a298b6ea01411ce089d5ef7d84e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#ae9e59a298b6ea01411ce089d5ef7d84e">setPushingObjectDistance</a> (double <a class="el" href="classCTableClearingPlanning.html#a27fabc9e701ca3e33a233ef2a2048eb3">pushing_object_distance</a>)</td></tr>
 <tr class="separator:ae9e59a298b6ea01411ce089d5ef7d84e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e4da8b78c6939cb6514ccb043990910"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a3e4da8b78c6939cb6514ccb043990910">computeBlockPredicates</a> (bool print=false, uint pushing_method=ORTHOGONAL_PUSHING)</td></tr>
-<tr class="memdesc:a3e4da8b78c6939cb6514ccb043990910"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get block predicates.  <a href="#a3e4da8b78c6939cb6514ccb043990910">More...</a><br/></td></tr>
-<tr class="separator:a3e4da8b78c6939cb6514ccb043990910"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afefe49e8519f85ed1fdecc2fd9b361ab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab">computeBlockPredicates</a> (bool print=false, uint pushing_method=ORTHOGONAL_PUSHING, double resolution=0.05, double pushing_limit=0.2)</td></tr>
+<tr class="memdesc:afefe49e8519f85ed1fdecc2fd9b361ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get block predicates.  <a href="#afefe49e8519f85ed1fdecc2fd9b361ab">More...</a><br/></td></tr>
+<tr class="separator:afefe49e8519f85ed1fdecc2fd9b361ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb5f4c71bbef307c46ecac87eb32a9f9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#aeb5f4c71bbef307c46ecac87eb32a9f9">computeBlockGraspPredicates</a> (bool print=false)</td></tr>
 <tr class="memdesc:aeb5f4c71bbef307c46ecac87eb32a9f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get block grasp predicates.  <a href="#aeb5f4c71bbef307c46ecac87eb32a9f9">More...</a><br/></td></tr>
 <tr class="separator:aeb5f4c71bbef307c46ecac87eb32a9f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -154,9 +174,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>computePrincipalDirec
 <tr class="memitem:a8d6d2845fe5e00ec1918a422c2a3452a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8d6d2845fe5e00ec1918a422c2a3452a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>buildFullObjectsCloud</b> (std::vector&lt; PointCloudT &gt; &amp;occluded_sides)</td></tr>
 <tr class="separator:a8d6d2845fe5e00ec1918a422c2a3452a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a488108e15bd0ab227f207f9f32a7f795"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a488108e15bd0ab227f207f9f32a7f795">visualComputeBlockPredicates</a> (Visualizer viewer, uint obj_idx, uint dir_idx, bool visualization=true, bool print=true, uint pushing_method=ORTHOGONAL_PUSHING)</td></tr>
-<tr class="memdesc:a488108e15bd0ab227f207f9f32a7f795"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the block predicates.  <a href="#a488108e15bd0ab227f207f9f32a7f795">More...</a><br/></td></tr>
-<tr class="separator:a488108e15bd0ab227f207f9f32a7f795"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11169a5b099f3e313e694bea66ceef58"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a11169a5b099f3e313e694bea66ceef58">visualComputeBlockPredicates</a> (Visualizer viewer, uint obj_idx, uint dir_idx, bool visualization=true, bool print=true, uint pushing_method=ORTHOGONAL_PUSHING, double resolution=0.05, double pushing_limit=0.2)</td></tr>
+<tr class="memdesc:a11169a5b099f3e313e694bea66ceef58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the block predicates.  <a href="#a11169a5b099f3e313e694bea66ceef58">More...</a><br/></td></tr>
+<tr class="separator:a11169a5b099f3e313e694bea66ceef58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0fc6086e9bc90fe598bdeaa4345f9b46"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a0fc6086e9bc90fe598bdeaa4345f9b46">viewerAddConvexHulls</a> (Visualizer viewer, uint idx)</td></tr>
 <tr class="memdesc:a0fc6086e9bc90fe598bdeaa4345f9b46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show the convex hulls.  <a href="#a0fc6086e9bc90fe598bdeaa4345f9b46">More...</a><br/></td></tr>
 <tr class="separator:a0fc6086e9bc90fe598bdeaa4345f9b46"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -211,10 +231,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>viewerAddPlaneCloud</
 <tr class="memitem:a00bfbb4f6b61d5983026ed76e835421a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a00bfbb4f6b61d5983026ed76e835421a">viewerAddObjectsLabel</a> (Visualizer viewer)</td></tr>
 <tr class="memdesc:a00bfbb4f6b61d5983026ed76e835421a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show the labels in the viewer as 3D text.  <a href="#a00bfbb4f6b61d5983026ed76e835421a">More...</a><br/></td></tr>
 <tr class="separator:a00bfbb4f6b61d5983026ed76e835421a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b28ac87de19b744f3d2622a731f2e8a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a5b28ac87de19b744f3d2622a731f2e8a">viewerShowFingersModel</a> (Visualizer viewer, double r=1, double g=1, double b=1)</td></tr>
-<tr class="separator:a5b28ac87de19b744f3d2622a731f2e8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae816b2d5a11cc3a038b84634af38d586"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#ae816b2d5a11cc3a038b84634af38d586">viewerShowClosedFingersModel</a> (Visualizer viewer, double r=1, double g=1, double b=1)</td></tr>
-<tr class="separator:ae816b2d5a11cc3a038b84634af38d586"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c852946e796648b51f4f3878abbf8d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a5c852946e796648b51f4f3878abbf8d1">viewerShowGripperModel</a> (Visualizer viewer, double r=1, double g=1, double b=1)</td></tr>
+<tr class="separator:a5c852946e796648b51f4f3878abbf8d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b0836c5392f3e602859cd2b606b8b35"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a8b0836c5392f3e602859cd2b606b8b35">viewerShowClosedGripperModel</a> (Visualizer viewer, double r=1, double g=1, double b=1)</td></tr>
+<tr class="separator:a8b0836c5392f3e602859cd2b606b8b35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e322ec0f718a7bc830adae9265c98aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3e322ec0f718a7bc830adae9265c98aa"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a3e322ec0f718a7bc830adae9265c98aa">viewerAddObjectsTransfomed</a> (Visualizer viewer)</td></tr>
 <tr class="memdesc:a3e322ec0f718a7bc830adae9265c98aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show in the viewer associated to the class a transformed object. ONLY FOR DEBUGGING PURPOSE - USELESS. <br/></td></tr>
@@ -225,6 +245,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>viewerAddGraspingPose
 <tr class="memitem:a97e841358b48c244b5135910cf97235d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a97e841358b48c244b5135910cf97235d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>viewerAddGraspingPoses</b> (Visualizer viewer)</td></tr>
 <tr class="separator:a97e841358b48c244b5135910cf97235d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47075848f2caf43836cafabf63728ef4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a47075848f2caf43836cafabf63728ef4">viewerAddPushingGraspingPose</a> (Visualizer viewer, uint obj_idx, uint dir_idx)</td></tr>
+<tr class="memdesc:a47075848f2caf43836cafabf63728ef4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add to the viewer the grasping pose estimated after having pushed the object.  <a href="#a47075848f2caf43836cafabf63728ef4">More...</a><br/></td></tr>
+<tr class="separator:a47075848f2caf43836cafabf63728ef4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d005472ea309c652d23cfb5de46bd34"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d005472ea309c652d23cfb5de46bd34"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>viewerAddApproachingPose</b> (Visualizer viewer, uint idx)</td></tr>
 <tr class="separator:a2d005472ea309c652d23cfb5de46bd34"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -237,9 +260,9 @@ uint&#160;</td><td class="memItemRight" valign="bottom"><b>getNumObjects</b> ()<
 <tr class="memitem:a6b6b3a8f69085ac90a7c42f2044ced9a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6b6b3a8f69085ac90a7c42f2044ced9a"></a>
 std::vector&lt; <a class="el" href="structObjectFull.html">ObjectFull</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>getFullObjects</b> ()</td></tr>
 <tr class="separator:a6b6b3a8f69085ac90a7c42f2044ced9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a244cc698d08096b0f60962e089c1091b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a244cc698d08096b0f60962e089c1091b"></a>
-std::vector&lt; <a class="el" href="structAABB.html">AABB</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>getAABBObjects</b> ()</td></tr>
-<tr class="separator:a244cc698d08096b0f60962e089c1091b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18ef28139a598972e76f9d844f842d4c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18ef28139a598972e76f9d844f842d4c"></a>
+std::vector&lt; <a class="el" href="structOBB.html">OBB</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>getOBBObjects</b> ()</td></tr>
+<tr class="separator:a18ef28139a598972e76f9d844f842d4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58540f89e0a8cfcc91733c21e2dc25ab"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a58540f89e0a8cfcc91733c21e2dc25ab"></a>
 std::vector&lt; <a class="el" href="structBlocksPredicate.html">BlocksPredicate</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>getBlockPredicates</b> ()</td></tr>
 <tr class="separator:a58540f89e0a8cfcc91733c21e2dc25ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -265,21 +288,250 @@ std::vector&lt; <a class="el" href="structGraspingPose.html">GraspingPose</a> &g
 <tr class="memitem:a30174ce93c6f14cf853883ec1a0b6aed"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a30174ce93c6f14cf853883ec1a0b6aed"></a>
 std::vector&lt; <a class="el" href="structPushingPose.html">PushingPose</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>getPushingPoses</b> ()</td></tr>
 <tr class="separator:a30174ce93c6f14cf853883ec1a0b6aed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7078353312cab3c9839af5631e1977f8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7078353312cab3c9839af5631e1977f8"></a>
+std::vector&lt; <a class="el" href="structPushingGraspingPose.html">PushingGraspingPose</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>getPushingGraspingPoses</b> ()</td></tr>
+<tr class="separator:a7078353312cab3c9839af5631e1977f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa257e40586fe4c6bae1f04f14bbb90cc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa257e40586fe4c6bae1f04f14bbb90cc"></a>
 <a class="el" href="structExecutionTimes.html">ExecutionTimes</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getExecutionTimes</b> ()</td></tr>
 <tr class="separator:aa257e40586fe4c6bae1f04f14bbb90cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac4103ec89bc39e581c54c7d997d53d59"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac4103ec89bc39e581c54c7d997d53d59"></a>
 double&#160;</td><td class="memItemRight" valign="bottom"><b>getPushingObjectDistance</b> ()</td></tr>
 <tr class="separator:ac4103ec89bc39e581c54c7d997d53d59"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02bddbf767477831d6968502312f7aa7"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="structPushingLength.html">PushingLength</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a02bddbf767477831d6968502312f7aa7">getPushingLengths</a> ()</td></tr>
+<tr class="memdesc:a02bddbf767477831d6968502312f7aa7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the pushing lengths per each object and per each direction.  <a href="#a02bddbf767477831d6968502312f7aa7">More...</a><br/></td></tr>
+<tr class="separator:a02bddbf767477831d6968502312f7aa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab7542f9da3c524b8a8e98e9279877c77"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#ab7542f9da3c524b8a8e98e9279877c77">reset</a> ()</td></tr>
 <tr class="memdesc:ab7542f9da3c524b8a8e98e9279877c77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delete all the data ot the class.  <a href="#ab7542f9da3c524b8a8e98e9279877c77">More...</a><br/></td></tr>
 <tr class="separator:ab7542f9da3c524b8a8e98e9279877c77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa36260ffe11962faf6a42cdb0d88edc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#afa36260ffe11962faf6a42cdb0d88edc">printExecutionTimes</a> ()</td></tr>
 <tr class="separator:afa36260ffe11962faf6a42cdb0d88edc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5c3703721615f98b8b693c5de8ba9bf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac5c3703721615f98b8b693c5de8ba9bf"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>printPushingLengths</b> ()</td></tr>
+<tr class="separator:ac5c3703721615f98b8b693c5de8ba9bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-types"></a>
+Private Types</h2></td></tr>
+<tr class="memitem:ac5db02a16a7ef7650236dc57b29ac0f1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac5db02a16a7ef7650236dc57b29ac0f1"></a>
+typedef pcl::PointXYZRGBA&#160;</td><td class="memItemRight" valign="bottom"><b>PointT</b></td></tr>
+<tr class="separator:ac5db02a16a7ef7650236dc57b29ac0f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0ededde0c96e626c216502bfee0fda0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0ededde0c96e626c216502bfee0fda0"></a>
+typedef pcl::PointCloud&lt; PointT &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>PointCloudT</b></td></tr>
+<tr class="separator:ad0ededde0c96e626c216502bfee0fda0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5f4b4bf05554c1a22ea925f47b66dfa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac5f4b4bf05554c1a22ea925f47b66dfa"></a>
+typedef boost::shared_ptr<br class="typebreak"/>
+&lt; pcl::visualization::PCLVisualizer &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Visualizer</b></td></tr>
+<tr class="separator:ac5f4b4bf05554c1a22ea925f47b66dfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a64035b4c27d5740afe0312521ad99e00"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a64035b4c27d5740afe0312521ad99e00">areObjectCollidingFcl</a> (uint idx_1, fcl::Transform3f tf, uint idx_2)</td></tr>
+<tr class="memdesc:a64035b4c27d5740afe0312521ad99e00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check with the fcl library yf the transformed object is colliding with another one.  <a href="#a64035b4c27d5740afe0312521ad99e00">More...</a><br/></td></tr>
+<tr class="separator:a64035b4c27d5740afe0312521ad99e00"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a277e8dca767209fba9fc5fc2295bb997"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a277e8dca767209fba9fc5fc2295bb997">isEEColliding</a> (uint idx, fcl::Transform3f tf)</td></tr>
+<tr class="memdesc:a277e8dca767209fba9fc5fc2295bb997"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the gripper is colliding with object indexed by "idx".  <a href="#a277e8dca767209fba9fc5fc2295bb997">More...</a><br/></td></tr>
+<tr class="separator:a277e8dca767209fba9fc5fc2295bb997"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada21b564eb35963b353d35c74c99e5bd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#ada21b564eb35963b353d35c74c99e5bd">isClosedGripperModelColliding</a> (uint idx, fcl::Transform3f tf, double &amp;distance)</td></tr>
+<tr class="separator:ada21b564eb35963b353d35c74c99e5bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82b393569673778bfb75842414356796"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a82b393569673778bfb75842414356796">isOpenGripperModelColliding</a> (uint idx, fcl::Transform3f tf, double &amp;distance)</td></tr>
+<tr class="memdesc:a82b393569673778bfb75842414356796"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the open gripper model is colliding with other objects.  <a href="#a82b393569673778bfb75842414356796">More...</a><br/></td></tr>
+<tr class="separator:a82b393569673778bfb75842414356796"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a753785197ed0e925fc09938ce67999b8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">FclMesh</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a753785197ed0e925fc09938ce67999b8">getGripperMesh</a> ()</td></tr>
+<tr class="memdesc:a753785197ed0e925fc09938ce67999b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the mesh of the gripper model.  <a href="#a753785197ed0e925fc09938ce67999b8">More...</a><br/></td></tr>
+<tr class="separator:a753785197ed0e925fc09938ce67999b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab33adb71b830868abe72174cea4c25fb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">FclMesh</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#ab33adb71b830868abe72174cea4c25fb">getClosedFingersMesh</a> ()</td></tr>
+<tr class="memdesc:ab33adb71b830868abe72174cea4c25fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the mesh of the closed gripper model.  <a href="#ab33adb71b830868abe72174cea4c25fb">More...</a><br/></td></tr>
+<tr class="separator:ab33adb71b830868abe72174cea4c25fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae30e00b4e93cb38630ce6a3ed6882d2c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae30e00b4e93cb38630ce6a3ed6882d2c"></a>
+<a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">FclMesh</a>&#160;</td><td class="memItemRight" valign="bottom"><b>getGripperModelMesh</b> ()</td></tr>
+<tr class="separator:ae30e00b4e93cb38630ce6a3ed6882d2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54669b8c29e1fbddf6440e25516e736a"><td class="memItemLeft" align="right" valign="top">Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a54669b8c29e1fbddf6440e25516e736a">pointT2vector3f</a> (PointT point)</td></tr>
+<tr class="memdesc:a54669b8c29e1fbddf6440e25516e736a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert from PointT to Eigen::Vector3f.  <a href="#a54669b8c29e1fbddf6440e25516e736a">More...</a><br/></td></tr>
+<tr class="separator:a54669b8c29e1fbddf6440e25516e736a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e2d8a3e5058548340416e06ccae68ba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">FclMesh</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a5e2d8a3e5058548340416e06ccae68ba">pcl2FclConvexHull</a> (uint idx)</td></tr>
+<tr class="separator:a5e2d8a3e5058548340416e06ccae68ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e0ebdbb9e1533c67bbe620bb352989e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">FclMesh</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a2e0ebdbb9e1533c67bbe620bb352989e">pcl2FclConvexHull</a> (PointCloudT convex_hull_cloud, std::vector&lt; pcl::Vertices &gt; convex_hull_indices)</td></tr>
+<tr class="separator:a2e0ebdbb9e1533c67bbe620bb352989e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade33d5afc22ede15316059a59835dbf1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ade33d5afc22ede15316059a59835dbf1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>fcl2EigenTransform</b> (Eigen::Vector4f &amp;<a class="el" href="classCTableClearingPlanning.html#a651f65fe5aa785d787a1d421bb8c9632">translate</a>, Eigen::Quaternionf &amp;q_rot, fcl::Transform3f &amp;tf)</td></tr>
+<tr class="separator:ade33d5afc22ede15316059a59835dbf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a774b690f7af969d33992760e013212fc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a774b690f7af969d33992760e013212fc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>eigen2FclTransform</b> (Eigen::Vector4f &amp;<a class="el" href="classCTableClearingPlanning.html#a651f65fe5aa785d787a1d421bb8c9632">translate</a>, Eigen::Quaternionf &amp;q_rot, fcl::Transform3f &amp;tf)</td></tr>
+<tr class="separator:a774b690f7af969d33992760e013212fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a223bbb4b5320d8261c16065db2a904b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a223bbb4b5320d8261c16065db2a904b7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>eigen2FclTransform</b> (Eigen::Vector3f &amp;<a class="el" href="classCTableClearingPlanning.html#a651f65fe5aa785d787a1d421bb8c9632">translate</a>, Eigen::Quaternionf &amp;q_rot, fcl::Transform3f &amp;tf)</td></tr>
+<tr class="separator:a223bbb4b5320d8261c16065db2a904b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86ae6146c4e10910a5296bab38ca57dc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86ae6146c4e10910a5296bab38ca57dc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>eigen2FclRotation</b> (Eigen::Quaternionf &amp;q_rot, fcl::Matrix3f &amp;rot)</td></tr>
+<tr class="separator:a86ae6146c4e10910a5296bab38ca57dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19ea910818ef17809996e2643d082e74"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a19ea910818ef17809996e2643d082e74"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>eigen2FclRotation</b> (Eigen::Matrix3f eig_rot, fcl::Matrix3f &amp;rot)</td></tr>
+<tr class="separator:a19ea910818ef17809996e2643d082e74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a651f65fe5aa785d787a1d421bb8c9632"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a651f65fe5aa785d787a1d421bb8c9632">translate</a> (PointCloudT &amp;cloud1, PointCloudT &amp;cloud2, Eigen::Vector4f &amp;translation)</td></tr>
+<tr class="memdesc:a651f65fe5aa785d787a1d421bb8c9632"><td class="mdescLeft">&#160;</td><td class="mdescRight">{ function_description }  <a href="#a651f65fe5aa785d787a1d421bb8c9632">More...</a><br/></td></tr>
+<tr class="separator:a651f65fe5aa785d787a1d421bb8c9632"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acaa746bde69b0ed6ef19e4f51c55a18c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#acaa746bde69b0ed6ef19e4f51c55a18c">computeSurfaceGraspPoint</a> (Eigen::Vector3f &amp;surface_point, uint idx)</td></tr>
+<tr class="memdesc:acaa746bde69b0ed6ef19e4f51c55a18c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the centroid of the grasping pose as the surface point of the object which projection on the table plane is similar to the centroid.  <a href="#acaa746bde69b0ed6ef19e4f51c55a18c">More...</a><br/></td></tr>
+<tr class="separator:acaa746bde69b0ed6ef19e4f51c55a18c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90b7b6d076d9d65b8733c30411f16348"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a90b7b6d076d9d65b8733c30411f16348">refineSimpleGraspingPose</a> (<a class="el" href="structGraspingPose.html">GraspingPose</a> &amp;gp, double translation_step=0.005, double distance_from_plane=0.01)</td></tr>
+<tr class="separator:a90b7b6d076d9d65b8733c30411f16348"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a1c2241e0d5dd7273a3c9c9930dd81378"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1c2241e0d5dd7273a3c9c9930dd81378"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>pushing_limit</b></td></tr>
+<tr class="separator:a1c2241e0d5dd7273a3c9c9930dd81378"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4419b380f5706b4551f9128288bb8515"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4419b380f5706b4551f9128288bb8515"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>pushing_step</b></td></tr>
+<tr class="separator:a4419b380f5706b4551f9128288bb8515"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27fabc9e701ca3e33a233ef2a2048eb3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27fabc9e701ca3e33a233ef2a2048eb3"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a27fabc9e701ca3e33a233ef2a2048eb3">pushing_object_distance</a></td></tr>
+<tr class="memdesc:a27fabc9e701ca3e33a233ef2a2048eb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance between the tcp and the object for the first point of the pushing action. <br/></td></tr>
+<tr class="separator:a27fabc9e701ca3e33a233ef2a2048eb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a8d76a1df2237521c026044901f50d8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5a8d76a1df2237521c026044901f50d8"></a>
+uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a5a8d76a1df2237521c026044901f50d8">n_objects</a></td></tr>
+<tr class="memdesc:a5a8d76a1df2237521c026044901f50d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of objects <br/></td></tr>
+<tr class="separator:a5a8d76a1df2237521c026044901f50d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e3eb158aa76099548c256418a87f6bf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8e3eb158aa76099548c256418a87f6bf"></a>
+std::vector&lt; <a class="el" href="structBlocksPredicate.html">BlocksPredicate</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>blocks_predicates</b></td></tr>
+<tr class="separator:a8e3eb158aa76099548c256418a87f6bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c64d3b8d71a865623dca88d3a344034"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6c64d3b8d71a865623dca88d3a344034"></a>
+std::vector&lt; std::vector&lt; uint &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>on_top_predicates</b></td></tr>
+<tr class="separator:a6c64d3b8d71a865623dca88d3a344034"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a714882abfdd87db2379884ca0e43092a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a714882abfdd87db2379884ca0e43092a"></a>
+std::vector&lt; std::vector&lt; uint &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>block_grasp_predicates</b></td></tr>
+<tr class="separator:a714882abfdd87db2379884ca0e43092a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c767c09c82a80470496655763319075"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5c767c09c82a80470496655763319075"></a>
+struct <br class="typebreak"/>
+<a class="el" href="structCTableClearingPlanning_1_1EndEffector.html">CTableClearingPlanning::EndEffector</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a5c767c09c82a80470496655763319075">ee_simple_model</a></td></tr>
+<tr class="memdesc:a5c767c09c82a80470496655763319075"><td class="mdescLeft">&#160;</td><td class="mdescRight">end effector simple model <br/></td></tr>
+<tr class="separator:a5c767c09c82a80470496655763319075"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad92b8842c4f7c5e7ad77ec382084bf4a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad92b8842c4f7c5e7ad77ec382084bf4a"></a>
+struct <br class="typebreak"/>
+<a class="el" href="structCTableClearingPlanning_1_1GripperModel.html">CTableClearingPlanning::GripperModel</a>&#160;</td><td class="memItemRight" valign="bottom"><b>gripper_model</b></td></tr>
+<tr class="separator:ad92b8842c4f7c5e7ad77ec382084bf4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79f2e0dad4c9f7267d621f53d028e632"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79f2e0dad4c9f7267d621f53d028e632"></a>
+<a class="el" href="structExecutionTimes.html">ExecutionTimes</a>&#160;</td><td class="memItemRight" valign="bottom"><b>executionTimes</b></td></tr>
+<tr class="separator:a79f2e0dad4c9f7267d621f53d028e632"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56bf8a4e9c7c3a4b7bb802913dd50fc3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a56bf8a4e9c7c3a4b7bb802913dd50fc3"></a>
+PointCloudT&#160;</td><td class="memItemRight" valign="bottom"><b>original_cloud</b></td></tr>
+<tr class="separator:a56bf8a4e9c7c3a4b7bb802913dd50fc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35978fba8e3da2c84835baaaa80a94e8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a35978fba8e3da2c84835baaaa80a94e8"></a>
+PointCloudT&#160;</td><td class="memItemRight" valign="bottom"><b>plane_cloud</b></td></tr>
+<tr class="separator:a35978fba8e3da2c84835baaaa80a94e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd3978c99af9b5770c47ec628af0cd6a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd3978c99af9b5770c47ec628af0cd6a"></a>
+PointCloudT&#160;</td><td class="memItemRight" valign="bottom"><b>plane_convex_hull_2d</b></td></tr>
+<tr class="separator:acd3978c99af9b5770c47ec628af0cd6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecd01529759ea53f5900a1576e437c78"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aecd01529759ea53f5900a1576e437c78"></a>
+std::vector&lt; pcl::Vertices &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>plane_convex_hull_indices</b></td></tr>
+<tr class="separator:aecd01529759ea53f5900a1576e437c78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02acca23fc71d641ddf687cc7861a6ef"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a02acca23fc71d641ddf687cc7861a6ef"></a>
+std::vector&lt; PointCloudT &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a02acca23fc71d641ddf687cc7861a6ef">objects</a></td></tr>
+<tr class="memdesc:a02acca23fc71d641ddf687cc7861a6ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">vector of objects point cloud <br/></td></tr>
+<tr class="separator:a02acca23fc71d641ddf687cc7861a6ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab604fa48b6870f8c72aa5e842abdaec1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab604fa48b6870f8c72aa5e842abdaec1"></a>
+pcl::PointCloud&lt; pcl::PointXYZL &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>objects_labeled_cloud</b></td></tr>
+<tr class="separator:ab604fa48b6870f8c72aa5e842abdaec1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae17d40fa5002f599961413e077c93c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae17d40fa5002f599961413e077c93c5"></a>
+std::vector&lt; PointCloudT &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>rich_objects</b></td></tr>
+<tr class="separator:aae17d40fa5002f599961413e077c93c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af013a1f2d768ccb2bbd4d218ebf24fb7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af013a1f2d768ccb2bbd4d218ebf24fb7"></a>
+std::vector&lt; <a class="el" href="structObjectFull.html">ObjectFull</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>objects_full</b></td></tr>
+<tr class="separator:af013a1f2d768ccb2bbd4d218ebf24fb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c8f314018d726921f4653edc5049a92"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c8f314018d726921f4653edc5049a92"></a>
+std::vector&lt; PointCloudT &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>projections</b></td></tr>
+<tr class="separator:a9c8f314018d726921f4653edc5049a92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5aab431aacb4a8dacc93fd36e2cf5fd0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5aab431aacb4a8dacc93fd36e2cf5fd0"></a>
+std::vector&lt; PointCloudT &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a5aab431aacb4a8dacc93fd36e2cf5fd0">convex_hull_objects</a></td></tr>
+<tr class="memdesc:a5aab431aacb4a8dacc93fd36e2cf5fd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">vector of the convex hull of each object <br/></td></tr>
+<tr class="separator:a5aab431aacb4a8dacc93fd36e2cf5fd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac49400313a707937d22e61345e85aa54"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac49400313a707937d22e61345e85aa54"></a>
+std::vector&lt; PointCloudT &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#ac49400313a707937d22e61345e85aa54">concave_hull_objects</a></td></tr>
+<tr class="memdesc:ac49400313a707937d22e61345e85aa54"><td class="mdescLeft">&#160;</td><td class="mdescRight">vector of the concave hull of each object <br/></td></tr>
+<tr class="separator:ac49400313a707937d22e61345e85aa54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcfe244470a5143213bdaf3ff60981c6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abcfe244470a5143213bdaf3ff60981c6"></a>
+std::vector<br class="typebreak"/>
+&lt; <a class="el" href="structPrincipalDirectionsProjected.html">PrincipalDirectionsProjected</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#abcfe244470a5143213bdaf3ff60981c6">principal_directions_objects</a></td></tr>
+<tr class="memdesc:abcfe244470a5143213bdaf3ff60981c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">principal directions of <br/></td></tr>
+<tr class="separator:abcfe244470a5143213bdaf3ff60981c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf58fdc14202a6fec1178549f26bb232"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaf58fdc14202a6fec1178549f26bb232"></a>
+std::vector<br class="typebreak"/>
+&lt; <a class="el" href="structOriginalPrincipalDirections.html">OriginalPrincipalDirections</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>original_principal_directions_objects</b></td></tr>
+<tr class="separator:aaf58fdc14202a6fec1178549f26bb232"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad73f618ad250eb08c789e0745ab0a3cd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad73f618ad250eb08c789e0745ab0a3cd"></a>
+std::vector&lt; std::vector<br class="typebreak"/>
+&lt; pcl::Vertices &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>convex_hull_vertices</b></td></tr>
+<tr class="separator:ad73f618ad250eb08c789e0745ab0a3cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7db3c56d0d9595c9e75b94489a26428"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af7db3c56d0d9595c9e75b94489a26428"></a>
+std::vector&lt; std::vector<br class="typebreak"/>
+&lt; pcl::Vertices &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>concave_hull_vertices</b></td></tr>
+<tr class="separator:af7db3c56d0d9595c9e75b94489a26428"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e96162367be4f5644fe6fa758719923"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5e96162367be4f5644fe6fa758719923"></a>
+std::vector&lt; <a class="el" href="structPushingLength.html">PushingLength</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pushing_lengths</b></td></tr>
+<tr class="separator:a5e96162367be4f5644fe6fa758719923"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a159328f37fc6fcfd9ebf769c4982cc8d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a159328f37fc6fcfd9ebf769c4982cc8d"></a>
+std::vector&lt; <a class="el" href="structPushingGraspingPose.html">PushingGraspingPose</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pushing_grasping_poses</b></td></tr>
+<tr class="separator:a159328f37fc6fcfd9ebf769c4982cc8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d1a115d8dad9a2e5624cd4c429fe5c7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5d1a115d8dad9a2e5624cd4c429fe5c7"></a>
+std::vector&lt; <a class="el" href="structOBB.html">OBB</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>obb_objects</b></td></tr>
+<tr class="separator:a5d1a115d8dad9a2e5624cd4c429fe5c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a743fe6a9bc24075b03cfae94f237c8c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a743fe6a9bc24075b03cfae94f237c8c5"></a>
+std::vector&lt; <a class="el" href="structGraspingPose.html">GraspingPose</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>grasping_poses</b></td></tr>
+<tr class="separator:a743fe6a9bc24075b03cfae94f237c8c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34fdf8ba2a122fb7d52feb89eacf5ca0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a34fdf8ba2a122fb7d52feb89eacf5ca0"></a>
+std::vector&lt; <a class="el" href="structGraspingPose.html">GraspingPose</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>approaching_poses</b></td></tr>
+<tr class="separator:a34fdf8ba2a122fb7d52feb89eacf5ca0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa89225812c2c02dbf248ce6a8981402d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa89225812c2c02dbf248ce6a8981402d"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>approaching_distance</b></td></tr>
+<tr class="separator:aa89225812c2c02dbf248ce6a8981402d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a341867cf4b97641881ec00aa740dc056"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a341867cf4b97641881ec00aa740dc056"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>distance_from_plane_grasping_poses</b></td></tr>
+<tr class="separator:a341867cf4b97641881ec00aa740dc056"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a235a40d2037d8351f3b03a8c76cf6a78"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a235a40d2037d8351f3b03a8c76cf6a78"></a>
+std::vector&lt; <a class="el" href="structPushingPose.html">PushingPose</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pushing_poses</b></td></tr>
+<tr class="separator:a235a40d2037d8351f3b03a8c76cf6a78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a043149e0ff3eaa1d97c4ec13446c4350"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a043149e0ff3eaa1d97c4ec13446c4350"></a>
+std::vector&lt; PointCloudT &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>concave_hull_projections</b></td></tr>
+<tr class="separator:a043149e0ff3eaa1d97c4ec13446c4350"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63643e8aad2780f9874af8d357c3f297"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a63643e8aad2780f9874af8d357c3f297"></a>
+std::vector&lt; std::vector<br class="typebreak"/>
+&lt; pcl::Vertices &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>concave_hull_vertices_projections</b></td></tr>
+<tr class="separator:a63643e8aad2780f9874af8d357c3f297"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e33b8bc51c7a0be9739a10bcb87e608"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e33b8bc51c7a0be9739a10bcb87e608"></a>
+std::vector&lt; PointCloudT &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>convex_hull_projections</b></td></tr>
+<tr class="separator:a4e33b8bc51c7a0be9739a10bcb87e608"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a819a55df855b0635b00d61e1bce4e3cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a819a55df855b0635b00d61e1bce4e3cb"></a>
+std::vector&lt; std::vector<br class="typebreak"/>
+&lt; pcl::Vertices &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>convex_hull_vertices_projections</b></td></tr>
+<tr class="separator:a819a55df855b0635b00d61e1bce4e3cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27649b4ad8f1126bcd45a1ab77ffa94b"><td class="memItemLeft" align="right" valign="top">pcl::ModelCoefficients&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a27649b4ad8f1126bcd45a1ab77ffa94b">plane_coefficients</a></td></tr>
+<tr class="separator:a27649b4ad8f1126bcd45a1ab77ffa94b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40ffa5aea49fc6946f8ea8829f0be59c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a40ffa5aea49fc6946f8ea8829f0be59c"></a>
+Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a40ffa5aea49fc6946f8ea8829f0be59c">plane_normal</a></td></tr>
+<tr class="memdesc:a40ffa5aea49fc6946f8ea8829f0be59c"><td class="mdescLeft">&#160;</td><td class="mdescRight">normals of the plane <br/></td></tr>
+<tr class="separator:a40ffa5aea49fc6946f8ea8829f0be59c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fa27552d303c881e38be9b406eed3f1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2fa27552d303c881e38be9b406eed3f1"></a>
+Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCTableClearingPlanning.html#a2fa27552d303c881e38be9b406eed3f1">plane_origin</a></td></tr>
+<tr class="memdesc:a2fa27552d303c881e38be9b406eed3f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">an arbitrary point of the plane to act like origin <br/></td></tr>
+<tr class="separator:a2fa27552d303c881e38be9b406eed3f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-static-attribs"></a>
+Static Private Attributes</h2></td></tr>
+<tr class="memitem:a248b457011b5eb0b2442c9cbeed95550"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a248b457011b5eb0b2442c9cbeed95550"></a>
+static const double&#160;</td><td class="memItemRight" valign="bottom"><b>PUSHING_STEP</b> = 1.5</td></tr>
+<tr class="separator:a248b457011b5eb0b2442c9cbeed95550"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a522cbc8128c707c620b2539822a5f061"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a522cbc8128c707c620b2539822a5f061"></a>
+static const double&#160;</td><td class="memItemRight" valign="bottom"><b>PUSHING_OBJECT_DISTANCE</b> = 0.05</td></tr>
+<tr class="separator:a522cbc8128c707c620b2539822a5f061"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67cbb81e1e7b2d77d002f015c2188909"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a67cbb81e1e7b2d77d002f015c2188909"></a>
+static const double&#160;</td><td class="memItemRight" valign="bottom"><b>APPROACHING_DISTANCE</b> = 0.10</td></tr>
+<tr class="separator:a67cbb81e1e7b2d77d002f015c2188909"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe65ce2c7d0c63a79aa4f789a401ca2c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe65ce2c7d0c63a79aa4f789a401ca2c"></a>
+static const double&#160;</td><td class="memItemRight" valign="bottom"><b>DISTANCE_FROM_PLANE_GRASPING_POSES</b> = 0.01</td></tr>
+<tr class="separator:abe65ce2c7d0c63a79aa4f789a401ca2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p>Definition at line <a class="el" href="table__clearing__planning_8h_source.html#l00136">136</a> of file <a class="el" href="table__clearing__planning_8h_source.html">table_clearing_planning.h</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8h_source.html#l00163">163</a> of file <a class="el" href="table__clearing__planning_8h_source.html">table_clearing_planning.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a9f5dd72c3566d426f1a985dd06e720ec"></a>
 <div class="memitem">
@@ -303,9 +555,682 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>getPushingObjectDis
 
 <p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00013">13</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00187">n_objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00233">objects</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00185">pushing_object_distance</a>.</p>
+
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a64035b4c27d5740afe0312521ad99e00"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool CTableClearingPlanning::areObjectCollidingFcl </td>
+          <td>(</td>
+          <td class="paramtype">uint&#160;</td>
+          <td class="paramname"><em>idx_1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">fcl::Transform3f&#160;</td>
+          <td class="paramname"><em>tf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint&#160;</td>
+          <td class="paramname"><em>idx_2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>[long description]</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">idx_1</td><td>index of the object to transform </td></tr>
+    <tr><td class="paramname">tf</td><td>transformation of the object </td></tr>
+    <tr><td class="paramname">idx_2</td><td>index of the object to check if collides with transformed object 1 </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the transformed object 1 and the object 2 collides </dd></dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00047">47</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l00467">pcl2FclConvexHull()</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l01267">computeBlockPredicates()</a>, and <a class="el" href="table__clearing__planning_8cpp_source.html#l01891">visualComputeBlockPredicates()</a>.</p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_a64035b4c27d5740afe0312521ad99e00_cgraph.png" border="0" usemap="#classCTableClearingPlanning_a64035b4c27d5740afe0312521ad99e00_cgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_a64035b4c27d5740afe0312521ad99e00_cgraph" id="classCTableClearingPlanning_a64035b4c27d5740afe0312521ad99e00_cgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#a5e2d8a3e5058548340416e06ccae68ba" title="CTableClearingPlanning\l::pcl2FclConvexHull" alt="" coords="216,5,379,46"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_a64035b4c27d5740afe0312521ad99e00_icgraph.png" border="0" usemap="#classCTableClearingPlanning_a64035b4c27d5740afe0312521ad99e00_icgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_a64035b4c27d5740afe0312521ad99e00_icgraph" id="classCTableClearingPlanning_a64035b4c27d5740afe0312521ad99e00_icgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab" title="Get block predicates. " alt="" coords="235,5,410,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#a11169a5b099f3e313e694bea66ceef58" title="Compute the block predicates. " alt="" coords="217,70,429,111"/></map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="a277e8dca767209fba9fc5fc2295bb997"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool CTableClearingPlanning::isEEColliding </td>
+          <td>(</td>
+          <td class="paramtype">uint&#160;</td>
+          <td class="paramname"><em>idx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">fcl::Transform3f&#160;</td>
+          <td class="paramname"><em>tf</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Check if the gripper is colliding with object indexed by "idx". NOTE: this function is used only when you choose a pushing pose parallel to the table plane. The usggested one is the vertical/ortoghonal one. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if there is a collision with object indexed by "idx" </dd></dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00172">172</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l00344">getGripperMesh()</a>, and <a class="el" href="table__clearing__planning_8cpp_source.html#l00467">pcl2FclConvexHull()</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l01267">computeBlockPredicates()</a>, and <a class="el" href="table__clearing__planning_8cpp_source.html#l01891">visualComputeBlockPredicates()</a>.</p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_a277e8dca767209fba9fc5fc2295bb997_cgraph.png" border="0" usemap="#classCTableClearingPlanning_a277e8dca767209fba9fc5fc2295bb997_cgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_a277e8dca767209fba9fc5fc2295bb997_cgraph" id="classCTableClearingPlanning_a277e8dca767209fba9fc5fc2295bb997_cgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#a753785197ed0e925fc09938ce67999b8" title="Get the mesh of the gripper model. " alt="" coords="216,5,379,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#a5e2d8a3e5058548340416e06ccae68ba" title="CTableClearingPlanning\l::pcl2FclConvexHull" alt="" coords="216,70,379,111"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_a277e8dca767209fba9fc5fc2295bb997_icgraph.png" border="0" usemap="#classCTableClearingPlanning_a277e8dca767209fba9fc5fc2295bb997_icgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_a277e8dca767209fba9fc5fc2295bb997_icgraph" id="classCTableClearingPlanning_a277e8dca767209fba9fc5fc2295bb997_icgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab" title="Get block predicates. " alt="" coords="235,5,410,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#a11169a5b099f3e313e694bea66ceef58" title="Compute the block predicates. " alt="" coords="217,70,429,111"/></map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="ada21b564eb35963b353d35c74c99e5bd"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool CTableClearingPlanning::isClosedGripperModelColliding </td>
+          <td>(</td>
+          <td class="paramtype">uint&#160;</td>
+          <td class="paramname"><em>idx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">fcl::Transform3f&#160;</td>
+          <td class="paramname"><em>tf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double &amp;&#160;</td>
+          <td class="paramname"><em>distance</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Collission checking for the case we push in orhtoganl mode</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">idx</td><td>Index of the object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tf</td><td>tf of the gripper </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">distance</td><td>distance to the closest point</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if there is a collision with object indexed by "idx" </dd></dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00219">219</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l00382">getClosedFingersMesh()</a>, and <a class="el" href="table__clearing__planning_8cpp_source.html#l00467">pcl2FclConvexHull()</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l01267">computeBlockPredicates()</a>, and <a class="el" href="table__clearing__planning_8cpp_source.html#l01891">visualComputeBlockPredicates()</a>.</p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_ada21b564eb35963b353d35c74c99e5bd_cgraph.png" border="0" usemap="#classCTableClearingPlanning_ada21b564eb35963b353d35c74c99e5bd_cgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_ada21b564eb35963b353d35c74c99e5bd_cgraph" id="classCTableClearingPlanning_ada21b564eb35963b353d35c74c99e5bd_cgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#ab33adb71b830868abe72174cea4c25fb" title="Get the mesh of the closed gripper model. " alt="" coords="262,5,426,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#a5e2d8a3e5058548340416e06ccae68ba" title="CTableClearingPlanning\l::pcl2FclConvexHull" alt="" coords="263,70,425,111"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_ada21b564eb35963b353d35c74c99e5bd_icgraph.png" border="0" usemap="#classCTableClearingPlanning_ada21b564eb35963b353d35c74c99e5bd_icgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_ada21b564eb35963b353d35c74c99e5bd_icgraph" id="classCTableClearingPlanning_ada21b564eb35963b353d35c74c99e5bd_icgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab" title="Get block predicates. " alt="" coords="281,5,455,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#a11169a5b099f3e313e694bea66ceef58" title="Compute the block predicates. " alt="" coords="262,70,474,111"/></map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="a82b393569673778bfb75842414356796"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool CTableClearingPlanning::isOpenGripperModelColliding </td>
+          <td>(</td>
+          <td class="paramtype">uint&#160;</td>
+          <td class="paramname"><em>idx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">fcl::Transform3f&#160;</td>
+          <td class="paramname"><em>tf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double &amp;&#160;</td>
+          <td class="paramname"><em>distance</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Check if the open gripper model is colliding with other objects</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">idx</td><td>Index of the object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tf</td><td>tf of the gripper </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">distance</td><td>distance to the closest point</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if there is collision, false otherwise </dd></dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00281">281</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l00467">pcl2FclConvexHull()</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l02496">computeBlockGraspPredicates()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l01267">computeBlockPredicates()</a>, and <a class="el" href="table__clearing__planning_8cpp_source.html#l01891">visualComputeBlockPredicates()</a>.</p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_a82b393569673778bfb75842414356796_cgraph.png" border="0" usemap="#classCTableClearingPlanning_a82b393569673778bfb75842414356796_cgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_a82b393569673778bfb75842414356796_cgraph" id="classCTableClearingPlanning_a82b393569673778bfb75842414356796_cgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#a5e2d8a3e5058548340416e06ccae68ba" title="CTableClearingPlanning\l::pcl2FclConvexHull" alt="" coords="253,5,416,46"/></map>
+</div>
+</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_a82b393569673778bfb75842414356796_icgraph.png" border="0" usemap="#classCTableClearingPlanning_a82b393569673778bfb75842414356796_icgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_a82b393569673778bfb75842414356796_icgraph" id="classCTableClearingPlanning_a82b393569673778bfb75842414356796_icgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#aeb5f4c71bbef307c46ecac87eb32a9f9" title="Get block grasp predicates. " alt="" coords="255,5,465,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab" title="Get block predicates. " alt="" coords="273,70,447,111"/><area shape="rect" id="node4" href="classCTableClearingPlanning.html#a11169a5b099f3e313e694bea66ceef58" title="Compute the block predicates. " alt="" coords="254,135,466,177"/></map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="a753785197ed0e925fc09938ce67999b8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">CTableClearingPlanning::FclMesh</a> CTableClearingPlanning::getGripperMesh </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>[long description] </p>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">FclMesh</a> containing the vertices and the triangles </dd></dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00344">344</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="classCTableClearingPlanning.html#a5c767c09c82a80470496655763319075">ee_simple_model</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l00172">isEEColliding()</a>.</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_a753785197ed0e925fc09938ce67999b8_icgraph.png" border="0" usemap="#classCTableClearingPlanning_a753785197ed0e925fc09938ce67999b8_icgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_a753785197ed0e925fc09938ce67999b8_icgraph" id="classCTableClearingPlanning_a753785197ed0e925fc09938ce67999b8_icgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#a277e8dca767209fba9fc5fc2295bb997" title="Check if the gripper is colliding with object indexed by &quot;idx&quot;. " alt="" coords="216,38,379,79"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab" title="Get block predicates. " alt="" coords="446,5,621,46"/><area shape="rect" id="node4" href="classCTableClearingPlanning.html#a11169a5b099f3e313e694bea66ceef58" title="Compute the block predicates. " alt="" coords="427,70,639,111"/></map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="ab33adb71b830868abe72174cea4c25fb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">CTableClearingPlanning::FclMesh</a> CTableClearingPlanning::getClosedFingersMesh </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>[long description] </p>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">FclMesh</a> containing the vertices and the triangles </dd></dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00382">382</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00220">CTableClearingPlanning::GripperModel::closed_cloud</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l00219">isClosedGripperModelColliding()</a>.</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_ab33adb71b830868abe72174cea4c25fb_icgraph.png" border="0" usemap="#classCTableClearingPlanning_ab33adb71b830868abe72174cea4c25fb_icgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_ab33adb71b830868abe72174cea4c25fb_icgraph" id="classCTableClearingPlanning_ab33adb71b830868abe72174cea4c25fb_icgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#ada21b564eb35963b353d35c74c99e5bd" title="CTableClearingPlanning\l::isClosedGripperModelColliding" alt="" coords="219,38,427,79"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab" title="Get block predicates. " alt="" coords="494,5,669,46"/><area shape="rect" id="node4" href="classCTableClearingPlanning.html#a11169a5b099f3e313e694bea66ceef58" title="Compute the block predicates. " alt="" coords="475,70,687,111"/></map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="a54669b8c29e1fbddf6440e25516e736a"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::Vector3f CTableClearingPlanning::pointT2vector3f </td>
+          <td>(</td>
+          <td class="paramtype">PointT&#160;</td>
+          <td class="paramname"><em>point</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">point</td><td>point to convert</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>point in Eigen::Vector3f format </dd></dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00457">457</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l01157">computeProjectionsOnTable()</a>.</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_a54669b8c29e1fbddf6440e25516e736a_icgraph.png" border="0" usemap="#classCTableClearingPlanning_a54669b8c29e1fbddf6440e25516e736a_icgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_a54669b8c29e1fbddf6440e25516e736a_icgraph" id="classCTableClearingPlanning_a54669b8c29e1fbddf6440e25516e736a_icgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#a255fac249cb27a932582509731da5fcb" title="Compute the projections of the objects onto the table plane. " alt="" coords="216,5,411,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab" title="Get block predicates. " alt="" coords="459,5,634,46"/></map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="a5e2d8a3e5058548340416e06ccae68ba"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">CTableClearingPlanning::FclMesh</a> CTableClearingPlanning::pcl2FclConvexHull </td>
+          <td>(</td>
+          <td class="paramtype">uint&#160;</td>
+          <td class="paramname"><em>idx</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Convert the convex hull of the object with index "idx" from pcl to fcl format</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">idx</td><td>index of the convex hull to convert </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>struct which contains the vertices and triangle for the fcl format </dd></dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00467">467</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00238">convex_hull_objects</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l00047">areObjectCollidingFcl()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l00219">isClosedGripperModelColliding()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l00172">isEEColliding()</a>, and <a class="el" href="table__clearing__planning_8cpp_source.html#l00281">isOpenGripperModelColliding()</a>.</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_a5e2d8a3e5058548340416e06ccae68ba_icgraph.png" border="0" usemap="#classCTableClearingPlanning_a5e2d8a3e5058548340416e06ccae68ba_icgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_a5e2d8a3e5058548340416e06ccae68ba_icgraph" id="classCTableClearingPlanning_a5e2d8a3e5058548340416e06ccae68ba_icgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#a64035b4c27d5740afe0312521ad99e00" title="Check with the fcl library yf the transformed object is colliding with another one. " alt="" coords="239,5,401,46"/><area shape="rect" id="node5" href="classCTableClearingPlanning.html#ada21b564eb35963b353d35c74c99e5bd" title="CTableClearingPlanning\l::isClosedGripperModelColliding" alt="" coords="216,70,424,111"/><area shape="rect" id="node6" href="classCTableClearingPlanning.html#a277e8dca767209fba9fc5fc2295bb997" title="Check if the gripper is colliding with object indexed by &quot;idx&quot;. " alt="" coords="239,135,401,177"/><area shape="rect" id="node7" href="classCTableClearingPlanning.html#a82b393569673778bfb75842414356796" title="Check if the open gripper model is colliding with other objects. " alt="" coords="221,201,419,242"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab" title="Get block predicates. " alt="" coords="491,135,666,177"/><area shape="rect" id="node4" href="classCTableClearingPlanning.html#a11169a5b099f3e313e694bea66ceef58" title="Compute the block predicates. " alt="" coords="473,70,685,111"/><area shape="rect" id="node8" href="classCTableClearingPlanning.html#aeb5f4c71bbef307c46ecac87eb32a9f9" title="Get block grasp predicates. " alt="" coords="473,201,684,242"/></map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="a2e0ebdbb9e1533c67bbe620bb352989e"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structCTableClearingPlanning_1_1FclMesh.html">CTableClearingPlanning::FclMesh</a> CTableClearingPlanning::pcl2FclConvexHull </td>
+          <td>(</td>
+          <td class="paramtype">PointCloudT&#160;</td>
+          <td class="paramname"><em>convex_hull_cloud</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; pcl::Vertices &gt;&#160;</td>
+          <td class="paramname"><em>convex_hull_indices</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Convert the convex hull from pcl to fcl format</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">convex_hull_cloud</td><td></td></tr>
+    <tr><td class="paramname">convex_hull_indices</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Fcl mesh </dd></dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00514">514</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a651f65fe5aa785d787a1d421bb8c9632"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CTableClearingPlanning::translate </td>
+          <td>(</td>
+          <td class="paramtype">PointCloudT &amp;&#160;</td>
+          <td class="paramname"><em>cloud1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">PointCloudT &amp;&#160;</td>
+          <td class="paramname"><em>cloud2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Eigen::Vector4f &amp;&#160;</td>
+          <td class="paramname"><em>translation</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cloud1</td><td>{ parameter_description } </td></tr>
+    <tr><td class="paramname">cloud2</td><td>{ parameter_description } </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00552">552</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="acaa746bde69b0ed6ef19e4f51c55a18c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CTableClearingPlanning::computeSurfaceGraspPoint </td>
+          <td>(</td>
+          <td class="paramtype">Eigen::Vector3f &amp;&#160;</td>
+          <td class="paramname"><em>surface_point</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint&#160;</td>
+          <td class="paramname"><em>idx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Get the centroid of the grasping pose as the surface point of the object which projection on the table plane is similar to the centroid.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">surface_point</td><td>surface point </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">idx</td><td>Index of the object </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01038">1038</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00233">objects</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00240">principal_directions_objects</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l00660">computeSimpleHeuristicGraspingPoses()</a>.</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_acaa746bde69b0ed6ef19e4f51c55a18c_icgraph.png" border="0" usemap="#classCTableClearingPlanning_acaa746bde69b0ed6ef19e4f51c55a18c_icgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_acaa746bde69b0ed6ef19e4f51c55a18c_icgraph" id="classCTableClearingPlanning_acaa746bde69b0ed6ef19e4f51c55a18c_icgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#ade7904177738234a20cac9c9abe59da8" title="Compute the grasping pose with a simple heuristic. " alt="" coords="245,5,507,46"/></map>
+</div>
+</p>
+
+</div>
+</div>
+<a class="anchor" id="a90b7b6d076d9d65b8733c30411f16348"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool CTableClearingPlanning::refineSimpleGraspingPose </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structGraspingPose.html">GraspingPose</a> &amp;&#160;</td>
+          <td class="paramname"><em>gp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>translation_step</em> = <code>0.005</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>distance_from_plane</em> = <code>0.01</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Refines the input grasping pose, that is if the gripper central point is further than the plane. It satisfy the following equation </p>
+<div class="fragment"><div class="line">a*x + b*y + c*(z+offset) * d &gt; 0 </div>
+</div><!-- fragment --><p> If such an inequality is true the grasping pose has to be refine, it is translated along its approaching direction by translation_step until that inequalities is no more satisfied. Note the this method doesn't check if after the refining the grasp is still feasible, bu the height of the object should be coherent with the one of the distance from the plane.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">gp</td><td>Input grasping pose </td></tr>
+    <tr><td class="paramname">translation_step</td><td></td></tr>
+    <tr><td class="paramname">distance_from_plane</td><td>minimum distance from the plane, bigger it is further the plane it is.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if there was initially in collision. </dd></dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01067">1067</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00219">CTableClearingPlanning::GripperModel::open_cloud</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00264">plane_coefficients</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l00660">computeSimpleHeuristicGraspingPoses()</a>.</p>
+
+<p><div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_a90b7b6d076d9d65b8733c30411f16348_icgraph.png" border="0" usemap="#classCTableClearingPlanning_a90b7b6d076d9d65b8733c30411f16348_icgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_a90b7b6d076d9d65b8733c30411f16348_icgraph" id="classCTableClearingPlanning_a90b7b6d076d9d65b8733c30411f16348_icgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#ade7904177738234a20cac9c9abe59da8" title="Compute the grasping pose with a simple heuristic. " alt="" coords="237,5,499,46"/></map>
+</div>
+</p>
+
+</div>
+</div>
 <a class="anchor" id="a8ec3fdc39866b18caa9d7b83c2486e76"></a>
 <div class="memitem">
 <div class="memproto">
@@ -352,16 +1277,18 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>getPushingObjectDis
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00634">634</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00738">738</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00202">CTableClearingPlanning::EndEffector::distance_plane</a>, and <a class="el" href="classCTableClearingPlanning.html#a5c767c09c82a80470496655763319075">ee_simple_model</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a2ba375c6463bafd7af9194266190ccbd"></a>
+<a class="anchor" id="a259b85172c8246c3129a0a0616837608"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void CTableClearingPlanning::setFingersModel </td>
+          <td class="memname">void CTableClearingPlanning::setGripperModel </td>
           <td>(</td>
           <td class="paramtype">double&#160;</td>
           <td class="paramname"><em>opening_width</em>, </td>
@@ -405,7 +1332,7 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>getPushingObjectDis
 </div><div class="memdoc">
 <p>Set the fingers model. The origin is located at height/2, deep/2 and (opening_width + finger_width*2)/2</p>
 <div class="image">
-<img src="fingers_model.png" alt="fingers_model.png"/>
+<img src="gripper_model.png" alt="gripper_model.png"/>
 </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -419,7 +1346,9 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>getPushingObjectDis
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00686">686</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00790">790</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00220">CTableClearingPlanning::GripperModel::closed_cloud</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00219">CTableClearingPlanning::GripperModel::open_cloud</a>.</p>
 
 </div>
 </div>
@@ -471,7 +1400,7 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>getPushingObjectDis
 
 </div>
 </div>
-<a class="anchor" id="a2cd87120cf1abe06b96c0611cde50edf"></a>
+<a class="anchor" id="ad118cec422061d0710b672218326db4d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -479,19 +1408,32 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>getPushingObjectDis
           <td class="memname">void CTableClearingPlanning::setObjectsPointCloud </td>
           <td>(</td>
           <td class="paramtype">std::vector&lt; PointCloudT &gt; &amp;&#160;</td>
-          <td class="paramname"><em>objects</em></td><td>)</td>
+          <td class="paramname"><em>objects</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>convert_to_label</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">objects</td><td>vector of point clouds, one per object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">convert_to_label</td><td>true if you want to create a unique point cloud labeled, </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02772">2772</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03042">3042</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00233">objects</a>.</p>
 
 </div>
 </div>
@@ -515,16 +1457,18 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>getPushingObjectDis
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02778">2778</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03067">3067</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00264">plane_coefficients</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00266">plane_normal</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00267">plane_origin</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ad235fde9e142bc1b99081f993014599b"></a>
+<a class="anchor" id="adbcbd9bb2b34204ccd5a0c9817b5c129"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void CTableClearingPlanning::computeAABBObjects </td>
+          <td class="memname">void CTableClearingPlanning::computeOBBObjects </td>
           <td>(</td>
           <td class="paramtype">bool&#160;</td>
           <td class="paramname"><em>refine_centroids</em> = <code>true</code></td><td>)</td>
@@ -539,15 +1483,15 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>getPushingObjectDis
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00502">502</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00606">606</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
-<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l02610">computePrincipalDirections()</a>.</p>
+<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l02880">computePrincipalDirections()</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00187">n_objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00233">objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00266">plane_normal</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00240">principal_directions_objects</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="classCTableClearingPlanning_ad235fde9e142bc1b99081f993014599b_cgraph.png" border="0" usemap="#classCTableClearingPlanning_ad235fde9e142bc1b99081f993014599b_cgraph" alt=""/></div>
-<map name="classCTableClearingPlanning_ad235fde9e142bc1b99081f993014599b_cgraph" id="classCTableClearingPlanning_ad235fde9e142bc1b99081f993014599b_cgraph">
+<div class="center"><img src="classCTableClearingPlanning_adbcbd9bb2b34204ccd5a0c9817b5c129_cgraph.png" border="0" usemap="#classCTableClearingPlanning_adbcbd9bb2b34204ccd5a0c9817b5c129_cgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_adbcbd9bb2b34204ccd5a0c9817b5c129_cgraph" id="classCTableClearingPlanning_adbcbd9bb2b34204ccd5a0c9817b5c129_cgraph">
 <area shape="rect" id="node2" href="classCTableClearingPlanning.html#a29c77f988fa4dd19a4b22f6d0011cc17" title="compute the principal directions of the objects. " alt="" coords="216,5,405,46"/></map>
 </div>
 </p>
@@ -575,7 +1519,18 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00556">556</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l00660">660</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l01038">computeSurfaceGraspPoint()</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00187">n_objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00266">plane_normal</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00240">principal_directions_objects</a>, and <a class="el" href="table__clearing__planning_8cpp_source.html#l01067">refineSimpleGraspingPose()</a>.</p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_ade7904177738234a20cac9c9abe59da8_cgraph.png" border="0" usemap="#classCTableClearingPlanning_ade7904177738234a20cac9c9abe59da8_cgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_ade7904177738234a20cac9c9abe59da8_cgraph" id="classCTableClearingPlanning_ade7904177738234a20cac9c9abe59da8_cgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#acaa746bde69b0ed6ef19e4f51c55a18c" title="Get the centroid of the grasping pose as the surface point of the object which projection on the tabl..." alt="" coords="315,5,506,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#a90b7b6d076d9d65b8733c30411f16348" title="CTableClearingPlanning\l::refineSimpleGraspingPose" alt="" coords="319,70,503,111"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -599,16 +1554,18 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02424">2424</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02694">2694</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
-<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l01163">computeBlockPredicates()</a>.</p>
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00238">convex_hull_objects</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00233">objects</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l01267">computeBlockPredicates()</a>.</p>
 
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classCTableClearingPlanning_a45e234df0a448ba11dd1fda39db6765f_icgraph.png" border="0" usemap="#classCTableClearingPlanning_a45e234df0a448ba11dd1fda39db6765f_icgraph" alt=""/></div>
 <map name="classCTableClearingPlanning_a45e234df0a448ba11dd1fda39db6765f_icgraph" id="classCTableClearingPlanning_a45e234df0a448ba11dd1fda39db6765f_icgraph">
-<area shape="rect" id="node2" href="classCTableClearingPlanning.html#a3e4da8b78c6939cb6514ccb043990910" title="Get block predicates. " alt="" coords="238,5,413,46"/></map>
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab" title="Get block predicates. " alt="" coords="238,5,413,46"/></map>
 </div>
 </p>
 
@@ -652,9 +1609,9 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01091">1091</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01195">1195</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
-<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l01075">computeProjectionsConvexHull()</a>.</p>
+<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l01179">computeProjectionsConvexHull()</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00187">n_objects</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
@@ -680,7 +1637,7 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>If it is not setted a default value will be used. The pushing step is here defined as the maximum times of the aabb dimension to be pushed. (e.g. : If the pushing_step is 1.5 considering to push ht eojbect 1 in direction 1 it is pushed for 1.5 the <a class="el" href="structAABB.html" title="Axis Aligned Bounding Box -&gt; It is actually its OBB (FIX IT!) ">AABB</a> dimension relative to direction 1 (which is the aabb.deep))</p>
+<p>If it is not setted a default value will be used. The pushing step is here defined as the maximum times of the <a class="el" href="structOBB.html" title="Oriented Bounding Box. ">OBB</a> dimension to be pushed. (e.g. : If the pushing_step is 1.5 considering to push ht eojbect 1 in direction 1 it is pushed for 1.5 the <a class="el" href="structOBB.html" title="Oriented Bounding Box. ">OBB</a> dimension relative to direction 1 (which is the <a class="el" href="structOBB.html#ac0a624232cab99f56a2d7ea21ad85e9f" title="x dimension - dir1 or 2 ">OBB.deep</a>))</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">pushing_step</td><td>Desired value for the pushing limit. </td></tr>
@@ -688,7 +1645,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01147">1147</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01251">1251</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -713,7 +1670,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01151">1151</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01255">1255</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -738,7 +1695,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01155">1155</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01259">1259</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -763,11 +1720,13 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01159">1159</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01263">1263</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00185">pushing_object_distance</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a3e4da8b78c6939cb6514ccb043990910"></a>
+<a class="anchor" id="afefe49e8519f85ed1fdecc2fd9b361ab"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -781,7 +1740,19 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint&#160;</td>
-          <td class="paramname"><em>pushing_method</em> = <code>ORTHOGONAL_PUSHING</code>&#160;</td>
+          <td class="paramname"><em>pushing_method</em> = <code>ORTHOGONAL_PUSHING</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>resolution</em> = <code>0.05</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>pushing_limit</em> = <code>0.2</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -790,18 +1761,27 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>This method computes the block predicates for a each object by detecting collision with the other objects, determining also what object collides with the current one, along each principal direction. The length of the push considered in saved in the private memeber </p>
+<p>This method computes the block predicates for a each object by detecting collision with the other objects, determining also what object collides with the current one, along each principal direction. The length of the push considered in saved in the private memeber. THis functions also computes the new grasping poses for a pose in which the object, when it has been pushed, can be grasped (If it is not possible grasping it in any pose until having reached the maxmimum pushing distance [pushing_limit] the returned grasping pose will be the one at the final checked pose).</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">print</td><td>True if you want to print in the terminal the predicates </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pushing_method</td><td>There exist two pushing method: 1) ORTHOGONAL_PUSHING is the one recommended and it referes to put the end effector orthogonal to the plane 2) PARALLEL_PUSHING refers to the end effector approaching direction is parallel to the plane (Not recommended) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">resolution</td><td>It specifies the resolution of checking for the pushing action </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pushing_limit</td><td>It specifies the maximum limit (in meters) the method checks for collision and grasping. N Note that as soon as it finds a pushing length for which the next pose corresponds to a feasible grasp it checks no more for further distances </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01163">1163</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01267">1267</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
-<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00116">ExecutionTimes::average_ee_collision</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00115">ExecutionTimes::average_objects_collision</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00063">PrincipalDirectionsProjected::centroid</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l02610">computePrincipalDirections()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l01053">computeProjectionsOnTable()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l02424">computeRichConvexHulls()</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00062">PrincipalDirectionsProjected::dir4</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00114">ExecutionTimes::ee_collisions</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00113">ExecutionTimes::objects_collisions</a>.</p>
+<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l00047">areObjectCollidingFcl()</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00134">ExecutionTimes::average_ee_collision</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00133">ExecutionTimes::average_objects_collision</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00072">PrincipalDirectionsProjected::centroid</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l02880">computePrincipalDirections()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l01157">computeProjectionsOnTable()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l02694">computeRichConvexHulls()</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00238">convex_hull_objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00071">PrincipalDirectionsProjected::dir4</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00202">CTableClearingPlanning::EndEffector::distance_plane</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00132">ExecutionTimes::ee_collisions</a>, <a class="el" href="classCTableClearingPlanning.html#a5c767c09c82a80470496655763319075">ee_simple_model</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l00219">isClosedGripperModelColliding()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l00172">isEEColliding()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l00281">isOpenGripperModelColliding()</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00187">n_objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00233">objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00131">ExecutionTimes::objects_collisions</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00266">plane_normal</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00267">plane_origin</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00240">principal_directions_objects</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00185">pushing_object_distance</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="classCTableClearingPlanning_a3e4da8b78c6939cb6514ccb043990910_cgraph.png" border="0" usemap="#classCTableClearingPlanning_a3e4da8b78c6939cb6514ccb043990910_cgraph" alt=""/></div>
-<map name="classCTableClearingPlanning_a3e4da8b78c6939cb6514ccb043990910_cgraph" id="classCTableClearingPlanning_a3e4da8b78c6939cb6514ccb043990910_cgraph">
-<area shape="rect" id="node2" href="classCTableClearingPlanning.html#a29c77f988fa4dd19a4b22f6d0011cc17" title="compute the principal directions of the objects. " alt="" coords="232,5,421,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#a255fac249cb27a932582509731da5fcb" title="Compute the projections of the objects onto the table plane. " alt="" coords="229,70,424,111"/><area shape="rect" id="node4" href="classCTableClearingPlanning.html#a45e234df0a448ba11dd1fda39db6765f" title="Compute the convex hull of each object considering also the projections of the convex hulls on the pl..." alt="" coords="235,135,418,177"/></map>
+<div class="center"><img src="classCTableClearingPlanning_afefe49e8519f85ed1fdecc2fd9b361ab_cgraph.png" border="0" usemap="#classCTableClearingPlanning_afefe49e8519f85ed1fdecc2fd9b361ab_cgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_afefe49e8519f85ed1fdecc2fd9b361ab_cgraph" id="classCTableClearingPlanning_afefe49e8519f85ed1fdecc2fd9b361ab_cgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#a64035b4c27d5740afe0312521ad99e00" title="Check with the fcl library yf the transformed object is colliding with another one. " alt="" coords="252,70,415,111"/><area shape="rect" id="node4" href="classCTableClearingPlanning.html#a29c77f988fa4dd19a4b22f6d0011cc17" title="compute the principal directions of the objects. " alt="" coords="239,266,428,307"/><area shape="rect" id="node5" href="classCTableClearingPlanning.html#a255fac249cb27a932582509731da5fcb" title="Compute the projections of the objects onto the table plane. " alt="" coords="236,331,431,373"/><area shape="rect" id="node7" href="classCTableClearingPlanning.html#a45e234df0a448ba11dd1fda39db6765f" title="Compute the convex hull of each object considering also the projections of the convex hulls on the pl..." alt="" coords="242,397,425,438"/><area shape="rect" id="node8" href="classCTableClearingPlanning.html#ada21b564eb35963b353d35c74c99e5bd" title="CTableClearingPlanning\l::isClosedGripperModelColliding" alt="" coords="229,135,437,177"/><area shape="rect" id="node10" href="classCTableClearingPlanning.html#a277e8dca767209fba9fc5fc2295bb997" title="Check if the gripper is colliding with object indexed by &quot;idx&quot;. " alt="" coords="252,201,415,242"/><area shape="rect" id="node12" href="classCTableClearingPlanning.html#a82b393569673778bfb75842414356796" title="Check if the open gripper model is colliding with other objects. " alt="" coords="234,5,433,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#a5e2d8a3e5058548340416e06ccae68ba" title="CTableClearingPlanning\l::pcl2FclConvexHull" alt="" coords="487,70,649,111"/><area shape="rect" id="node6" href="classCTableClearingPlanning.html#a54669b8c29e1fbddf6440e25516e736a" title="Convert from PointT to Eigen::Vector3f. " alt="" coords="487,331,649,373"/><area shape="rect" id="node9" href="classCTableClearingPlanning.html#ab33adb71b830868abe72174cea4c25fb" title="Get the mesh of the closed gripper model. " alt="" coords="486,135,650,177"/><area shape="rect" id="node11" href="classCTableClearingPlanning.html#a753785197ed0e925fc09938ce67999b8" title="Get the mesh of the gripper model. " alt="" coords="487,201,649,242"/></map>
 </div>
 </p>
 
@@ -820,7 +1800,7 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>This method computes the block grasp predicates for each object by detecting collision of the fingers model with the other objects.</p>
+<p>This method computes the block grasp predicates for each object by detecting collision of the open gripper model with the other objects.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">print</td><td>True if you want to print in the terminal the predicates. </td></tr>
@@ -828,7 +1808,18 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02234">2234</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02496">2496</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l00281">isOpenGripperModelColliding()</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00187">n_objects</a>.</p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_aeb5f4c71bbef307c46ecac87eb32a9f9_cgraph.png" border="0" usemap="#classCTableClearingPlanning_aeb5f4c71bbef307c46ecac87eb32a9f9_cgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_aeb5f4c71bbef307c46ecac87eb32a9f9_cgraph" id="classCTableClearingPlanning_aeb5f4c71bbef307c46ecac87eb32a9f9_cgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#a82b393569673778bfb75842414356796" title="Check if the open gripper model is colliding with other objects. " alt="" coords="265,5,463,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#a5e2d8a3e5058548340416e06ccae68ba" title="CTableClearingPlanning\l::pcl2FclConvexHull" alt="" coords="512,5,675,46"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -849,18 +1840,18 @@ Here is the call graph for this function:</div>
 <img src="directions.jpg" alt="directions.jpg"/>
 </div>
  
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02610">2610</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02880">2880</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
-<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00063">PrincipalDirectionsProjected::centroid</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00062">PrincipalDirectionsProjected::dir4</a>.</p>
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00072">PrincipalDirectionsProjected::centroid</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00071">PrincipalDirectionsProjected::dir4</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00233">objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00264">plane_coefficients</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00266">plane_normal</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00240">principal_directions_objects</a>.</p>
 
-<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l00502">computeAABBObjects()</a>, and <a class="el" href="table__clearing__planning_8cpp_source.html#l01163">computeBlockPredicates()</a>.</p>
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l01267">computeBlockPredicates()</a>, and <a class="el" href="table__clearing__planning_8cpp_source.html#l00606">computeOBBObjects()</a>.</p>
 
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classCTableClearingPlanning_a29c77f988fa4dd19a4b22f6d0011cc17_icgraph.png" border="0" usemap="#classCTableClearingPlanning_a29c77f988fa4dd19a4b22f6d0011cc17_icgraph" alt=""/></div>
 <map name="classCTableClearingPlanning_a29c77f988fa4dd19a4b22f6d0011cc17_icgraph" id="classCTableClearingPlanning_a29c77f988fa4dd19a4b22f6d0011cc17_icgraph">
-<area shape="rect" id="node2" href="classCTableClearingPlanning.html#ad235fde9e142bc1b99081f993014599b" title="Compute the Axis Aligned Bounding Box of each object. " alt="" coords="249,5,412,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#a3e4da8b78c6939cb6514ccb043990910" title="Get block predicates. " alt="" coords="243,70,418,111"/></map>
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab" title="Get block predicates. " alt="" coords="243,5,418,46"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#adbcbd9bb2b34204ccd5a0c9817b5c129" title="Compute the Axis Aligned Bounding Box of each object. " alt="" coords="249,70,412,111"/></map>
 </div>
 </p>
 
@@ -887,7 +1878,9 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02694">2694</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02964">2964</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00233">objects</a>.</p>
 
 </div>
 </div>
@@ -912,11 +1905,11 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02706">2706</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02976">2976</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a488108e15bd0ab227f207f9f32a7f795"></a>
+<a class="anchor" id="a11169a5b099f3e313e694bea66ceef58"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -954,7 +1947,19 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint&#160;</td>
-          <td class="paramname"><em>pushing_method</em> = <code>ORTHOGONAL_PUSHING</code>&#160;</td>
+          <td class="paramname"><em>pushing_method</em> = <code>ORTHOGONAL_PUSHING</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>resolution</em> = <code>0.05</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>pushing_limit</em> = <code>0.2</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -974,9 +1979,18 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01699">1699</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l01891">1891</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
-<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00063">PrincipalDirectionsProjected::centroid</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00062">PrincipalDirectionsProjected::dir4</a>.</p>
+<p>References <a class="el" href="table__clearing__planning_8cpp_source.html#l00047">areObjectCollidingFcl()</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00072">PrincipalDirectionsProjected::centroid</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00220">CTableClearingPlanning::GripperModel::closed_cloud</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00238">convex_hull_objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00071">PrincipalDirectionsProjected::dir4</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00202">CTableClearingPlanning::EndEffector::distance_plane</a>, <a class="el" href="classCTableClearingPlanning.html#a5c767c09c82a80470496655763319075">ee_simple_model</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l00219">isClosedGripperModelColliding()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l00172">isEEColliding()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l00281">isOpenGripperModelColliding()</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00187">n_objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00233">objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00219">CTableClearingPlanning::GripperModel::open_cloud</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00266">plane_normal</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00267">plane_origin</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00240">principal_directions_objects</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00185">pushing_object_distance</a>.</p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classCTableClearingPlanning_a11169a5b099f3e313e694bea66ceef58_cgraph.png" border="0" usemap="#classCTableClearingPlanning_a11169a5b099f3e313e694bea66ceef58_cgraph" alt=""/></div>
+<map name="classCTableClearingPlanning_a11169a5b099f3e313e694bea66ceef58_cgraph" id="classCTableClearingPlanning_a11169a5b099f3e313e694bea66ceef58_cgraph">
+<area shape="rect" id="node2" href="classCTableClearingPlanning.html#a64035b4c27d5740afe0312521ad99e00" title="Check with the fcl library yf the transformed object is colliding with another one. " alt="" coords="289,5,452,46"/><area shape="rect" id="node4" href="classCTableClearingPlanning.html#ada21b564eb35963b353d35c74c99e5bd" title="CTableClearingPlanning\l::isClosedGripperModelColliding" alt="" coords="267,135,475,177"/><area shape="rect" id="node6" href="classCTableClearingPlanning.html#a277e8dca767209fba9fc5fc2295bb997" title="Check if the gripper is colliding with object indexed by &quot;idx&quot;. " alt="" coords="289,201,452,242"/><area shape="rect" id="node8" href="classCTableClearingPlanning.html#a82b393569673778bfb75842414356796" title="Check if the open gripper model is colliding with other objects. " alt="" coords="271,70,470,111"/><area shape="rect" id="node3" href="classCTableClearingPlanning.html#a5e2d8a3e5058548340416e06ccae68ba" title="CTableClearingPlanning\l::pcl2FclConvexHull" alt="" coords="524,70,687,111"/><area shape="rect" id="node5" href="classCTableClearingPlanning.html#ab33adb71b830868abe72174cea4c25fb" title="Get the mesh of the closed gripper model. " alt="" coords="523,135,687,177"/><area shape="rect" id="node7" href="classCTableClearingPlanning.html#a753785197ed0e925fc09938ce67999b8" title="Get the mesh of the gripper model. " alt="" coords="524,201,687,242"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -1010,7 +2024,9 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02401">2401</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02666">2666</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00238">convex_hull_objects</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00187">n_objects</a>.</p>
 
 </div>
 </div>
@@ -1044,7 +2060,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02416">2416</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02686">2686</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -1078,9 +2094,11 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02811">2811</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03100">3100</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
-<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l02886">viewerAddPrincipalDirections()</a>.</p>
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00240">principal_directions_objects</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l03180">viewerAddPrincipalDirections()</a>.</p>
 
 <p><div class="dynheader">
 Here is the caller graph for this function:</div>
@@ -1123,7 +2141,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l02968">2968</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03268">3268</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -1148,7 +2166,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03377">3377</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03754">3754</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -1184,7 +2202,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03415">3415</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03792">3792</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -1241,7 +2259,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03445">3445</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03828">3828</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -1277,7 +2295,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03470">3470</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03853">3853</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -1334,7 +2352,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03499">3499</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03882">3882</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -1383,7 +2401,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03116">3116</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03426">3426</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -1408,16 +2426,18 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03140">3140</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03450">3450</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00240">principal_directions_objects</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a5b28ac87de19b744f3d2622a731f2e8a"></a>
+<a class="anchor" id="a5c852946e796648b51f4f3878abbf8d1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void CTableClearingPlanning::viewerShowFingersModel </td>
+          <td class="memname">void CTableClearingPlanning::viewerShowGripperModel </td>
           <td>(</td>
           <td class="paramtype">Visualizer&#160;</td>
           <td class="paramname"><em>viewer</em>, </td>
@@ -1458,16 +2478,18 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03293">3293</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03670">3670</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00219">CTableClearingPlanning::GripperModel::open_cloud</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ae816b2d5a11cc3a038b84634af38d586"></a>
+<a class="anchor" id="a8b0836c5392f3e602859cd2b606b8b35"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void CTableClearingPlanning::viewerShowClosedFingersModel </td>
+          <td class="memname">void CTableClearingPlanning::viewerShowClosedGripperModel </td>
           <td>(</td>
           <td class="paramtype">Visualizer&#160;</td>
           <td class="paramname"><em>viewer</em>, </td>
@@ -1508,7 +2530,54 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03318">3318</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03695">3695</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00220">CTableClearingPlanning::GripperModel::closed_cloud</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a47075848f2caf43836cafabf63728ef4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CTableClearingPlanning::viewerAddPushingGraspingPose </td>
+          <td>(</td>
+          <td class="paramtype">Visualizer&#160;</td>
+          <td class="paramname"><em>viewer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint&#160;</td>
+          <td class="paramname"><em>obj_idx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint&#160;</td>
+          <td class="paramname"><em>dir_idx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Add to the viewer the grasping pose estimated after having pushed the object</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">viewer</td><td></td></tr>
+    <tr><td class="paramname">obj_idx</td><td>index of the obejct </td></tr>
+    <tr><td class="paramname">dir_idx</td><td>index of the direction </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03513">3513</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00219">CTableClearingPlanning::GripperModel::open_cloud</a>.</p>
 
 </div>
 </div>
@@ -1527,7 +2596,27 @@ Here is the caller graph for this function:</div>
 <p>Get the projected principal directions </p>
 <dl class="section return"><dt>Returns</dt><dd>projected principal directions </dd></dl>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03264">3264</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03616">3616</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00240">principal_directions_objects</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a02bddbf767477831d6968502312f7aa7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="structPushingLength.html">PushingLength</a> &gt; CTableClearingPlanning::getPushingLengths </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Return the pushing lengths per each object and per each direction </p>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03644">3644</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
 </div>
 </div>
@@ -1545,7 +2634,9 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>Delete all the data ot the class </p>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03344">3344</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03721">3721</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00239">concave_hull_objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00238">convex_hull_objects</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00233">objects</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00240">principal_directions_objects</a>.</p>
 
 </div>
 </div>
@@ -1563,9 +2654,35 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>Print in the terminal the several execution times. </p>
 
-<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03367">3367</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
+<p>Definition at line <a class="el" href="table__clearing__planning_8cpp_source.html#l03744">3744</a> of file <a class="el" href="table__clearing__planning_8cpp_source.html">table_clearing_planning.cpp</a>.</p>
 
-<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00116">ExecutionTimes::average_ee_collision</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00115">ExecutionTimes::average_objects_collision</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00114">ExecutionTimes::ee_collisions</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00113">ExecutionTimes::objects_collisions</a>.</p>
+<p>References <a class="el" href="table__clearing__planning_8h_source.html#l00134">ExecutionTimes::average_ee_collision</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00133">ExecutionTimes::average_objects_collision</a>, <a class="el" href="table__clearing__planning_8h_source.html#l00132">ExecutionTimes::ee_collisions</a>, and <a class="el" href="table__clearing__planning_8h_source.html#l00131">ExecutionTimes::objects_collisions</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Field Documentation</h2>
+<a class="anchor" id="a27649b4ad8f1126bcd45a1ab77ffa94b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">pcl::ModelCoefficients CTableClearingPlanning::plane_coefficients</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>coefficients of the plane model ax+by+cz+d=0 </p>
+
+<p>Definition at line <a class="el" href="table__clearing__planning_8h_source.html#l00264">264</a> of file <a class="el" href="table__clearing__planning_8h_source.html">table_clearing_planning.h</a>.</p>
+
+<p>Referenced by <a class="el" href="table__clearing__planning_8cpp_source.html#l02880">computePrincipalDirections()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l02766">computePrincipalDirectionsConvexHull()</a>, <a class="el" href="table__clearing__planning_8cpp_source.html#l01067">refineSimpleGraspingPose()</a>, and <a class="el" href="table__clearing__planning_8cpp_source.html#l03067">setPlaneCoefficients()</a>.</p>
 
 </div>
 </div>
@@ -1576,7 +2693,7 @@ Here is the caller graph for this function:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Jun 20 2016 12:43:46 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jul 5 2016 13:03:48 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

@@ -43,18 +43,21 @@
 <div class="textblock"><h1><a class="anchor" id="Introduction"></a>
 Introduction</h1>
 <p>This library computes some simbolic predicates for clearing a table using task planning.</p>
+<p>Several classes and structures are defined. The principal one is <a class="el" href="classCTableClearingPlanning.html" title="This class computes the predicates of the table top objects for the planning part The class needs as ...">CTableClearingPlanning</a>.</p>
+<p>Note that there is another important class (<a class="el" href="classEdgeProcessing.html" title="EdgeProcessing class detects 3D edges (only depth one - rgb ones are ommited) of the objects and fill...">EdgeProcessing</a>), this class allows to estimate the hidden sides with two different methods. It has been implemented for testing purposes, and at the end it is not used, despite this it is still included in the library for completeness.</p>
 <h2><a class="anchor" id="Pre-Requisites"></a>
 Pre-Requisites</h2>
 <p>This package requires of the following libraries and packages</p>
 <ul>
 <li><a href="http://pointclouds.org/">PCL</a>, open project for 2D/3D image and point cloud processing.</li>
 <li><a href="https://github.com/flexible-collision-library/fcl">FCL</a>, Flexible Collision Detection library.</li>
-<li><a href="http://opencv.org/">OpenCV</a>, open source computer vision and machine learning software library (this only for the example).<ul>
+<li><a href="http://opencv.org/">OpenCV</a>, open source computer vision and machine learning software library (this only for the example).</li>
+<li><a href="https://gitlab.iri.upc.edu/perception/tos_supervoxels">tos_supervoxels</a> library. This is a simple library developed at IRI (based on the VCCS and LCCP segmentation algorithm of the PCL library) used only for the segmentation in the example file.<ul>
 <li><a href="http://www.cmake.org">cmake</a>, a cross-platform build system.</li>
 <li><a href="http://www.doxygen.org">doxygen</a> and <a href="http://www.graphviz.org">graphviz</a> to generate the documentation.</li>
 <li>stdc++,</li>
 </ul>
-Under linux all of these utilities are available in ready-to-use packages.</li>
+Under linux all of these utilities are available in ready-to-use packages, except for FCL library you have to compile it from source.</li>
 </ul>
 <p>Under MacOS most of the packages are available via <a href="http://www.finkproject.org/">fink</a>. <br/>
 </p>
@@ -131,7 +134,7 @@ Disclaimer</h1>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Jun 20 2016 12:43:46 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jul 5 2016 13:03:48 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

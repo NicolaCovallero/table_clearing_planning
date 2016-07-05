@@ -46,7 +46,9 @@
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Data Fields</a>  </div>
+<a href="#pub-attribs">Data Fields</a> &#124;
+<a href="#pri-types">Private Types</a> &#124;
+<a href="#pri-attribs">Private Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">EdgeProcessing Class Reference</div>  </div>
 </div><!--header-->
@@ -57,20 +59,25 @@
 
 <p><code>#include &lt;<a class="el" href="edge__processing_8h_source.html">edge_processing.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEdgeProcessing_1_1Edges3D.html">Edges3D</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a37fe79bccfd1052f9ebf5c0f79b608e6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a37fe79bccfd1052f9ebf5c0f79b608e6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setOriginalPointCloud</b> (PointCloudT &amp;cloud)</td></tr>
 <tr class="separator:a37fe79bccfd1052f9ebf5c0f79b608e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b125a8ae5b52bf5b272b5daa53f5117"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6b125a8ae5b52bf5b272b5daa53f5117"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setObjects</b> (std::vector&lt; PointCloudT &gt; &amp;objects)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setObjects</b> (std::vector&lt; PointCloudT &gt; &amp;<a class="el" href="classEdgeProcessing.html#acaaf19c5680fdd8bca5bdd2cfd91a0f5">objects</a>)</td></tr>
 <tr class="separator:a6b125a8ae5b52bf5b272b5daa53f5117"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16877cb4833316828e649369d641c786"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a16877cb4833316828e649369d641c786"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setPlaneCoefficients</b> (pcl::ModelCoefficients &amp;plane_coefficients)</td></tr>
 <tr class="separator:a16877cb4833316828e649369d641c786"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ade859967b16130457bad6cfc767da795"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ade859967b16130457bad6cfc767da795"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setAABBObjects</b> (std::vector&lt; <a class="el" href="structAABB.html">AABB</a> &gt; &amp;aabb_objects)</td></tr>
-<tr class="separator:ade859967b16130457bad6cfc767da795"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac905cc98b4cbed33cd38de95d04ca5bd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac905cc98b4cbed33cd38de95d04ca5bd"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setOBBObjects</b> (std::vector&lt; <a class="el" href="structOBB.html">OBB</a> &gt; &amp;obb_objects)</td></tr>
+<tr class="separator:ac905cc98b4cbed33cd38de95d04ca5bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acf445ca3cfaf0831c4514bc5c4972b99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#acf445ca3cfaf0831c4514bc5c4972b99">assignObjects3DEdges</a> ()</td></tr>
 <tr class="memdesc:acf445ca3cfaf0831c4514bc5c4972b99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign the precomputed 3D edges to each object.  <a href="#acf445ca3cfaf0831c4514bc5c4972b99">More...</a><br/></td></tr>
 <tr class="separator:acf445ca3cfaf0831c4514bc5c4972b99"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -122,6 +129,81 @@ boost::shared_ptr<br class="typebreak"/>
 &lt; pcl::visualization::PCLVisualizer &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#a8720055e928caf1d5d39b6b12db9078b">viewer</a></td></tr>
 <tr class="memdesc:a8720055e928caf1d5d39b6b12db9078b"><td class="mdescLeft">&#160;</td><td class="mdescRight">visualize of the class <br/></td></tr>
 <tr class="separator:a8720055e928caf1d5d39b6b12db9078b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-types"></a>
+Private Types</h2></td></tr>
+<tr class="memitem:a848d49556bff16e40d25114bfdc3468f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a848d49556bff16e40d25114bfdc3468f"></a>
+typedef pcl::PointXYZRGBA&#160;</td><td class="memItemRight" valign="bottom"><b>PointT</b></td></tr>
+<tr class="separator:a848d49556bff16e40d25114bfdc3468f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91b676171fe279a4fec85c227999d8ff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a91b676171fe279a4fec85c227999d8ff"></a>
+typedef pcl::PointCloud&lt; PointT &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>PointCloudT</b></td></tr>
+<tr class="separator:a91b676171fe279a4fec85c227999d8ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adac456a4a60738c57e41dd16a07ed6d3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adac456a4a60738c57e41dd16a07ed6d3"></a>
+typedef pcl::PointCloud<br class="typebreak"/>
+&lt; PointT &gt;::Ptr&#160;</td><td class="memItemRight" valign="bottom"><b>PointCloudTptr</b></td></tr>
+<tr class="separator:adac456a4a60738c57e41dd16a07ed6d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a1ae85968473ccd088e03c18814a809"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3a1ae85968473ccd088e03c18814a809"></a>
+typedef std::vector&lt; uint &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Edges2D</b></td></tr>
+<tr class="separator:a3a1ae85968473ccd088e03c18814a809"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a158efe4b4847705f44742e8a8776c489"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a158efe4b4847705f44742e8a8776c489"></a>
+pcl::PointCloud<br class="typebreak"/>
+&lt; pcl::PointXYZRGBA &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#a158efe4b4847705f44742e8a8776c489">occluding_edges</a></td></tr>
+<tr class="memdesc:a158efe4b4847705f44742e8a8776c489"><td class="mdescLeft">&#160;</td><td class="mdescRight">edges on top of the occluded ones <br/></td></tr>
+<tr class="separator:a158efe4b4847705f44742e8a8776c489"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16b46ec3ed4f8f0d7019107c6b8e29e8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a16b46ec3ed4f8f0d7019107c6b8e29e8"></a>
+pcl::PointCloud<br class="typebreak"/>
+&lt; pcl::PointXYZRGBA &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#a16b46ec3ed4f8f0d7019107c6b8e29e8">occluded_edges</a></td></tr>
+<tr class="memdesc:a16b46ec3ed4f8f0d7019107c6b8e29e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">edges that stands on the table <br/></td></tr>
+<tr class="separator:a16b46ec3ed4f8f0d7019107c6b8e29e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89975565cd7c0485135dd3df60208da0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a89975565cd7c0485135dd3df60208da0"></a>
+pcl::PointCloud<br class="typebreak"/>
+&lt; pcl::PointXYZRGBA &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#a89975565cd7c0485135dd3df60208da0">boundary_edges</a></td></tr>
+<tr class="memdesc:a89975565cd7c0485135dd3df60208da0"><td class="mdescLeft">&#160;</td><td class="mdescRight">don't know, but they are still useful <br/></td></tr>
+<tr class="separator:a89975565cd7c0485135dd3df60208da0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4df60e2b0656083bb76ee474f553a1ab"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4df60e2b0656083bb76ee474f553a1ab"></a>
+pcl::PointCloud<br class="typebreak"/>
+&lt; pcl::PointXYZRGBA &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>high_curvature_edges</b></td></tr>
+<tr class="separator:a4df60e2b0656083bb76ee474f553a1ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33669810e2c942e6409d645a6b02adbc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a33669810e2c942e6409d645a6b02adbc"></a>
+pcl::PointCloud<br class="typebreak"/>
+&lt; pcl::PointXYZRGBA &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>rgb_edges</b></td></tr>
+<tr class="separator:a33669810e2c942e6409d645a6b02adbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fb892838635f16d5810bb628efac946"><td class="memItemLeft" align="right" valign="top">PointCloudT&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#a7fb892838635f16d5810bb628efac946">original_cloud</a></td></tr>
+<tr class="memdesc:a7fb892838635f16d5810bb628efac946"><td class="mdescLeft">&#160;</td><td class="mdescRight">It has to be organized, so the same of the kinect.  <a href="#a7fb892838635f16d5810bb628efac946">More...</a><br/></td></tr>
+<tr class="separator:a7fb892838635f16d5810bb628efac946"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acaaf19c5680fdd8bca5bdd2cfd91a0f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acaaf19c5680fdd8bca5bdd2cfd91a0f5"></a>
+std::vector&lt; PointCloudT &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#acaaf19c5680fdd8bca5bdd2cfd91a0f5">objects</a></td></tr>
+<tr class="memdesc:acaaf19c5680fdd8bca5bdd2cfd91a0f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">vector of objects <br/></td></tr>
+<tr class="separator:acaaf19c5680fdd8bca5bdd2cfd91a0f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9b6f77c06a3f5c1974747100bc8679d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9b6f77c06a3f5c1974747100bc8679d"></a>
+std::vector&lt; PointCloudT &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#af9b6f77c06a3f5c1974747100bc8679d">occluded_sides</a></td></tr>
+<tr class="memdesc:af9b6f77c06a3f5c1974747100bc8679d"><td class="mdescLeft">&#160;</td><td class="mdescRight">vector of occluded sides <br/></td></tr>
+<tr class="separator:af9b6f77c06a3f5c1974747100bc8679d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac48a3aea7aa2fd8c2c57609f92f5d6b0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac48a3aea7aa2fd8c2c57609f92f5d6b0"></a>
+std::vector&lt; <a class="el" href="structOBB.html">OBB</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>obb_objects</b></td></tr>
+<tr class="separator:ac48a3aea7aa2fd8c2c57609f92f5d6b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac140a15b0fe410ccf2e5da02b992c260"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac140a15b0fe410ccf2e5da02b992c260"></a>
+std::vector&lt; <a class="el" href="structEdgeProcessing_1_1Edges3D.html">Edges3D</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#ac140a15b0fe410ccf2e5da02b992c260">objects_edges</a></td></tr>
+<tr class="memdesc:ac140a15b0fe410ccf2e5da02b992c260"><td class="mdescLeft">&#160;</td><td class="mdescRight">vector of edges for each object <br/></td></tr>
+<tr class="separator:ac140a15b0fe410ccf2e5da02b992c260"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a492c99fae7eb268be87ff96a9c343333"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a492c99fae7eb268be87ff96a9c343333"></a>
+std::vector&lt; Edges2D &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#a492c99fae7eb268be87ff96a9c343333">objects_edges_2d</a></td></tr>
+<tr class="memdesc:a492c99fae7eb268be87ff96a9c343333"><td class="mdescLeft">&#160;</td><td class="mdescRight">vector of edges for each object <br/></td></tr>
+<tr class="separator:a492c99fae7eb268be87ff96a9c343333"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac58187b354f66ca0ebc3b6d987b41c8e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac58187b354f66ca0ebc3b6d987b41c8e"></a>
+pcl::ModelCoefficients&#160;</td><td class="memItemRight" valign="bottom"><b>plane_coefficients</b></td></tr>
+<tr class="separator:ac58187b354f66ca0ebc3b6d987b41c8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1dfccdd9d1459f6b52393240553bc89e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1dfccdd9d1459f6b52393240553bc89e"></a>
+Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#a1dfccdd9d1459f6b52393240553bc89e">plane_normal</a></td></tr>
+<tr class="memdesc:a1dfccdd9d1459f6b52393240553bc89e"><td class="mdescLeft">&#160;</td><td class="mdescRight">normals of the plane <br/></td></tr>
+<tr class="separator:a1dfccdd9d1459f6b52393240553bc89e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12ef0a5c24e628ac993837df591d3607"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a12ef0a5c24e628ac993837df591d3607"></a>
+Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEdgeProcessing.html#a12ef0a5c24e628ac993837df591d3607">plane_origin</a></td></tr>
+<tr class="memdesc:a12ef0a5c24e628ac993837df591d3607"><td class="mdescLeft">&#160;</td><td class="mdescRight">an arbitrary point of the plane to act like origin <br/></td></tr>
+<tr class="separator:a12ef0a5c24e628ac993837df591d3607"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This class provides some methods to process the 3D edges, usefull to refill occluded sides or detected on top predicates. For on top predicates the occluded edges on an object are an index that an object is on top of another one. </p>
@@ -314,6 +396,30 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
+<h2 class="groupheader">Field Documentation</h2>
+<a class="anchor" id="a7fb892838635f16d5810bb628efac946"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">PointCloudT EdgeProcessing::original_cloud</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>original point cloud, is the one used also for the segmentation. </p>
+
+<p>Definition at line <a class="el" href="edge__processing_8h_source.html#l00068">68</a> of file <a class="el" href="edge__processing_8h_source.html">edge_processing.h</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>/home/ncovallero/iri-lab/labrobotica/algorithms/table_clearing_planning/trunk/src/<a class="el" href="edge__processing_8h_source.html">edge_processing.h</a></li>
 <li>/home/ncovallero/iri-lab/labrobotica/algorithms/table_clearing_planning/trunk/src/<a class="el" href="edge__processing_8cpp_source.html">edge_processing.cpp</a></li>
@@ -321,7 +427,7 @@ Here is the call graph for this function:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Jun 20 2016 12:43:46 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jul 5 2016 13:03:48 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

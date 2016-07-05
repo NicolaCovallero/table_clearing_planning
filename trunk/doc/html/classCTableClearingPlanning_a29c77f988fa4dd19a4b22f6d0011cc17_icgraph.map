@@ -1,4 +1,4 @@
 <map id="CTableClearingPlanning::computePrincipalDirections" name="CTableClearingPlanning::computePrincipalDirections">
-<area shape="rect" id="node2" href="$classCTableClearingPlanning.html#ad235fde9e142bc1b99081f993014599b" title="Compute the Axis Aligned Bounding Box of each object. " alt="" coords="249,5,412,46"/>
-<area shape="rect" id="node3" href="$classCTableClearingPlanning.html#a3e4da8b78c6939cb6514ccb043990910" title="Get block predicates. " alt="" coords="243,70,418,111"/>
+<area shape="rect" id="node2" href="$classCTableClearingPlanning.html#afefe49e8519f85ed1fdecc2fd9b361ab" title="Get block predicates. " alt="" coords="243,5,418,46"/>
+<area shape="rect" id="node3" href="$classCTableClearingPlanning.html#adbcbd9bb2b34204ccd5a0c9817b5c129" title="Compute the Axis Aligned Bounding Box of each object. " alt="" coords="249,70,412,111"/>
 </map>

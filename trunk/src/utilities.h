@@ -35,11 +35,11 @@
 #include <unistd.h>
 
 /**
- * @brief Axis Aligned Bounding Box -> It is actually its OBB (FIX IT!)
+ * @brief Oriented Bounding Box 
  * @details Used for the objects
  * 
  */
-struct AABB{ 
+struct OBB{ 
   double deep; ///<x dimension - dir1 or 2
   double width; ///< y dimension - dir 3 or 4
   double height; ///< z dimension

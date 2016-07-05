@@ -124,24 +124,24 @@ int main(int argc, char *argv[])
   tcp.setPushingStep(1.0);
   //tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
-  tcp.setGripperSimpleModel(0.08, 0.1, 0.12, 0.025);
+  //tcp.setGripperSimpleModel(0.08, 0.1, 0.12, 0.025);
   double opening_width = 0.08;
   double closing_width = 0.03;
   double finger_width = 0.03;
   double deep = 0.06;  // it hsould be 0.03 but in order to consider the width of the gripper's base
   double height = 0.115;
   double closing_height = 0.045;
-  tcp.setFingersModel(opening_width,closing_width,finger_width,deep,height,closing_height);
+  tcp.setGripperModel(opening_width,closing_width,finger_width,deep,height,closing_height);
 
   tcp.computeProjectionsOnTable();
   tcp.computeRichConvexHulls();
   tcp.computePrincipalDirections();
-  tcp.computeAABBObjects(true);
+  tcp.computeOBBObjects(true);
 
   tcp.computeSimpleHeuristicGraspingPoses(PCA_GRASPING);
   tcp.computeBlockPredicates(true, ORTHOGONAL_PUSHING);
-  tcp.computeOnTopPredicates(true);
-  tcp.computeBlockGraspPredicates(true);
+  //tcp.computeOnTopPredicates(true);
+  //tcp.computeBlockGraspPredicates(true);
   tcp.printExecutionTimes();
 
   //----------- VISUALIZATIONS ----------------------

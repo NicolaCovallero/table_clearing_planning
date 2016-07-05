@@ -3,19 +3,26 @@
   \section Introduction 
   This library computes some simbolic predicates for clearing a table using task planning.
 
+  Several classes and structures are defined. The principal one is CTableClearingPlanning.
+
+  Note that there is another important class (EdgeProcessing), this class allows to 
+  estimate the hidden sides with two different methods. It has been implemented for testing purposes,
+  and at the end it is not used, despite this it is still included in the library for completeness.
+
   \subsection Pre-Requisites
 
   This package requires of the following libraries and packages
    - <A href="http://pointclouds.org/">PCL</A>, open project for 2D/3D image and point cloud processing.
    - <A href="https://github.com/flexible-collision-library/fcl">FCL</A>, Flexible Collision Detection library. 
    - <A href="http://opencv.org/">OpenCV</A>,  open source computer vision and machine learning software library (this only for the example).
+   - <A href="https://gitlab.iri.upc.edu/perception/tos_supervoxels">tos_supervoxels</A> library. This is a simple library developed at IRI (based on the VCCS and LCCP segmentation algorithm of the PCL library) used only for the segmentation in the example file.
 	 - <A href="http://www.cmake.org">cmake</A>, a cross-platform build system.
 	 - <A href="http://www.doxygen.org">doxygen</a> and 
 	   <A href="http://www.graphviz.org">graphviz</a> to generate the documentation.
          - stdc++, 
 	 .
   
-  Under linux all of these utilities are available in ready-to-use packages.
+  Under linux all of these utilities are available in ready-to-use packages, except for FCL library you have to compile it from source.
 
   Under MacOS most of the packages are available via <a href="http://www.finkproject.org/">fink</a>. <br>
 

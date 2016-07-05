@@ -169,7 +169,7 @@ bool CTableClearingPlanning::areObjectCollidingFcl(uint idx_1, fcl::Transform3f 
 //   return false;
 // }
 
-bool CTableClearingPlanning::isEEColliding(uint idx, fcl::Transform3f tf)
+bool CTableClearingPlanning::isEEColliding(uint idx, fcl::Transform3f tf, double& distance)
 {
   FclMesh mesh1,mesh2;
 
@@ -202,21 +202,34 @@ bool CTableClearingPlanning::isEEColliding(uint idx, fcl::Transform3f tf)
 
   fcl::Transform3f pose(R, T);
 
-  bool enable_contact = true;
-  int num_max_contacts = std::numeric_limits<int>::max();
-  // set the collision request structure, here we just use the default setting
-  fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // bool enable_contact = true;
+  // int num_max_contacts = std::numeric_limits<int>::max();
+  // // set the collision request structure, here we just use the default setting
+  // fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // // result will be returned via the collision result structure
+  // fcl::CollisionResult result;
+
+  // int num_contacts = fcl::collide(ee_model1, tf, model2, pose, 
+  //                            request, result);
+
+  // The collision will be performed by checking for the distances
+  // set the distance request structure, here we just use the default setting
+  fcl::DistanceRequest distance_request;
   // result will be returned via the collision result structure
-  fcl::CollisionResult result;
+  fcl::DistanceResult distance_result;
 
-  int num_contacts = fcl::collide(ee_model1, tf, model2, pose, 
-                             request, result);
-  if(num_contacts > 0)
+  // perform distance test
+  fcl::distance(ee_model1, tf, model2, pose, distance_request, distance_result);
+
+  distance = distance_result.min_distance;
+
+  if(distance <= 0)
+  {
     return true;
-
+  }
   return false;
 }
-bool CTableClearingPlanning::isClosedFinderModelColliding(uint idx, fcl::Transform3f tf)
+bool CTableClearingPlanning::isClosedGripperModelColliding(uint idx, fcl::Transform3f tf, double& distance)
 {
   FclMesh mesh1,mesh2;
 
@@ -249,27 +262,40 @@ bool CTableClearingPlanning::isClosedFinderModelColliding(uint idx, fcl::Transfo
 
   fcl::Transform3f pose(R, T);
 
-  bool enable_contact = true;
-  int num_max_contacts = std::numeric_limits<int>::max();
-  // set the collision request structure, here we just use the default setting
-  fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // bool enable_contact = true;
+  // int num_max_contacts = std::numeric_limits<int>::max();
+  // // set the collision request structure, here we just use the default setting
+  // fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // // result will be returned via the collision result structure
+  // fcl::CollisionResult result;
+
+  // int num_contacts = fcl::collide(ee_model1, tf, model2, pose, 
+  //                            request, result);
+
+  // The collision will be performed by checking for the distances
+  // set the distance request structure, here we just use the default setting
+  fcl::DistanceRequest distance_request;
   // result will be returned via the collision result structure
-  fcl::CollisionResult result;
+  fcl::DistanceResult distance_result;
 
-  int num_contacts = fcl::collide(ee_model1, tf, model2, pose, 
-                             request, result);
-  if(num_contacts > 0)
+  // perform distance test
+  fcl::distance(ee_model1, tf, model2, pose, distance_request, distance_result);
+
+  distance = distance_result.min_distance;
+
+  if(distance <= 0)
+  {
     return true;
-
+  }
   return false;
 }
 
 
-bool CTableClearingPlanning::isFingersModelColliding(uint idx, fcl::Transform3f tf)
+bool CTableClearingPlanning::isOpenGripperModelColliding(uint idx, fcl::Transform3f tf, double& distance)
 {
   FclMesh mesh1,mesh2;
 
-  mesh1 = this->getFingersModelMesh();
+  mesh1 = this->getGripperModelMesh();
   mesh2 = this->pcl2FclConvexHull(idx);
 
   // BVHModel is a template class for mesh geometry, for default OBBRSS template is used
@@ -298,18 +324,32 @@ bool CTableClearingPlanning::isFingersModelColliding(uint idx, fcl::Transform3f 
 
   fcl::Transform3f pose(R, T);
 
-  bool enable_contact = true;
-  int num_max_contacts = std::numeric_limits<int>::max();
-  // set the collision request structure, here we just use the default setting
-  fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // bool enable_contact = true;
+  // int num_max_contacts = std::numeric_limits<int>::max();
+  // // set the collision request structure, here we just use the default setting
+  // fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // // result will be returned via the collision result structure
+  // fcl::CollisionResult result;
+
+  // int num_contacts = fcl::collide(finger_model, tf, model2, pose, 
+  //                            request, result);
+
+
+  // The collision will be performed by checking for the distances
+  // set the distance request structure, here we just use the default setting
+  fcl::DistanceRequest distance_request;
   // result will be returned via the collision result structure
-  fcl::CollisionResult result;
+  fcl::DistanceResult distance_result;
 
-  int num_contacts = fcl::collide(finger_model, tf, model2, pose, 
-                             request, result);
-  if(num_contacts > 0)
+  // perform distance test
+  fcl::distance(finger_model, tf, model2, pose, distance_request, distance_result);
+
+  distance = distance_result.min_distance;
+
+  if(distance <= 0)
+  {
     return true;
-
+  }
   return false;
 }
 
@@ -360,7 +400,7 @@ CTableClearingPlanning::getClosedFingersMesh()
   fcl_mesh.triangles.resize(0);
 
   // check for correct input
-  if(this->fingers_model.closed_cloud.points.size() == 0 )
+  if(this->gripper_model.closed_cloud.points.size() == 0 )
   {
     PCL_ERROR("Gripper Model not set\n");
     return fcl_mesh;
@@ -368,21 +408,21 @@ CTableClearingPlanning::getClosedFingersMesh()
 
   // ----------------- fill vertices ----------------------------
   // for each vertex of the convex hull
-  for (uint i = 0; i < this->fingers_model.closed_cloud.points.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.closed_cloud.points.size(); ++i)
   {
-    fcl::Vec3f vec_tmp(this->fingers_model.closed_cloud.points[i].x,
-                       this->fingers_model.closed_cloud.points[i].y,
-                       this->fingers_model.closed_cloud.points[i].z);
+    fcl::Vec3f vec_tmp(this->gripper_model.closed_cloud.points[i].x,
+                       this->gripper_model.closed_cloud.points[i].y,
+                       this->gripper_model.closed_cloud.points[i].z);
     fcl_mesh.vertices.push_back(vec_tmp);
   }
 
   // ----------------- fill triangles ---------------------------
-  for (uint i = 0; i < this->fingers_model.closed_vertices.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.closed_vertices.size(); ++i)
   {
 
-    fcl::Triangle triangle_tmp(this->fingers_model.closed_vertices[i].vertices[0],
-                               this->fingers_model.closed_vertices[i].vertices[1],
-                               this->fingers_model.closed_vertices[i].vertices[2]);
+    fcl::Triangle triangle_tmp(this->gripper_model.closed_vertices[i].vertices[0],
+                               this->gripper_model.closed_vertices[i].vertices[1],
+                               this->gripper_model.closed_vertices[i].vertices[2]);
     fcl_mesh.triangles.push_back(triangle_tmp);
   }
 
@@ -390,7 +430,7 @@ CTableClearingPlanning::getClosedFingersMesh()
 }
 
 CTableClearingPlanning::FclMesh
-CTableClearingPlanning::getFingersModelMesh()
+CTableClearingPlanning::getGripperModelMesh()
 {
   FclMesh fcl_mesh;
   // initialize the struct
@@ -398,7 +438,7 @@ CTableClearingPlanning::getFingersModelMesh()
   fcl_mesh.triangles.resize(0);
 
   // check for correct input
-  if(this->fingers_model.open_cloud.points.size() == 0 )
+  if(this->gripper_model.open_cloud.points.size() == 0 )
   {
     PCL_ERROR("Fingers Model not set\n");
     return fcl_mesh;
@@ -406,21 +446,21 @@ CTableClearingPlanning::getFingersModelMesh()
 
   // ----------------- fill vertices ----------------------------
   // for each vertex of the convex hull
-  for (uint i = 0; i < this->fingers_model.open_cloud.points.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.open_cloud.points.size(); ++i)
   {
-    fcl::Vec3f vec_tmp(this->fingers_model.open_cloud.points[i].x,
-                       this->fingers_model.open_cloud.points[i].y,
-                       this->fingers_model.open_cloud.points[i].z);
+    fcl::Vec3f vec_tmp(this->gripper_model.open_cloud.points[i].x,
+                       this->gripper_model.open_cloud.points[i].y,
+                       this->gripper_model.open_cloud.points[i].z);
     fcl_mesh.vertices.push_back(vec_tmp);
   }
 
   // ----------------- fill triangles ---------------------------
-  for (uint i = 0; i < this->fingers_model.open_vertices.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.open_vertices.size(); ++i)
   {
 
-    fcl::Triangle triangle_tmp(this->fingers_model.open_vertices[i].vertices[0],
-                               this->fingers_model.open_vertices[i].vertices[1],
-                               this->fingers_model.open_vertices[i].vertices[2]);
+    fcl::Triangle triangle_tmp(this->gripper_model.open_vertices[i].vertices[0],
+                               this->gripper_model.open_vertices[i].vertices[1],
+                               this->gripper_model.open_vertices[i].vertices[2]);
     fcl_mesh.triangles.push_back(triangle_tmp);
   }
 
@@ -576,12 +616,12 @@ void CTableClearingPlanning::eigen2FclRotation(Eigen::Matrix3f eig_rot, fcl::Mat
   rot(2,2) = eig_rot(2,2);
 }
 
-void CTableClearingPlanning::computeAABBObjects(bool refine_centroids)
+void CTableClearingPlanning::computeOBBObjects(bool refine_centroids)
 {
   if(this->principal_directions_objects.size() == 0)
     this->computePrincipalDirections();
 
-  this->aabb_objects.resize(this->n_objects);
+  this->obb_objects.resize(this->n_objects);
   for (uint i = 0; i < n_objects; ++i)
   {
     PrincipalDirectionsProjected* pd = &(principal_directions_objects[i]);
@@ -609,9 +649,9 @@ void CTableClearingPlanning::computeAABBObjects(bool refine_centroids)
     pd->dir1_limit= (max_pt.x - min_pt.x);
     pd->dir3_limit= (max_pt.y - min_pt.y);
 
-    this->aabb_objects[i].deep = (max_pt.x - min_pt.x);
-    this->aabb_objects[i].width = (max_pt.y - min_pt.y);
-    this->aabb_objects[i].height = (max_pt.z - min_pt.z);
+    this->obb_objects[i].deep = (max_pt.x - min_pt.x);
+    this->obb_objects[i].width = (max_pt.y - min_pt.y);
+    this->obb_objects[i].height = (max_pt.z - min_pt.z);
 
     if(refine_centroids)
     {
@@ -760,7 +800,7 @@ void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, d
   this->ee_simple_model.distance_plane = distance_plane;
 }
 
-void CTableClearingPlanning::setFingersModel (double opening_width, double closing_width, double finger_width,
+void CTableClearingPlanning::setGripperModel (double opening_width, double closing_width, double finger_width,
                double deep, double height, double closing_height)
 {
   if(height <= closing_height)
@@ -769,54 +809,54 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
     return;
   }
 
-  this->fingers_model.opening_width = opening_width;
-  this->fingers_model.closing_width = closing_width;
-  this->fingers_model.finger_width = finger_width;
-  this->fingers_model.deep = deep;
-  this->fingers_model.height = height;
-  this->fingers_model.closing_height = closing_height;
+  this->gripper_model.opening_width = opening_width;
+  this->gripper_model.closing_width = closing_width;
+  this->gripper_model.finger_width = finger_width;
+  this->gripper_model.deep = deep;
+  this->gripper_model.height = height;
+  this->gripper_model.closing_height = closing_height;
   
   // creating the cloud
   pcl::PointXYZ p;
   p.x = - opening_width/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
 
   p.x = - (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
 
   p.x = - (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);  
+  this->gripper_model.open_cloud.points.push_back(p);  
 
   p.x = (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
 
   p.x = (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
 
   p.x = (opening_width)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
 
   p.x = (opening_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);  
+  this->gripper_model.open_cloud.points.push_back(p);  
 
   p.x = - (opening_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);  
+  this->gripper_model.open_cloud.points.push_back(p);  
 
   // make the z axis pointing down
   Eigen::Vector3f translation(0,0,0);
@@ -826,7 +866,7 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
   mat_rot(2,0) = 0;mat_rot(2,1) = 0;mat_rot(2,2) = -1;
   Eigen::Matrix3f rot = mat_rot.inverse();
   Eigen::Quaternionf quat(rot);
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, this->fingers_model.open_cloud, translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, this->gripper_model.open_cloud, translation , quat);
 
   //manually polygonal mesh reconstruction
   pcl::Vertices v;
@@ -834,128 +874,128 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
 
   //front side
   v.vertices[0] = 1;v.vertices[1] = 3;v.vertices[2] = 5;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 1;v.vertices[1] = 5;v.vertices[2] = 15;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 5;v.vertices[1] = 7;v.vertices[2] = 15;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 15;v.vertices[1] = 7;v.vertices[2] = 13;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 11;v.vertices[1] = 7;v.vertices[2] = 13;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 7;v.vertices[1] = 9;v.vertices[2] = 11;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
 
   //back side
   v.vertices[0] = 0;v.vertices[1] = 2;v.vertices[2] = 4;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 0;v.vertices[1] = 4;v.vertices[2] = 14;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 4;v.vertices[1] = 6;v.vertices[2] = 14;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 14;v.vertices[1] = 6;v.vertices[2] = 12;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 10;v.vertices[1] = 6;v.vertices[2] = 12;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 6;v.vertices[1] = 8;v.vertices[2] = 10;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
 
   v.vertices[0] = 0;v.vertices[1] = 1;v.vertices[2] = 2;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 3;v.vertices[1] = 1;v.vertices[2] = 2;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
 
   v.vertices[0] = 8;v.vertices[1] = 9;v.vertices[2] = 10;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 11;v.vertices[1] = 9;v.vertices[2] = 10;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
 
   v.vertices[0] = 2;v.vertices[1] = 3;v.vertices[2] = 4;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 5;v.vertices[1] = 3;v.vertices[2] = 4;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
   v.vertices[0] = 8;v.vertices[1] = 7;v.vertices[2] = 6;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 8;v.vertices[1] = 9;v.vertices[2] = 7;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
   //top "roof"
   v.vertices[0] = 4;v.vertices[1] = 5;v.vertices[2] = 6;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 5;v.vertices[1] = 6;v.vertices[2] = 7;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
   //bottom "roof"
   v.vertices[0] = 14;v.vertices[1] = 15;v.vertices[2] = 12;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 12;v.vertices[1] = 15;v.vertices[2] = 13;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
   //internal sides
   v.vertices[0] = 0;v.vertices[1] = 1;v.vertices[2] = 14;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 15;v.vertices[1] = 1;v.vertices[2] = 14;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
   v.vertices[0] = 10;v.vertices[1] = 11;v.vertices[2] = 12;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 13;v.vertices[1] = 11;v.vertices[2] = 12;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
   // creating the cloud
   p.x = - closing_width/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
 
   p.x = - (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
 
   p.x = - (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);  
+  this->gripper_model.closed_cloud.points.push_back(p);  
 
   p.x = (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
 
   p.x = (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
 
   p.x = (closing_width)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
 
   p.x = (closing_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);  
+  this->gripper_model.closed_cloud.points.push_back(p);  
 
   p.x = - (closing_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);  
+  this->gripper_model.closed_cloud.points.push_back(p);  
 
   // make the z axis pointing down
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.closed_cloud, this->fingers_model.closed_cloud, translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.closed_cloud, this->gripper_model.closed_cloud, translation , quat);
 
 
   //manually polygonal mesh reconstruction
-  this->fingers_model.closed_vertices = this->fingers_model.open_vertices;
+  this->gripper_model.closed_vertices = this->gripper_model.open_vertices;
 
   //shift both them up in order to make the origin being the fingers contact point
   Eigen::Vector3f translation2(0,0,- closing_height/2);
   Eigen::Quaternionf orientation = Eigen::Quaternionf::Identity ();
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, this->fingers_model.open_cloud, translation2 , orientation);
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.closed_cloud, this->fingers_model.closed_cloud, translation2 , orientation);
+  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, this->gripper_model.open_cloud, translation2 , orientation);
+  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.closed_cloud, this->gripper_model.closed_cloud, translation2 , orientation);
 
   
   
@@ -1034,7 +1074,7 @@ void CTableClearingPlanning::computeSurfaceGraspPoint(Eigen::Vector3f& surface_p
   // translate the contact point in order to make the center of the gripper concide with it
   PrincipalDirectionsProjected* pd = &(this->principal_directions_objects[idx]);
   Eigen::Vector3f new_axis = pd->dir3.cross(pd->dir2); 
-  surface_point = surface_point + new_axis * this->fingers_model.closing_height/2;
+  surface_point = surface_point + new_axis * this->gripper_model.closing_height/2;
 }
 
 bool CTableClearingPlanning::refineSimpleGraspingPose(GraspingPose& gp, double translation_step, double distance_from_plane)
@@ -1057,7 +1097,7 @@ bool CTableClearingPlanning::refineSimpleGraspingPose(GraspingPose& gp, double t
 
     // transforming the fingers model point cloud
     pcl::PointCloud<pcl::PointXYZ> cloud_tmp;
-    pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud_tmp, gp.translation, gp.quaternion);
+    pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud_tmp, gp.translation, gp.quaternion);
 
     // we also want the object to be not too much close to the plane
     // project fingers contact point to the table 
@@ -1413,14 +1453,17 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
         for (uint o = 0; o < this->n_objects; ++o)
         {
           if(o != obj_idx)
-            if(this->isFingersModelColliding(o,grasp_pose))
+          {
+            double distance_;
+            if(this->isOpenGripperModelColliding(o,grasp_pose,distance_))
             {
               if(print)
-                std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped\n";
+                std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped in the new pose\n";
 
               grasp_free = false;
               break;
             }
+          }
         } // end for
 
         //save grasp
@@ -1489,7 +1532,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
         switch(dir_idx)
         {
           case 1 :
-                  step_translation = - this->aabb_objects[obj_idx].deep/2 +
+                  step_translation = - this->obb_objects[obj_idx].deep/2 +
                                      - this->ee_simple_model.deep/2 - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                        new_centroid[0];
@@ -1516,7 +1559,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
                   break;
           case 2 :
-                  step_translation = - this->aabb_objects[obj_idx].deep/2 +
+                  step_translation = - this->obb_objects[obj_idx].deep/2 +
                                      - this->ee_simple_model.deep/2 - pushing_object_distance;           
                   x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
                        new_centroid[0];
@@ -1543,7 +1586,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
                   break; 
           case 3 :
-                  step_translation = - this->aabb_objects[obj_idx].width/2 +
+                  step_translation = - this->obb_objects[obj_idx].width/2 +
                                      - this->ee_simple_model.deep/2 - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
                        new_centroid[0];
@@ -1570,7 +1613,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
                   break; 
           case 4 :
-                  step_translation = - this->aabb_objects[obj_idx].width/2 +
+                  step_translation = - this->obb_objects[obj_idx].width/2 +
                                      - this->ee_simple_model.deep/2 - pushing_object_distance; 
                   x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
                        new_centroid[0];
@@ -1607,17 +1650,17 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
         pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
 
         Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
-                           (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height);        
+                           (this->obb_objects[obj_idx].height - this->gripper_model.closing_height);        
         
         switch(dir_idx)
         {
           case 1 :
-                  // step_translation = - this->aabb_objects[obj_idx].deep/2 
-                  //                    - this->fingers_model.finger_width/2
+                  // step_translation = - this->obb_objects[obj_idx].deep/2 
+                  //                    - this->gripper_model.finger_width/2
                   //                    - pushing_object_distance;
-                  step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                     - (this->fingers_model.finger_width/2 + 
-                                        this->fingers_model.closing_width/2)
+                  step_translation = - this->obb_objects[obj_idx].deep/2 
+                                     - (this->gripper_model.finger_width/2 + 
+                                        this->gripper_model.closing_width/2)
                                      - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                        new_centroid[0];
@@ -1647,14 +1690,14 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
                   break;
           case 2 :
-                  // step_translation = - this->aabb_objects[obj_idx].deep/2 
-                  //                    - this->fingers_model.finger_width/2
+                  // step_translation = - this->obb_objects[obj_idx].deep/2 
+                  //                    - this->gripper_model.finger_width/2
                   //                    - pushing_object_distance;
 
                   // we want to push in it in the smallest gripper side
-                  step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                     - (this->fingers_model.finger_width/2 + 
-                                        this->fingers_model.closing_width/2)/2
+                  step_translation = - this->obb_objects[obj_idx].deep/2 
+                                     - (this->gripper_model.finger_width/2 + 
+                                        this->gripper_model.closing_width/2)/2
                                      - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
                        new_centroid[0];
@@ -1684,8 +1727,8 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
                   break; 
           case 3 :
-                  step_translation = - this->aabb_objects[obj_idx].width/2 
-                                     - this->fingers_model.deep/2
+                  step_translation = - this->obb_objects[obj_idx].width/2 
+                                     - this->gripper_model.deep/2
                                      - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
                        new_centroid[0];
@@ -1711,8 +1754,8 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
                   break; 
           case 4 :
-                  step_translation = - this->aabb_objects[obj_idx].width/2 
-                                     - this->fingers_model.deep/2
+                  step_translation = - this->obb_objects[obj_idx].width/2 
+                                     - this->gripper_model.deep/2
                                      - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
                        new_centroid[0];
@@ -1758,37 +1801,45 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
         {
           // is gripper colliding?
           bool collision;
+          double distance_;
           switch(pushing_method)
           {
             case ORTHOGONAL_PUSHING:
-              collision = this->isClosedFinderModelColliding(i,pose_ee);
+              collision = this->isClosedGripperModelColliding(i,pose_ee,distance_);
               break;
             case PARALLEL_PUSHING:
-              collision = this->isEEColliding(i,pose_ee);
+              collision = this->isEEColliding(i,pose_ee, distance_);
               break;
             default:
               break;
           }
-          if(collision)
+        
+          //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
+          switch(dir_idx)
           {
-            //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
-            switch(dir_idx)
-            {
-              case 1 :            
+            case 1 :            
+                    this->pushing_poses[obj_idx].dist_dir1 = distance_;
+                    if(collision)
                       this->blocks_predicates[obj_idx].block_dir1.push_back(i);
-                      break;
-              case 2 :
+                    break;
+            case 2 :
+                    this->pushing_poses[obj_idx].dist_dir2 = distance_;
+                    if(collision)
                       this->blocks_predicates[obj_idx].block_dir2.push_back(i);
-                      break; 
-              case 3 :
+                    break; 
+            case 3 :
+                    this->pushing_poses[obj_idx].dist_dir3 = distance_;
+                    if(collision)
                       this->blocks_predicates[obj_idx].block_dir3.push_back(i);
-                      break; 
-              case 4 :
+                    break; 
+            case 4 :
+                    this->pushing_poses[obj_idx].dist_dir4 = distance_;
+                    if(collision)
                       this->blocks_predicates[obj_idx].block_dir4.push_back(i);
-                      break; 
-              default: break;
-            }
+                    break; 
+            default: break;
           }
+        
         }
       }
       this->executionTimes.ee_collisions += (double)(util::GetTimeMs64() - t_init_ee_collision);
@@ -1974,9 +2025,9 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
       pcl::PointCloud<pcl::PointXYZ> ee_convex_hull_translated;
       Eigen::Quaternionf quat_ee(gp_tmp.rotation);
-      pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, ee_convex_hull_translated, gp_tmp.translation , quat_ee);
+      pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, ee_convex_hull_translated, gp_tmp.translation , quat_ee);
       std::string grasp_mesh_idx = "grasp_" + convert.str();
-      viewer->addPolygonMesh<pcl::PointXYZ>(ee_convex_hull_translated.makeShared(), this->fingers_model.open_vertices, grasp_mesh_idx);
+      viewer->addPolygonMesh<pcl::PointXYZ>(ee_convex_hull_translated.makeShared(), this->gripper_model.open_vertices, grasp_mesh_idx);
 
     }
 
@@ -2023,7 +2074,9 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     for (uint o = 0; o < this->n_objects; ++o)
     {
       if(o != obj_idx)
-        if(this->isFingersModelColliding(o,grasp_pose))
+      {
+        double distance_;
+        if(this->isOpenGripperModelColliding(o,grasp_pose,distance_))
         {
           if(print)
             std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped\n";
@@ -2031,6 +2084,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
           grasp_free = false;
           break;
         }
+      }
     } // end for
     if(grasp_free) // if the grasp is collision free
     {
@@ -2084,7 +2138,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     switch(dir_idx)
     {
       case 1 :
-              step_translation = - this->aabb_objects[obj_idx].deep/2 +
+              step_translation = - this->obb_objects[obj_idx].deep/2 +
                                  - this->ee_simple_model.deep/2 - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                    new_centroid[0];
@@ -2111,7 +2165,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
               break;
       case 2 :
-              step_translation = - this->aabb_objects[obj_idx].deep/2 +
+              step_translation = - this->obb_objects[obj_idx].deep/2 +
                                  - this->ee_simple_model.deep/2 - pushing_object_distance;           
               x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
                    new_centroid[0];
@@ -2138,7 +2192,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
               break; 
       case 3 :
-              step_translation = - this->aabb_objects[obj_idx].width/2 +
+              step_translation = - this->obb_objects[obj_idx].width/2 +
                                  - this->ee_simple_model.deep/2 - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
                    new_centroid[0];
@@ -2165,7 +2219,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
               break; 
       case 4 :
-              step_translation = - this->aabb_objects[obj_idx].width/2 +
+              step_translation = - this->obb_objects[obj_idx].width/2 +
                                  - this->ee_simple_model.deep/2 - pushing_object_distance; 
               x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
                    new_centroid[0];
@@ -2202,17 +2256,17 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
 
     Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
-                       (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height);        
+                       (this->obb_objects[obj_idx].height - this->gripper_model.closing_height);        
     
     switch(dir_idx)
     {
       case 1 :
-              // step_translation = - this->aabb_objects[obj_idx].deep/2 
-              //                    - this->fingers_model.finger_width/2
+              // step_translation = - this->obb_objects[obj_idx].deep/2 
+              //                    - this->gripper_model.finger_width/2
               //                    - pushing_object_distance;
-              step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                 - (this->fingers_model.finger_width/2 + 
-                                    this->fingers_model.closing_width/2)/2
+              step_translation = - this->obb_objects[obj_idx].deep/2 
+                                 - (this->gripper_model.finger_width/2 + 
+                                    this->gripper_model.closing_width/2)/2
                                  - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                    new_centroid[0];
@@ -2242,14 +2296,14 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
               break;
       case 2 :
-              // step_translation = - this->aabb_objects[obj_idx].deep/2 
-              //                    - this->fingers_model.finger_width/2
+              // step_translation = - this->obb_objects[obj_idx].deep/2 
+              //                    - this->gripper_model.finger_width/2
               //                    - pushing_object_distance;
 
               // we want to push in it in the smallest gripper side
-              step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                 - (this->fingers_model.finger_width/2 + 
-                                    this->fingers_model.closing_width/2)/2
+              step_translation = - this->obb_objects[obj_idx].deep/2 
+                                 - (this->gripper_model.finger_width/2 + 
+                                    this->gripper_model.closing_width/2)/2
                                  - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
                    new_centroid[0];
@@ -2279,8 +2333,8 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
               break; 
       case 3 :
-              step_translation = - this->aabb_objects[obj_idx].width/2 
-                                 - this->fingers_model.deep/2
+              step_translation = - this->obb_objects[obj_idx].width/2 
+                                 - this->gripper_model.deep/2
                                  - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
                    new_centroid[0];
@@ -2306,8 +2360,8 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
               break; 
       case 4 :
-              step_translation = - this->aabb_objects[obj_idx].width/2 
-                                 - this->fingers_model.deep/2
+              step_translation = - this->obb_objects[obj_idx].width/2 
+                                 - this->gripper_model.deep/2
                                  - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
                    new_centroid[0];
@@ -2354,8 +2408,8 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     switch(pushing_method)
     {
       case ORTHOGONAL_PUSHING:
-        pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.closed_cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
-        viewer->addPolygonMesh<pcl::PointXYZ>(ee_translated.makeShared(), this->fingers_model.closed_vertices,"ee");
+        pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.closed_cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
+        viewer->addPolygonMesh<pcl::PointXYZ>(ee_translated.makeShared(), this->gripper_model.closed_vertices,"ee");
         break;
       case PARALLEL_PUSHING:
         pcl::transformPointCloud<pcl::PointXYZ>(this->ee_simple_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
@@ -2373,36 +2427,41 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     {
       // is gripper colliding?
       bool collision;
+      double distance_;
       switch(pushing_method)
       {
         case ORTHOGONAL_PUSHING:
-          collision = this->isClosedFinderModelColliding(i,pose_ee);
+          collision = this->isClosedGripperModelColliding(i,pose_ee,distance_);
           break;
         case PARALLEL_PUSHING:
-          collision = this->isEEColliding(i,pose_ee);
+          collision = this->isEEColliding(i,pose_ee,distance_);
           break;
         default:
           break;
       }
-      if(collision)
+      switch(dir_idx)
       {
-        //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
-        switch(dir_idx)
-        {
-          case 1 :            
+        case 1 :            
+                this->pushing_poses[obj_idx].dist_dir1 = distance_;
+                if(collision)
                   this->blocks_predicates[obj_idx].block_dir1.push_back(i);
-                  break;
-          case 2 :
+                break;
+        case 2 :
+                this->pushing_poses[obj_idx].dist_dir2 = distance_;
+                if(collision)
                   this->blocks_predicates[obj_idx].block_dir2.push_back(i);
-                  break; 
-          case 3 :
+                break; 
+        case 3 :
+                this->pushing_poses[obj_idx].dist_dir3 = distance_;
+                if(collision)
                   this->blocks_predicates[obj_idx].block_dir3.push_back(i);
-                  break; 
-          case 4 :
+                break; 
+        case 4 :
+                this->pushing_poses[obj_idx].dist_dir4 = distance_;
+                if(collision)
                   this->blocks_predicates[obj_idx].block_dir4.push_back(i);
-                  break; 
-          default: break;
-        }
+                break; 
+        default: break;
       }
     }
   }
@@ -2484,12 +2543,15 @@ void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
     for (uint o = 0; o < this->n_objects; ++o)
     {
       if(i != o)
-        if(this->isFingersModelColliding(o,grasp_pose))
+      {
+        double distance_;
+        if(this->isOpenGripperModelColliding(o,grasp_pose,distance_))
         {
           this->block_grasp_predicates[i].push_back(o);
           if(print)
             std::cout << "Object " << o << " blocks object " << i << " to be grasped\n";
         }
+      }
     }
   }
   util::uint64 t_end_block_grasp_predicates = util::GetTimeMs64();
@@ -3001,12 +3063,30 @@ void CTableClearingPlanning::buildFullObjectsCloud(std::vector<PointCloudT>& occ
 
 }
 
-void CTableClearingPlanning::setObjectsPointCloud(std::vector<PointCloudT> &objects)
+void CTableClearingPlanning::setObjectsPointCloud(std::vector<PointCloudT> &objects, bool convert_to_label)
 {
   this->objects = objects;
   this->n_objects = objects.size();
   this->pushing_lengths.resize(this->n_objects);
   this->blocks_predicates.resize(this->n_objects);
+
+  if(convert_to_label)
+  {
+    this->objects_labeled_cloud.points.resize(0);
+    uint counter = 0;
+    for (std::vector<PointCloudT>::iterator i = objects.begin(); i != objects.end(); ++i, ++counter)
+    {
+        for (std::vector<PointT, Eigen::aligned_allocator< PointT> >::iterator p = i->points.begin(); p != i->points.end(); ++p)
+        {
+          pcl::PointXYZL tmp_point;
+          tmp_point.x = p->x;
+          tmp_point.y = p->y;
+          tmp_point.z = p->z;
+          tmp_point.label = counter;
+          this->objects_labeled_cloud.points.push_back(tmp_point);
+        }
+    }
+  }
 }
 void CTableClearingPlanning::setPlaneCoefficients(pcl::ModelCoefficients &plane_coefficients)
 {
@@ -3450,9 +3530,9 @@ void CTableClearingPlanning::viewerAddGraspingPose(Visualizer viewer,uint idx)
   pcl::PointCloud<pcl::PointXYZ> cloud;
   Eigen::Quaternionf quat(this->grasping_poses[idx].rotation);
   // Eigen::Quaternionf quat = Eigen::Quaternionf::Identity ();
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud, this->grasping_poses[idx].translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->grasping_poses[idx].translation , quat);
 
-  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->fingers_model.open_vertices, grasp_name );  
+  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
 }
 void CTableClearingPlanning::viewerAddPushingGraspingPose(Visualizer viewer, uint obj_idx, uint dir_idx)
 {
@@ -3482,17 +3562,17 @@ void CTableClearingPlanning::viewerAddPushingGraspingPose(Visualizer viewer, uin
   pcl::PointCloud<pcl::PointXYZ> cloud;
   Eigen::Quaternionf quat(this->grasping_poses[obj_idx].rotation);
   switch(dir_idx){
-    case 1 :  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir1.translation , quat);
+    case 1 :  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir1.translation , quat);
               break;
-    case 2 :  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir2.translation , quat);
+    case 2 :  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir2.translation , quat);
               break;
-    case 3 :  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir3.translation , quat);
+    case 3 :  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir3.translation , quat);
               break;
-    case 4 :  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir4.translation , quat);
+    case 4 :  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir4.translation , quat);
               break;
   }
 
-  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->fingers_model.open_vertices, grasp_name );  
+  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
   
 }
 
@@ -3512,9 +3592,9 @@ void CTableClearingPlanning::viewerAddApproachingPose(Visualizer viewer, uint id
 
   pcl::PointCloud<pcl::PointXYZ> cloud;
   Eigen::Quaternionf quat(this->approaching_poses[idx].rotation);
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud, this->approaching_poses[idx].translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->approaching_poses[idx].translation , quat);
 
-  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->fingers_model.open_vertices, grasp_name );  
+  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
 }
 void CTableClearingPlanning::viewerAddGraspingPoses(Visualizer viewer)
 {
@@ -3541,9 +3621,9 @@ CTableClearingPlanning::getFullObjects()
   return this->objects_full;
 }
 
-std::vector<AABB> CTableClearingPlanning::getAABBObjects()
+std::vector<OBB> CTableClearingPlanning::getOBBObjects()
 {
-  return this->aabb_objects;
+  return this->obb_objects;
 }
 std::vector<BlocksPredicate> CTableClearingPlanning::getBlockPredicates()
 {
@@ -3611,19 +3691,19 @@ std::vector<PushingGraspingPose> CTableClearingPlanning::getPushingGraspingPoses
   return pushing_grasping_poses;  
 }
 
-void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer,double r,double g,double b)
+void CTableClearingPlanning::viewerShowGripperModel(Visualizer viewer,double r,double g,double b)
 {
   viewer->addCoordinateSystem (0.3);
 
   // plot the mesh colored by a color
   // create a new point cloud
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-  for (uint i = 0; i < this->fingers_model.open_cloud.points.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.open_cloud.points.size(); ++i)
   {
     pcl::PointXYZRGB p;
-    p.x = this->fingers_model.open_cloud.points[i].x;
-    p.y = this->fingers_model.open_cloud.points[i].y;
-    p.z = this->fingers_model.open_cloud.points[i].z;
+    p.x = this->gripper_model.open_cloud.points[i].x;
+    p.y = this->gripper_model.open_cloud.points[i].y;
+    p.z = this->gripper_model.open_cloud.points[i].z;
     p.r = r;
     p.g = g;
     p.b = b;
@@ -3631,24 +3711,24 @@ void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer,double r,d
   }
 
   viewer->addPointCloud(cloud,"open fingers model"); 
-  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud, this->fingers_model.open_vertices);  
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud, this->gripper_model.open_vertices);  
 
-  // viewer->addPointCloud(this->fingers_model.open_cloud.makeShared(),"fingers model"); 
-  // viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.open_cloud.makeShared(), this->fingers_model.open_vertices );  
+  // viewer->addPointCloud(this->gripper_model.open_cloud.makeShared(),"fingers model"); 
+  // viewer->addPolygonMesh<pcl::PointXYZ>(this->gripper_model.open_cloud.makeShared(), this->gripper_model.open_vertices );  
 }
-void CTableClearingPlanning::viewerShowClosedFingersModel(Visualizer viewer,double r,double g,double b)
+void CTableClearingPlanning::viewerShowClosedGripperModel(Visualizer viewer,double r,double g,double b)
 {
   viewer->addCoordinateSystem (0.3);
 
   // plot the mesh colored by a color
   // create a new point cloud
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-  for (uint i = 0; i < this->fingers_model.closed_cloud.points.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.closed_cloud.points.size(); ++i)
   {
     pcl::PointXYZRGB p;
-    p.x = this->fingers_model.closed_cloud.points[i].x;
-    p.y = this->fingers_model.closed_cloud.points[i].y;
-    p.z = this->fingers_model.closed_cloud.points[i].z;
+    p.x = this->gripper_model.closed_cloud.points[i].x;
+    p.y = this->gripper_model.closed_cloud.points[i].y;
+    p.z = this->gripper_model.closed_cloud.points[i].z;
     p.r = r;
     p.g = g;
     p.b = b;
@@ -3656,10 +3736,10 @@ void CTableClearingPlanning::viewerShowClosedFingersModel(Visualizer viewer,doub
   }
 
   viewer->addPointCloud(cloud,"closed fingers model"); 
-  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud, this->fingers_model.closed_vertices);  
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud, this->gripper_model.closed_vertices);  
 
-  // viewer->addPointCloud(this->fingers_model.closed_cloud.makeShared(),"closed fingers model");
-  // viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.closed_cloud.makeShared(), this->fingers_model.closed_vertices );   
+  // viewer->addPointCloud(this->gripper_model.closed_cloud.makeShared(),"closed fingers model");
+  // viewer->addPolygonMesh<pcl::PointXYZ>(this->gripper_model.closed_cloud.makeShared(), this->gripper_model.closed_vertices );   
 }
 
 void CTableClearingPlanning::reset()
@@ -3675,7 +3755,7 @@ void CTableClearingPlanning::reset()
   this->principal_directions_objects.resize(0);
   this->original_principal_directions_objects.resize(0);
   this->convex_hull_vertices.resize(0);
-  this->aabb_objects.resize(0);
+  this->obb_objects.resize(0);
   this->grasping_poses.resize(0);
   this->concave_hull_projections.resize(0);
   this->concave_hull_vertices_projections.resize(0);

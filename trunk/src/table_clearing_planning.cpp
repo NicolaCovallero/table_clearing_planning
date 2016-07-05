@@ -1295,6 +1295,15 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
   this->blocks_predicates.resize(this->n_objects);
   this->pushing_poses.resize(this->n_objects);
+  // initialize
+  for (std::vector<PushingPose>::iterator i = this->pushing_poses.begin(); i != this->pushing_poses.end(); ++i)
+  {
+    i->dist_dir1 = 1000;
+    i->dist_dir2 = 1000;
+    i->dist_dir3 = 1000;
+    i->dist_dir4 = 1000;
+  }
+
   if(this->convex_hull_objects.size() == 0)
   {
       this->computeProjectionsOnTable();
@@ -1818,22 +1827,26 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
           switch(dir_idx)
           {
             case 1 :            
-                    this->pushing_poses[obj_idx].dist_dir1 = distance_;
+                    if(distance_ < this->pushing_poses[obj_idx].dist_dir1 )
+                      this->pushing_poses[obj_idx].dist_dir1 = distance_;
                     if(collision)
                       this->blocks_predicates[obj_idx].block_dir1.push_back(i);
                     break;
             case 2 :
-                    this->pushing_poses[obj_idx].dist_dir2 = distance_;
+                    if(distance_ < this->pushing_poses[obj_idx].dist_dir2 )
+                      this->pushing_poses[obj_idx].dist_dir2 = distance_;
                     if(collision)
                       this->blocks_predicates[obj_idx].block_dir2.push_back(i);
                     break; 
             case 3 :
-                    this->pushing_poses[obj_idx].dist_dir3 = distance_;
+                    if(distance_ < this->pushing_poses[obj_idx].dist_dir3 )
+                      this->pushing_poses[obj_idx].dist_dir3 = distance_;
                     if(collision)
                       this->blocks_predicates[obj_idx].block_dir3.push_back(i);
                     break; 
             case 4 :
-                    this->pushing_poses[obj_idx].dist_dir4 = distance_;
+                    if(distance_ < this->pushing_poses[obj_idx].dist_dir4 )
+                      this->pushing_poses[obj_idx].dist_dir4 = distance_;
                     if(collision)
                       this->blocks_predicates[obj_idx].block_dir4.push_back(i);
                     break; 
@@ -1937,6 +1950,16 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   
   this->pushing_limit = pushing_limit;
   double step_translation = 0;
+
+  // initialize
+  this->pushing_poses.resize(this->n_objects);
+  for (std::vector<PushingPose>::iterator i = this->pushing_poses.begin(); i != this->pushing_poses.end(); ++i)
+  {
+    i->dist_dir1 = 1000;
+    i->dist_dir2 = 1000;
+    i->dist_dir3 = 1000;
+    i->dist_dir4 = 1000;
+  }
 
   GraspingPose gp_tmp; // temporary grasping pose
 
@@ -2442,22 +2465,26 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
       switch(dir_idx)
       {
         case 1 :            
-                this->pushing_poses[obj_idx].dist_dir1 = distance_;
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir1)
+                  this->pushing_poses[obj_idx].dist_dir1 = distance_;
                 if(collision)
                   this->blocks_predicates[obj_idx].block_dir1.push_back(i);
                 break;
         case 2 :
-                this->pushing_poses[obj_idx].dist_dir2 = distance_;
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir2)
+                  this->pushing_poses[obj_idx].dist_dir2 = distance_;
                 if(collision)
                   this->blocks_predicates[obj_idx].block_dir2.push_back(i);
                 break; 
         case 3 :
-                this->pushing_poses[obj_idx].dist_dir3 = distance_;
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir3)
+                  this->pushing_poses[obj_idx].dist_dir3 = distance_;
                 if(collision)
                   this->blocks_predicates[obj_idx].block_dir3.push_back(i);
                 break; 
         case 4 :
-                this->pushing_poses[obj_idx].dist_dir4 = distance_;
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir4)
+                  this->pushing_poses[obj_idx].dist_dir4 = distance_;
                 if(collision)
                   this->blocks_predicates[obj_idx].block_dir4.push_back(i);
                 break; 

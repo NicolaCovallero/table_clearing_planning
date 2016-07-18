@@ -503,6 +503,13 @@ class CTableClearingPlanning
     void testTranslation(uint idx);
 
     /**
+     * @brief Function to test the distance of FCL for two simple mesh models
+     * @details You should see the code to understand how this work. There is a model of a simple
+     * pyramid, and a transformation defined in order to check that the distance is correct. 
+     */
+    void testFclDistance();
+
+    /**
      * @brief Compute the Axis Aligned Bounding Box of each object
      * 
      * @param refine_centroids True if you want to refine the centroid by computing the mean of the bounding box

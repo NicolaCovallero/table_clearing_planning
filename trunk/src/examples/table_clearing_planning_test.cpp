@@ -174,19 +174,26 @@ int main(int argc, char *argv[])
   // tcp.viewerAddFullObjectsClouds(viewer);
 
   //tcp.viewerAddObjectsClouds(viewer);
-  for (uint i = 0; i < segmented_objs.size(); ++i)
-  {
-   tcp.viewerAddConvexHulls(viewer,i);  
-  }
+  
+  // for (uint i = 0; i < segmented_objs.size(); ++i)
+  // {
+  //  tcp.viewerAddConvexHulls(viewer,i);  
+  // }
+  tcp.viewerAddConvexHulls(viewer,0);  
+  tcp.viewerAddConvexHulls(viewer,1);  
+
   //tcp.viewerAddConvexHulls(viewer,1);  
   //tcp.viewerAddConvexHulls(viewer,5);  
   //tcp.viewerAddConvexHulls(viewer,4);  
   
   
-  tcp.viewerAddPushingGraspingPose(viewer,2,1);
-  tcp.viewerAddPushingGraspingPose(viewer,2,2);
-  tcp.viewerAddPushingGraspingPose(viewer,2,3);
-  tcp.viewerAddPushingGraspingPose(viewer,2,4);
+  // tcp.viewerAddPushingGraspingPose(viewer,2,1);
+  // tcp.viewerAddPushingGraspingPose(viewer,2,2);
+  // tcp.viewerAddPushingGraspingPose(viewer,2,3);
+  // tcp.viewerAddPushingGraspingPose(viewer,2,4);
+
+
+  tcp.testFclDistance();
 
   while (!viewer->wasStopped() && !exit_)
     viewer->spinOnce (100);

@@ -1047,6 +1047,79 @@ void CTableClearingPlanning::testTranslation(uint idx)
   translation[2] = 0.1*principal_directions_objects[idx].dir1[2];
   this->translate(this->convex_hull_objects[idx],this->convex_hull_objects[idx],translation);
 }
+void CTableClearingPlanning::testFclDistance()
+{
+  // set mesh triangles and vertice indices
+  std::vector<fcl::Vec3f> vertices;
+  std::vector<fcl::Triangle> triangles;
+
+  // code to set the vertices and triangles
+  // set just a simple shape, 1 triangle
+  fcl::Vec3f vec_tmp1(0,0,0);
+  vertices.push_back(vec_tmp1);
+  fcl::Vec3f vec_tmp2(0,0,1);
+  vertices.push_back(vec_tmp2);
+  fcl::Vec3f vec_tmp3(0,1,0);
+  vertices.push_back(vec_tmp3);
+  fcl::Vec3f vec_tmp4(0.5,0.5,0);
+  vertices.push_back(vec_tmp4);
+
+  fcl::Triangle triangle_tmp(0,1,2);
+  triangles.push_back(triangle_tmp);
+  fcl::Triangle triangle_tmp2(0,1,3);
+  triangles.push_back(triangle_tmp2);
+  fcl::Triangle triangle_tmp3(0,2,3);
+  triangles.push_back(triangle_tmp3);
+  fcl::Triangle triangle_tmp4(1,2,3);
+  triangles.push_back(triangle_tmp4);
+
+  // BVHModel is a template class for mesh geometry, for default OBBRSS template is used
+  typedef fcl::BVHModel<fcl::OBBRSS> Model;
+  Model* model = new Model();
+  //fcl::BVHModel<fcl::BV>* model = new Model();
+  // add the mesh data into the BVHModel structure
+  
+  model->beginModel();
+  model->addSubModel(vertices, triangles);
+  model->endModel();
+
+  // identity matrix -> no rotation
+  fcl::Matrix3f R(1,0,0,
+                  0,1,0,
+                  0,0,1);
+  fcl::Vec3f T(0,0,0); // no translation
+
+  fcl::Matrix3f R2(1,0,0,
+                  0,1,0,
+                  0,0,1);
+  fcl::Vec3f T2(0.25,0.751,0); // no translation
+
+  fcl::Transform3f pose(R, T);
+  fcl::Transform3f pose2(R2, T2);
+  
+
+  // The collision will be performed by checking for the distances
+  // set the distance request structure, here we just use the default setting
+  fcl::DistanceRequest distance_request;
+  // result will be returned via the collision result structure
+  fcl::DistanceResult distance_result;
+
+  // perform distance test
+  fcl::distance(model, pose, model, pose2, distance_request, distance_result);
+
+  double distance = distance_result.min_distance;
+
+  if(distance <= 0)
+  {
+    PCL_ERROR("FCL::COLLISION DETCTED\n");
+    std::cout << "The distance is: " << distance << std::endl;
+  }
+  else
+  {
+   std::cout << "NO COLLISION, The distance is: " << distance << std::endl; 
+  }
+  
+}
 
 void CTableClearingPlanning::computeSurfaceGraspPoint(Eigen::Vector3f& surface_point, uint idx)
 {

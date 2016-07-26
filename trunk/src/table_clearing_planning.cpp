@@ -1614,7 +1614,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
         switch(dir_idx)
         {
           case 1 :
-                  step_translation = - this->obb_objects[obj_idx].deep/2 +
+                  step_translation = - this->obb_objects[obj_idx].deep/2 \
                                      - this->ee_simple_model.deep/2 - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                        new_centroid[0];
@@ -1741,9 +1741,9 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
                   //                    - this->gripper_model.finger_width/2
                   //                    - pushing_object_distance;
                   step_translation = - this->obb_objects[obj_idx].deep/2 
-                                     - (this->gripper_model.finger_width/2 + 
-                                        this->gripper_model.closing_width/2)
-                                     - pushing_object_distance;
+                                 - (this->gripper_model.finger_width + 
+                                    this->gripper_model.closing_width/2)
+                                 - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                        new_centroid[0];
                   y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
@@ -1778,9 +1778,9 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
                   // we want to push in it in the smallest gripper side
                   step_translation = - this->obb_objects[obj_idx].deep/2 
-                                     - (this->gripper_model.finger_width/2 + 
-                                        this->gripper_model.closing_width/2)/2
-                                     - pushing_object_distance;
+                                 - (this->gripper_model.finger_width + 
+                                    this->gripper_model.closing_width/2)
+                                 - pushing_object_distance;
                   x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
                        new_centroid[0];
                   y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
@@ -2361,8 +2361,8 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               //                    - this->gripper_model.finger_width/2
               //                    - pushing_object_distance;
               step_translation = - this->obb_objects[obj_idx].deep/2 
-                                 - (this->gripper_model.finger_width/2 + 
-                                    this->gripper_model.closing_width/2)/2
+                                 - (this->gripper_model.finger_width + 
+                                    this->gripper_model.closing_width/2)
                                  - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
                    new_centroid[0];
@@ -2398,8 +2398,8 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
               // we want to push in it in the smallest gripper side
               step_translation = - this->obb_objects[obj_idx].deep/2 
-                                 - (this->gripper_model.finger_width/2 + 
-                                    this->gripper_model.closing_width/2)/2
+                                 - (this->gripper_model.finger_width + 
+                                    this->gripper_model.closing_width/2)
                                  - pushing_object_distance;
               x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
                    new_centroid[0];

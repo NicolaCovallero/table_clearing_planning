@@ -175,12 +175,12 @@ int main(int argc, char *argv[])
 
   //tcp.viewerAddObjectsClouds(viewer);
   
-  // for (uint i = 0; i < segmented_objs.size(); ++i)
-  // {
-  //  tcp.viewerAddConvexHulls(viewer,i);  
-  // }
-  tcp.viewerAddConvexHulls(viewer,0);  
-  tcp.viewerAddConvexHulls(viewer,1);  
+  for (uint i = 0; i < segmented_objs.size(); ++i)
+  {
+   tcp.viewerAddConvexHulls(viewer,i);  
+  }
+  // tcp.viewerAddConvexHulls(viewer,0);  
+  // tcp.viewerAddConvexHulls(viewer,1);  
 
   //tcp.viewerAddConvexHulls(viewer,1);  
   //tcp.viewerAddConvexHulls(viewer,5);  
@@ -192,8 +192,8 @@ int main(int argc, char *argv[])
   // tcp.viewerAddPushingGraspingPose(viewer,2,3);
   // tcp.viewerAddPushingGraspingPose(viewer,2,4);
 
-
-  tcp.testFclDistance();
+  tcp.printPushingLengths();
+  // tcp.testFclDistance();
 
   while (!viewer->wasStopped() && !exit_)
     viewer->spinOnce (100);

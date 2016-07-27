@@ -642,9 +642,11 @@ class CTableClearingPlanning
      * @param[in] pushing_limit It specifies the maximum limit (in meters) the method checks for collision and grasping. 
      * N          Note that as soon as it finds a pushing length for which the next pose corresponds to a feasible grasp it checks 
      *            no more for further distances         
+     * @param[in] minimum_distance Minimum distance from the closest object to consider to future grasp a feasible one.         
      *                   
      */
-    void computeBlockPredicates(bool print=false, uint pushing_method = ORTHOGONAL_PUSHING, double resolution = 0.05, double pushing_limit = 0.2);
+    void computeBlockPredicates(  bool print=false, uint pushing_method = ORTHOGONAL_PUSHING, 
+                                  double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02);
 
     /**
      * @brief Get block grasp predicates
@@ -652,8 +654,9 @@ class CTableClearingPlanning
      *          collision of the open gripper model with the other objects.
      * 
      * @param print True if you want to print in the terminal the predicates.
+     * @param minimum_grasping_distance Minimum distance to the closest object to consider the grasp as collision free
      */
-    void computeBlockGraspPredicates(bool print=false);
+    void computeBlockGraspPredicates(bool print=false, double minimum_grasping_distance = 0.02 );
 
 
     void testFcl();
@@ -717,7 +720,7 @@ class CTableClearingPlanning
      */
     void visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,bool visualization = true,
                                       bool print = true, uint pushing_method = ORTHOGONAL_PUSHING,
-                                      double resolution = 0.05, double pushing_limit = 0.2);
+                                      double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02 );
 
 
     /**

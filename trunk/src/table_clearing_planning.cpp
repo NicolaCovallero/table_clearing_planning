@@ -1350,7 +1350,7 @@ void CTableClearingPlanning::setPushingObjectDistance(double pushing_object_dist
 {
   this->pushing_object_distance = pushing_object_distance;
 }
-void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_method, double resolution, double pushing_limit)
+void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_method, double resolution, double pushing_limit, double minimum_distance)
 { 
   pushing_lengths.resize(this->n_objects);
   pushing_grasping_poses.resize(this->n_objects);
@@ -1543,6 +1543,8 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
                 std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped in the new pose\n";
 
               grasp_free = false;
+              exit_while = false;
+
               break;
             }
           }
@@ -1996,7 +1998,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
 void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,
                                                           bool visualization, bool print, uint pushing_method,
-                                                          double resolution, double pushing_limit)
+                                                          double resolution, double pushing_limit, double minimum_distance)
 { 
   fcl::Vec3f T;
   double x,y,z;
@@ -2036,7 +2038,8 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
   GraspingPose gp_tmp; // temporary grasping pose
 
-  while(step_translation < this->pushing_limit )
+  bool exit_while = false;
+  while(step_translation < this->pushing_limit and not exit_while)
   {
     switch(dir_idx)
     {
@@ -2175,10 +2178,18 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
         if(this->isOpenGripperModelColliding(o,grasp_pose,distance_))
         {
           if(print)
-            std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped\n";
+            std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped in the new pose\n";
 
           grasp_free = false;
+          exit_while = false;
+
           break;
+        }
+
+        if(distance_ < minimum_distance)
+        {
+          grasp_free = false;
+          exit_while = false;
         }
       }
     } // end for
@@ -2203,8 +2214,10 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
       //exit from the while loop. We do not need to check for more translations
       break;
+
+      exit_while = true;
     }
-    
+
     n++;
   }
 
@@ -2566,6 +2579,8 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     }
   }
 
+  
+
   //remove duplicates 
   std::vector<uint>* vec;
   switch(dir_idx)
@@ -2617,7 +2632,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
 }  
 
-void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
+void CTableClearingPlanning::computeBlockGraspPredicates(bool print, double minimum_grasping_distance)
 {
   util::uint64 t_init_block_grasp_predicates = util::GetTimeMs64();
 
@@ -2646,6 +2661,12 @@ void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
       {
         double distance_;
         if(this->isOpenGripperModelColliding(o,grasp_pose,distance_))
+        {
+          this->block_grasp_predicates[i].push_back(o);
+          if(print)
+            std::cout << "Object " << o << " blocks object " << i << " to be grasped\n";
+        }
+        else if (distance_ < minimum_grasping_distance)
         {
           this->block_grasp_predicates[i].push_back(o);
           if(print)

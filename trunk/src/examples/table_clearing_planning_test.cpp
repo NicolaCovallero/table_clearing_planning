@@ -38,7 +38,7 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
       viewer->removeAllShapes();
       tcp.viewerAddOriginalPrincipalDirections(viewer,obj_idx);
       tcp.cleanPolygonalMesh(viewer);
-      tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx);
+      tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,true,ORTHOGONAL_PUSHING,0.01,0.2,0.04);
 
 
       if(dir_idx == 4)

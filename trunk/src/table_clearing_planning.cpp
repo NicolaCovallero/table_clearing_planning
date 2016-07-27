@@ -7,6 +7,7 @@ CTableClearingPlanning::CTableClearingPlanning()
   this->pushing_object_distance = PUSHING_OBJECT_DISTANCE; //5 cm
   this->approaching_distance = APPROACHING_DISTANCE; // 10 cm 
   this->distance_from_plane_grasping_poses = DISTANCE_FROM_PLANE_GRASPING_POSES; // 1cm
+
   return;
 }
 
@@ -18,6 +19,15 @@ CTableClearingPlanning::CTableClearingPlanning(std::vector<PointCloudT> &objects
   this->pushing_object_distance = PUSHING_OBJECT_DISTANCE; //5 cm
   this->approaching_distance = APPROACHING_DISTANCE; // 10 cm 
   this->distance_from_plane_grasping_poses = DISTANCE_FROM_PLANE_GRASPING_POSES; // 1cm
+
+  this->pushing_poses.resize(this->n_objects);
+  for (std::vector<PushingPose>::iterator i = this->pushing_poses.begin(); i != this->pushing_poses.end(); ++i)
+  {
+    i->dist_dir1 = 1000;
+    i->dist_dir2 = 1000;
+    i->dist_dir3 = 1000;
+    i->dist_dir4 = 1000;
+  }
 
   return;
 } 
@@ -1537,14 +1547,14 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
           if(o != obj_idx)
           {
             double distance_;
-            if(this->isOpenGripperModelColliding(o,grasp_pose,distance_))
-            {
+            bool collision_ = this->isOpenGripperModelColliding(o,grasp_pose,distance_);
+            if (distance_ < minimum_distance)
+            { 
               if(print)
                 std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped in the new pose\n";
 
               grasp_free = false;
               exit_while = false;
-
               break;
             }
           }
@@ -1881,13 +1891,13 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
       // check for all the other objects what are the ones that collide with it
       util::uint64 t_init_ee_collision = util::GetTimeMs64();
+      double distance_;
       for (uint i = 0; i < this->objects.size(); ++i)
       {
         if(i != obj_idx)
         {
           // is gripper colliding?
           bool collision;
-          double distance_;
           switch(pushing_method)
           {
             case ORTHOGONAL_PUSHING:
@@ -1933,6 +1943,102 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
         }
       }
       this->executionTimes.ee_collisions += (double)(util::GetTimeMs64() - t_init_ee_collision);
+
+      // compute the minimum distance along all the pushing action
+      step_translation = 0;
+      fcl::Vec3f T_translation;
+      double pushing_length_;
+      switch(dir_idx)
+      {
+        case 1:
+           pushing_length_ = pushing_lengths[obj_idx].dir1;
+           break;
+        case 2:
+           pushing_length_ = pushing_lengths[obj_idx].dir2;
+           break;
+        case 3:
+           pushing_length_ = pushing_lengths[obj_idx].dir3;
+           break;
+        case 4:
+           pushing_length_ = pushing_lengths[obj_idx].dir4;
+           break;              
+      }
+      while(step_translation <  pushing_length_)
+      {
+        step_translation += resolution;
+        if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
+          step_translation = this->pushing_limit;
+        switch(dir_idx)
+        {
+          case 1 :          
+                  x =  step_translation*principal_directions_objects[obj_idx].dir1[0];
+                  y =  step_translation*principal_directions_objects[obj_idx].dir1[1];
+                  z =  step_translation*principal_directions_objects[obj_idx].dir1[2];
+                  T_translation.setValue(x,y,z);     
+                  break;
+          case 2 :          
+                  x =  step_translation*principal_directions_objects[obj_idx].dir2[0];
+                  y =  step_translation*principal_directions_objects[obj_idx].dir2[1];
+                  z =  step_translation*principal_directions_objects[obj_idx].dir2[2];
+                  T_translation.setValue(x,y,z);     
+                  break;
+          case 3 :          
+                  x =  step_translation*principal_directions_objects[obj_idx].dir3[0];
+                  y =  step_translation*principal_directions_objects[obj_idx].dir3[1];
+                  z =  step_translation*principal_directions_objects[obj_idx].dir3[2];
+                  T_translation.setValue(x,y,z);     
+                  break;
+          case 4 :          
+                  x =  step_translation*principal_directions_objects[obj_idx].dir4[0];
+                  y =  step_translation*principal_directions_objects[obj_idx].dir4[1];
+                  z =  step_translation*principal_directions_objects[obj_idx].dir4[2];
+                  T_translation.setValue(x,y,z);     
+                  break;
+          default:break;
+        }
+        fcl::Transform3f pose_ee(R, T + T_translation); // translated pushing pose
+        double distance_ee;
+        for (uint i = 0; i < this->objects.size(); ++i)
+        {
+          if(i != obj_idx)
+          {
+            // is gripper colliding?
+            switch(pushing_method)
+            {
+              case ORTHOGONAL_PUSHING:
+                this->isClosedGripperModelColliding(i,pose_ee,distance_ee);
+                break;
+              case PARALLEL_PUSHING:
+                this->isEEColliding(i,pose_ee, distance_ee);
+                break;
+              default:
+                break;
+            }
+          
+            //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
+            switch(dir_idx)
+            {
+              case 1 :            
+                      if(distance_ee < this->pushing_poses[obj_idx].dist_dir1 )
+                        this->pushing_poses[obj_idx].dist_dir1 = distance_ee;
+                      break;
+              case 2 :
+                      if(distance_ee < this->pushing_poses[obj_idx].dist_dir2 )
+                        this->pushing_poses[obj_idx].dist_dir2 = distance_ee;
+                      break; 
+              case 3 :
+                      if(distance_ee < this->pushing_poses[obj_idx].dist_dir3 )
+                        this->pushing_poses[obj_idx].dist_dir3 = distance_ee;
+                      break; 
+              case 4 :
+                      if(distance_ee < this->pushing_poses[obj_idx].dist_dir4 )
+                        this->pushing_poses[obj_idx].dist_dir4 = distance_ee;
+                      break; 
+              default: break;
+            }
+          }
+        }
+      }
 
 
       //remove duplicates 
@@ -2028,200 +2134,205 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   this->pushing_limit = pushing_limit;
   double step_translation = 0;
 
-  // initialize
-  this->pushing_poses.resize(this->n_objects);
-  for (std::vector<PushingPose>::iterator i = this->pushing_poses.begin(); i != this->pushing_poses.end(); ++i)
-  {
-    i->dist_dir1 = 1000;
-    i->dist_dir2 = 1000;
-    i->dist_dir3 = 1000;
-    i->dist_dir4 = 1000;
-  }
-
   GraspingPose gp_tmp; // temporary grasping pose
 
-  bool exit_while = false;
-  while(step_translation < this->pushing_limit and not exit_while)
-  {
-    switch(dir_idx)
+    if((dir_idx < 1) || (dir_idx > 4))
     {
-      case 1 :
-              step_translation += resolution;
-              if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                step_translation = this->pushing_limit;
-              x =  step_translation*principal_directions_objects[obj_idx].dir1[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir1[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir1[2];
-              T.setValue(x,y,z);               
-
-              // grasping pose translated
-              gp_tmp = grasping_poses[obj_idx];
-              gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir1;
-
-              break;
-      case 2 :
-              step_translation += resolution;
-              if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                step_translation = this->pushing_limit;
-              x =  step_translation*principal_directions_objects[obj_idx].dir2[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir2[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir2[2];
-              T.setValue(x,y,z);
-
-              // grasping pose translated
-              gp_tmp = grasping_poses[obj_idx];
-              gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir2;
-
-              break; 
-      case 3 :
-              step_translation += resolution;
-              if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                step_translation = this->pushing_limit;
-              x =  step_translation*principal_directions_objects[obj_idx].dir3[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir3[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir3[2];
-              T.setValue(x,y,z);
-
-              // grasping pose translated
-              gp_tmp = grasping_poses[obj_idx];
-              gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir3;
-
-              break; 
-      case 4 :
-              step_translation += resolution;
-              if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                step_translation = this->pushing_limit;
-              x =  step_translation*principal_directions_objects[obj_idx].dir4[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir4[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir4[2];
-              T.setValue(x,y,z);
-
-              // grasping pose translated
-              gp_tmp = grasping_poses[obj_idx];
-              gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir4;
-
-              break; 
-      default: break;
-    }
-    // identity matrix -> no rotation
-    fcl::Matrix3f R(1,0,0,
-                    0,1,0,
-                    0,0,1);
-    //for all the other objects
-    fcl::Transform3f pose(R, T);
-
-    if(visualization)
-    {
-      Eigen::Vector4f translation;
-      Eigen::Quaternionf quat;
-      PointCloudT convex_hull_translated;
-      this->fcl2EigenTransform(translation,quat, pose);
-      pcl::transformPointCloud<PointT>(this->convex_hull_objects[obj_idx], convex_hull_translated, translation.head<3>()  , quat);
-
-      std::string mesh_idx = "";
-      std::ostringstream convert;   // stream used for the conversion
-      convert << n;
-      mesh_idx += convert.str();
-      viewer->addPolygonMesh<PointT>(convex_hull_translated.makeShared(), this->convex_hull_vertices[obj_idx],mesh_idx);
-
-      pcl::PointCloud<pcl::PointXYZ> ee_convex_hull_translated;
-      Eigen::Quaternionf quat_ee(gp_tmp.rotation);
-      pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, ee_convex_hull_translated, gp_tmp.translation , quat_ee);
-      std::string grasp_mesh_idx = "grasp_" + convert.str();
-      viewer->addPolygonMesh<pcl::PointXYZ>(ee_convex_hull_translated.makeShared(), this->gripper_model.open_vertices, grasp_mesh_idx);
-
+      PCL_ERROR("Index of the direction wrong: %d it has to belong to be 1,2,3,4\n",dir_idx);
+      return;
     }
 
-    for (uint i = 0; i < this->objects.size(); ++i)
+    bool exit_while = false;
+    while(step_translation < this->pushing_limit and not exit_while )
     {
-      if(i != obj_idx)
-        if(this->areObjectCollidingFcl(obj_idx,pose,i))
-        {
-          //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
-          switch(dir_idx)
+      switch(dir_idx){
+        case 1 :
+                step_translation += resolution;
+                if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
+                  step_translation = this->pushing_limit;
+                x =  step_translation*principal_directions_objects[obj_idx].dir1[0];
+                y =  step_translation*principal_directions_objects[obj_idx].dir1[1];
+                z =  step_translation*principal_directions_objects[obj_idx].dir1[2];
+                T.setValue(x,y,z);               
+
+                // grasping pose translated
+                gp_tmp = grasping_poses[obj_idx];
+                gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir1;
+
+                break;
+        case 2 :
+                step_translation += resolution;
+                if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
+                  step_translation = this->pushing_limit;
+                x =  step_translation*principal_directions_objects[obj_idx].dir2[0];
+                y =  step_translation*principal_directions_objects[obj_idx].dir2[1];
+                z =  step_translation*principal_directions_objects[obj_idx].dir2[2];
+                T.setValue(x,y,z);
+
+                // grasping pose translated
+                gp_tmp = grasping_poses[obj_idx];
+                gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir2;
+
+                break; 
+        case 3 :
+                step_translation += resolution;
+                if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
+                  step_translation = this->pushing_limit;
+                x =  step_translation*principal_directions_objects[obj_idx].dir3[0];
+                y =  step_translation*principal_directions_objects[obj_idx].dir3[1];
+                z =  step_translation*principal_directions_objects[obj_idx].dir3[2];
+                T.setValue(x,y,z);
+
+                // grasping pose translated
+                gp_tmp = grasping_poses[obj_idx];
+                gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir3;
+
+                break; 
+        case 4 :
+                step_translation += resolution;
+                if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
+                  step_translation = this->pushing_limit;
+                x =  step_translation*principal_directions_objects[obj_idx].dir4[0];
+                y =  step_translation*principal_directions_objects[obj_idx].dir4[1];
+                z =  step_translation*principal_directions_objects[obj_idx].dir4[2];
+                T.setValue(x,y,z);
+
+                // grasping pose translated
+                gp_tmp = grasping_poses[obj_idx];
+                gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir4;
+
+                break; 
+        default: break;
+      }//end switch
+
+      // identity matrix -> no rotation
+      fcl::Matrix3f R(1,0,0,
+                      0,1,0,
+                      0,0,1);
+      //for all the other objects
+      fcl::Transform3f pose(R, T);
+
+      if(visualization)
+      {
+        Eigen::Vector4f translation;
+        Eigen::Quaternionf quat;
+        PointCloudT convex_hull_translated;
+        this->fcl2EigenTransform(translation,quat, pose);
+        pcl::transformPointCloud<PointT>(this->convex_hull_objects[obj_idx], convex_hull_translated, translation.head<3>()  , quat);
+
+        std::string mesh_idx = "";
+        std::ostringstream convert;   // stream used for the conversion
+        convert << n;
+        mesh_idx += convert.str();
+        viewer->addPolygonMesh<PointT>(convex_hull_translated.makeShared(), this->convex_hull_vertices[obj_idx],mesh_idx);
+
+        pcl::PointCloud<pcl::PointXYZ> ee_convex_hull_translated;
+        Eigen::Quaternionf quat_ee(gp_tmp.rotation);
+        pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, ee_convex_hull_translated, gp_tmp.translation , quat_ee);
+        std::string grasp_mesh_idx = "grasp_" + convert.str();
+        viewer->addPolygonMesh<pcl::PointXYZ>(ee_convex_hull_translated.makeShared(), this->gripper_model.open_vertices, grasp_mesh_idx);
+
+      }
+
+      util::uint64 t_init_collision = util::GetTimeMs64();
+      for (uint i = 0; i < this->objects.size(); ++i)
+      {
+        if(i != obj_idx)
+          if(this->areObjectCollidingFcl(obj_idx,pose,i))
           {
-            case 1 :            
-                    this->blocks_predicates[obj_idx].block_dir1.push_back(i);
-                    break;
-            case 2 :
-                    this->blocks_predicates[obj_idx].block_dir2.push_back(i);
-                    break; 
-            case 3 :
-                    this->blocks_predicates[obj_idx].block_dir3.push_back(i);
-                    break; 
-            case 4 :
-                    this->blocks_predicates[obj_idx].block_dir4.push_back(i);
-                    break; 
-            default: break;
+            //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
+            switch(dir_idx){
+              case 1 :            
+                      this->blocks_predicates[obj_idx].block_dir1.push_back(i);
+                      break;
+              case 2 :
+                      this->blocks_predicates[obj_idx].block_dir2.push_back(i);
+                      break; 
+              case 3 :
+                      this->blocks_predicates[obj_idx].block_dir3.push_back(i);
+                      break; 
+              case 4 :
+                      this->blocks_predicates[obj_idx].block_dir4.push_back(i);
+                      break; 
+              default: break;
+            }
+          } // end if collision
+      }//end for collision
+
+      // check if the new grasping pose collides
+      this->block_grasp_predicates.resize(this->n_objects);
+      
+      GraspingPose* gp = &(gp_tmp);
+      fcl::Matrix3f R_gp; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
+      this->eigen2FclRotation(gp->rotation,R_gp);
+      fcl::Vec3f T;
+      T.setValue( gp->translation[0],
+                  gp->translation[1],
+                  gp->translation[2]);
+      fcl::Transform3f grasp_pose(R_gp, T);
+
+
+      bool grasp_free = true; // boolean variale to specify if the grasp is free
+
+      for (uint o = 0; o < this->n_objects; ++o)
+      {
+        if(o != obj_idx)
+        {
+          double distance_;
+          bool collision_ = this->isOpenGripperModelColliding(o,grasp_pose,distance_);
+          if (distance_ < minimum_distance)
+          { 
+            if(print)
+              std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped in the new pose\n";
+
+            grasp_free = false;
+            exit_while = false;
+            break;
           }
-        } // end if collision
-    }//end for collision
-
-    // check if the new grasping pose collides
-    this->block_grasp_predicates.resize(this->n_objects);
-    
-    GraspingPose* gp = &(gp_tmp);
-    fcl::Matrix3f R_gp; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
-    this->eigen2FclRotation(gp->rotation,R_gp);
-    fcl::Vec3f T;
-    T.setValue( gp->translation[0],
-                gp->translation[1],
-                gp->translation[2]);
-    fcl::Transform3f grasp_pose(R_gp, T);
-
-
-    bool grasp_free = true; // boolean variale to specify if the grasp is free
-
-    for (uint o = 0; o < this->n_objects; ++o)
-    {
-      if(o != obj_idx)
-      {
-        double distance_;
-        if(this->isOpenGripperModelColliding(o,grasp_pose,distance_))
-        {
-          if(print)
-            std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped in the new pose\n";
-
-          grasp_free = false;
-          exit_while = false;
-
-          break;
         }
+      } // end for
 
-        if(distance_ < minimum_distance)
-        {
-          grasp_free = false;
-          exit_while = false;
-        }
-      }
-    } // end for
-    if(grasp_free or step_translation >= this->pushing_limit)) // if the grasp is collision free or we reached the limit
-    {
-      // save the length of pushing
-      switch(dir_idx)
-      {
-        case 1: pushing_lengths[obj_idx].dir1 = step_translation;
-                // std::cout << "Pushing length object " << obj_idx << " dir1: " << step_translation << "\n";
+      //save grasp
+      switch(dir_idx){
+        case 1: 
+                pushing_grasping_poses[obj_idx].gp_dir1 = gp_tmp;
                 break;
-        case 2: pushing_lengths[obj_idx].dir2 = step_translation;
-                // std::cout << "Pushing length object " << obj_idx << " dir2: " << step_translation << "\n";
+        case 2: 
+                pushing_grasping_poses[obj_idx].gp_dir2 = gp_tmp;
                 break;
-        case 3: pushing_lengths[obj_idx].dir3 = step_translation;
-                // std::cout << "Pushing length object " << obj_idx << " dir3: " << step_translation << "\n";
+        case 3: 
+                pushing_grasping_poses[obj_idx].gp_dir3 = gp_tmp;
                 break;
-        case 4: pushing_lengths[obj_idx].dir4 = step_translation;
-                // std::cout << "Pushing length object " << obj_idx << " dir4: " << step_translation << "\n";
+        case 4: 
+                pushing_grasping_poses[obj_idx].gp_dir4 = gp_tmp;
                 break;
       }
 
-      //exit from the while loop. We do not need to check for more translations
-      break;
+      if(grasp_free or step_translation >= this->pushing_limit) // if the grasp is collision free or we reached the limit distance
+      {
+        // save the length of pushing
+        switch(dir_idx){
+          case 1: pushing_lengths[obj_idx].dir1 = step_translation;
+                  break;
+          case 2: pushing_lengths[obj_idx].dir2 = step_translation;
+                  break;
+          case 3: pushing_lengths[obj_idx].dir3 = step_translation;
+                  break;
+          case 4: pushing_lengths[obj_idx].dir4 = step_translation;
+                  break;
+        }
 
-      exit_while = true;
+
+        //exit from the while loop. We do not need to check for more translations
+        //break;
+        exit_while = true;
+
+      }
+
+      this->executionTimes.objects_collisions += (double)(util::GetTimeMs64() - t_init_collision);
+
+      n++;
     }
-
-    n++;
-  }
 
   // ----------------------- END EFFECTOR --------------------------------------
 
@@ -2503,7 +2614,6 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   //for all the other objects
 
   //we have to compute the rotation accordingly to the direction
-
   fcl::Matrix3f R; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
   mat_rot = rot.inverse();
   this->eigen2FclRotation(mat_rot,R);
@@ -2532,56 +2642,155 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   }
 
   // check for all the other objects what are the ones that collide with it
+  util::uint64 t_init_ee_collision = util::GetTimeMs64();
+  double distance_;
   for (uint i = 0; i < this->objects.size(); ++i)
   {
     if(i != obj_idx)
     {
       // is gripper colliding?
       bool collision;
-      double distance_;
       switch(pushing_method)
       {
         case ORTHOGONAL_PUSHING:
           collision = this->isClosedGripperModelColliding(i,pose_ee,distance_);
           break;
         case PARALLEL_PUSHING:
-          collision = this->isEEColliding(i,pose_ee,distance_);
+          collision = this->isEEColliding(i,pose_ee, distance_);
           break;
         default:
           break;
       }
+    
+      //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
       switch(dir_idx)
       {
         case 1 :            
-                if(distance_ < this->pushing_poses[obj_idx].dist_dir1)
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir1 )
                   this->pushing_poses[obj_idx].dist_dir1 = distance_;
                 if(collision)
                   this->blocks_predicates[obj_idx].block_dir1.push_back(i);
                 break;
         case 2 :
-                if(distance_ < this->pushing_poses[obj_idx].dist_dir2)
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir2 )
                   this->pushing_poses[obj_idx].dist_dir2 = distance_;
                 if(collision)
                   this->blocks_predicates[obj_idx].block_dir2.push_back(i);
                 break; 
         case 3 :
-                if(distance_ < this->pushing_poses[obj_idx].dist_dir3)
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir3 )
                   this->pushing_poses[obj_idx].dist_dir3 = distance_;
                 if(collision)
                   this->blocks_predicates[obj_idx].block_dir3.push_back(i);
                 break; 
         case 4 :
-                if(distance_ < this->pushing_poses[obj_idx].dist_dir4)
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir4 )
                   this->pushing_poses[obj_idx].dist_dir4 = distance_;
                 if(collision)
                   this->blocks_predicates[obj_idx].block_dir4.push_back(i);
                 break; 
         default: break;
       }
+    
     }
-  } 
+  }
+  this->executionTimes.ee_collisions += (double)(util::GetTimeMs64() - t_init_ee_collision);
 
-
+  // compute the minimum distance along all the pushing action
+  step_translation = 0;
+  fcl::Vec3f T_translation;
+  double pushing_length_;
+  switch(dir_idx)
+  {
+    case 1:
+       pushing_length_ = pushing_lengths[obj_idx].dir1;
+       break;
+    case 2:
+       pushing_length_ = pushing_lengths[obj_idx].dir2;
+       break;
+    case 3:
+       pushing_length_ = pushing_lengths[obj_idx].dir3;
+       break;
+    case 4:
+       pushing_length_ = pushing_lengths[obj_idx].dir4;
+       break;              
+  }
+  while(step_translation <  pushing_length_)
+  {
+    step_translation += resolution;
+    if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
+      step_translation = this->pushing_limit;
+    switch(dir_idx)
+    {
+      case 1 :          
+              x =  step_translation*principal_directions_objects[obj_idx].dir1[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir1[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir1[2];
+              T_translation.setValue(x,y,z);     
+              break;
+      case 2 :          
+              x =  step_translation*principal_directions_objects[obj_idx].dir2[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir2[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir2[2];
+              T_translation.setValue(x,y,z);     
+              break;
+      case 3 :          
+              x =  step_translation*principal_directions_objects[obj_idx].dir3[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir3[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir3[2];
+              T_translation.setValue(x,y,z);     
+              break;
+      case 4 :          
+              x =  step_translation*principal_directions_objects[obj_idx].dir4[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir4[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir4[2];
+              T_translation.setValue(x,y,z);     
+              break;
+      default:break;
+    }
+    fcl::Transform3f pose_ee(R, T + T_translation); // translated pushing pose
+    double distance_ee;
+    for (uint i = 0; i < this->objects.size(); ++i)
+    {
+      if(i != obj_idx)
+      {
+        // is gripper colliding?
+        switch(pushing_method)
+        {
+          case ORTHOGONAL_PUSHING:
+            this->isClosedGripperModelColliding(i,pose_ee,distance_ee);
+            break;
+          case PARALLEL_PUSHING:
+            this->isEEColliding(i,pose_ee, distance_ee);
+            break;
+          default:
+            break;
+        }
+      
+        //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
+        switch(dir_idx)
+        {
+          case 1 :            
+                  if(distance_ee < this->pushing_poses[obj_idx].dist_dir1 )
+                    this->pushing_poses[obj_idx].dist_dir1 = distance_ee;
+                  break;
+          case 2 :
+                  if(distance_ee < this->pushing_poses[obj_idx].dist_dir2 )
+                    this->pushing_poses[obj_idx].dist_dir2 = distance_ee;
+                  break; 
+          case 3 :
+                  if(distance_ee < this->pushing_poses[obj_idx].dist_dir3 )
+                    this->pushing_poses[obj_idx].dist_dir3 = distance_ee;
+                  break; 
+          case 4 :
+                  if(distance_ee < this->pushing_poses[obj_idx].dist_dir4 )
+                    this->pushing_poses[obj_idx].dist_dir4 = distance_ee;
+                  break; 
+          default: break;
+        }
+      }
+    }
+  }
 
   //remove duplicates 
   std::vector<uint>* vec;
@@ -3210,6 +3419,17 @@ void CTableClearingPlanning::setObjectsPointCloud(std::vector<PointCloudT> &obje
         }
     }
   }
+
+  // initialize EE distances
+  this->pushing_poses.resize(this->n_objects);
+  for (std::vector<PushingPose>::iterator i = this->pushing_poses.begin(); i != this->pushing_poses.end(); ++i)
+  {
+    i->dist_dir1 = 1000;
+    i->dist_dir2 = 1000;
+    i->dist_dir3 = 1000;
+    i->dist_dir4 = 1000;
+  }
+
 }
 void CTableClearingPlanning::setPlaneCoefficients(pcl::ModelCoefficients &plane_coefficients)
 {
@@ -4054,9 +4274,20 @@ void CTableClearingPlanning::printPushingLengths()
   for (uint i = 0; i < this->n_objects; ++i)
   {
     std::cout << "Pushing lengths object " << i 
-              << "dir1: " << this->pushing_lengths[i].dir1
-              << "dir2: " << this->pushing_lengths[i].dir2 
-              << "dir3: " << this->pushing_lengths[i].dir3 
-              << "dir4: " << this->pushing_lengths[i].dir4 << std::endl;
+              << " dir1: " << this->pushing_lengths[i].dir1
+              << " dir2: " << this->pushing_lengths[i].dir2 
+              << " dir3: " << this->pushing_lengths[i].dir3 
+              << " dir4: " << this->pushing_lengths[i].dir4 << std::endl;
+  }
+}
+void CTableClearingPlanning::printPushingEEDistances()
+{
+  for (uint i = 0; i < this->n_objects; ++i)
+  {
+    std::cout << "Pushing EE distance object " << i 
+              << " dir1: " << this->pushing_poses[i].dist_dir1
+              << " dir2: " << this->pushing_poses[i].dist_dir2
+              << " dir3: " << this->pushing_poses[i].dist_dir3
+              << " dir4: " << this->pushing_poses[i].dist_dir4 << std::endl;
   }
 }

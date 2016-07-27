@@ -720,7 +720,7 @@ class CTableClearingPlanning
      */
     void visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,bool visualization = true,
                                       bool print = true, uint pushing_method = ORTHOGONAL_PUSHING,
-                                      double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02 );
+                                      double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02);
 
 
     /**
@@ -939,6 +939,11 @@ class CTableClearingPlanning
     void printExecutionTimes();
 
     void printPushingLengths();
+
+    void printPushingEEDistances();
+
+    void resetPushingLengths();
+    void resetPushingDistance();
 
 };
 

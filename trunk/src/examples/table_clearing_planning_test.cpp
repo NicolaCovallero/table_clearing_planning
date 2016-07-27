@@ -20,12 +20,59 @@ $ ./table_clearing_planning_test cluttered_#.pcd
 #include "table_clearing_planning.h"
 #include "tos_supervoxels.h"
 #include <pcl/console/parse.h>
+#include <pcl/console/parse.h>
+
+// all the measures are given in meters
+double pushing_limit = 0.2;
+double minimum_distance = 0.02;
+double pushing_resolution = 0.01;
+bool print = true;
+
+// gripper model dimensions
+double opening_width = 0.08;
+double closing_width = 0.03;
+double finger_width = 0.03;
+double deep = 0.06;  // it hsould be 0.03 but in order to consider the width of the gripper's base
+double height = 0.115;
+double closing_height = 0.045;
 
 
 uint obj_idx = 0;
 uint dir_idx = 1;
 bool exit_ = false;
 CTableClearingPlanning tcp;
+
+void help()
+{
+  pcl::console::print_error ("The command is: ./table_clearing_planning_test <pcd-file> \n"
+  "The possible options are:\n"
+  "-pl <value> : set the pushing limit value\n"
+  "-pr <value> : set the reolution for the pushing\n"
+  "-md <value> : set the minimum distance to the closest object to consider a grasping pose as feasible\n"
+  "-print : to print into the terminal all the info regarding the predicates \n"
+  "-gow <value> : set the opening width of the gripper\n"
+  "-gcw <value> : set the closing width of the gripper\n"
+  "-gfw <value> : set the fingers width of the gripper\n"
+  "-gd <value> : set the deep of the gripper\n"
+  "-gh <value> : set the height of the gripper\n"
+  "-gch <value> : set the closing height of the gripper\n"
+  "\nParameters for the segmentation:\n"
+  "--NT Dsables the single cloud transform \n"
+  "-v <voxel resolution>\n-s <seed resolution>\n"
+  "-c <color weight> \n-z <spatial weight> \n"
+  "-n <normal_weight>\n"
+  "---LCCP params----\n"
+  "-sc disable sanity criterion\n"
+  "-ct concavity tolerance\n"
+  "-st smoothness threshold\n"                                 
+  "-ec enable extended criterion\n"
+  "-smooth min segment size\n"
+  "-- Others parameters ---\n"
+  "-zmin minimum distance orthogonal to the table plane to consider a point as valid\n"
+  "-zmax maximum distance orthogonal to the table plane to consider a point as valid\n"
+  "-th_points minimum amount of points to consider a cluster as an object\n"
+  "\n");
+}
 
 void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
                         void* viewer_void)
@@ -38,7 +85,7 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
       viewer->removeAllShapes();
       tcp.viewerAddOriginalPrincipalDirections(viewer,obj_idx);
       tcp.cleanPolygonalMesh(viewer);
-      tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,true,ORTHOGONAL_PUSHING,0.01,0.2,0.04);
+      tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,false,ORTHOGONAL_PUSHING,pushing_resolution,pushing_limit,minimum_distance);
 
 
       if(dir_idx == 4)
@@ -61,12 +108,65 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
 
 int main(int argc, char *argv[])
 {
-  if(argc < 2)
+  if(argc < 2 || pcl::console::find_switch(argc, argv, "-h") || pcl::console::find_switch(argc, argv, "--help"))
   {
-    std::cout << "Give as argument a point cloud" << std::endl;
+    help();
     return -1;
   }
 
+  // parameters for the LCCP segmentation
+  tos_supervoxels_parameters opt;
+  opt.voxel_resolution = 0.005;
+  opt.seed_resolution = 0.02;
+  opt.seed_resolution = 0.02;
+  opt.concavity_tolerance_threshold = 15;
+
+  // Set the parameters given as aguments: ---------------------------------------------
+  pcl::console::parse (argc, argv, "-pl", pushing_limit);
+  pcl::console::parse (argc, argv, "-pr", pushing_resolution);
+  pcl::console::parse (argc, argv, "-md", minimum_distance);
+
+  pcl::console::parse (argc, argv, "-gow", opening_width);
+  pcl::console::parse (argc, argv, "-gcw", closing_width);
+  pcl::console::parse (argc, argv, "-gfw", finger_width);
+  pcl::console::parse (argc, argv, "-gd", deep);
+  pcl::console::parse (argc, argv, "-gh", height);
+  pcl::console::parse (argc, argv, "-gch", closing_height);
+
+  opt.disable_transform = pcl::console::find_switch (argc, argv, "--NT");
+  pcl::console::parse (argc, argv, "-v", opt.voxel_resolution);
+  pcl::console::parse (argc, argv, "-s", opt.seed_resolution);
+  pcl::console::parse (argc, argv, "-c", opt.color_importance);
+  pcl::console::parse (argc, argv, "-z", opt.spatial_importance);
+  pcl::console::parse (argc, argv, "-n", opt.normal_importance);
+
+  pcl::console::parse (argc, argv, "-ct", opt.concavity_tolerance_threshold);
+  pcl::console::parse (argc, argv, "-st", opt.smoothness_threshold);
+  opt.use_extended_convexity = pcl::console::find_switch (argc, argv, "-ec");
+  opt.use_sanity_criterion = !pcl::console::find_switch (argc, argv, "-sc");
+  pcl::console::parse (argc, argv, "-smooth", opt.min_segment_size);
+
+  // table plane estimation - parameters
+  pcl::console::parse (argc, argv, "-zmin", opt.zmin);
+
+  // minimum amount of points to consider a cluster as an object
+  pcl::console::parse (argc, argv, "-th_points", opt.th_points);
+  // -------------------------------------------------------------------------------------------
+  // print paramters (neglect the segmentation):
+
+  std::cout << "pushing_limit set to: " << pushing_limit << std::endl;
+  std::cout << "pushing_resolution set to: " << pushing_resolution << std::endl;
+  std::cout << "minimum_distance set to: " << minimum_distance << std::endl;
+
+  std::cout << "opening_width set to: " << opening_width << std::endl;
+  std::cout << "closing_width set to: " << closing_width << std::endl;
+  std::cout << "finger_width set to: " << finger_width << std::endl;
+
+  std::cout << "deep set to: " << deep << std::endl;
+  std::cout << "height set to: " << height << std::endl;
+  std::cout << "closing_height set to: " << closing_height << std::endl;
+  // ---------------------------------------------------------------------------------------------
+  
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
   pcl::console::print_highlight ("Loading point cloud...\n");
   if (pcl::io::loadPCDFile<pcl::PointXYZRGBA> (argv[1], *cloud))
@@ -77,16 +177,11 @@ int main(int argc, char *argv[])
 
   tcp.setOriginalPointCloud(*cloud);
 
-  // For the segmentation: with our setup in the laboratory a 
-  // simple euclidean clustering should work properly
-  // segment point cloud
-  tos_supervoxels_parameters param;
-  param.voxel_resolution = 0.005;
-  param.seed_resolution = 0.02;
-  param.seed_resolution = 0.02;
-  param.concavity_tolerance_threshold = 15;
+
+  // Here the LCCP segmentation is used but you can use whatever kind of segmentation you prefer
+  // tos_supervoxels class is a segmentation based on the LCCP algorithm to segment the objects above a table
   tos_supervoxels seg;
-  seg.init(*cloud,param);
+  seg.init(*cloud,opt);
   seg.set_zmin(0.03f);
   seg.print_parameters();
   seg.segment();
@@ -114,23 +209,13 @@ int main(int argc, char *argv[])
   // viewer_edge->close();
 
 
-  // scene perception - planning part
-  //
-  //  TODO:
-  //  4) filters -> check this "Radius Outlier Removal"
-  //
+  
   tcp.setObjectsPointCloud(segmented_objs);
   tcp.setPlanePointCloud(*(seg.get_plane_cloud()));
   tcp.setPushingStep(1.0);
   //tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
-  //tcp.setGripperSimpleModel(0.08, 0.1, 0.12, 0.025);
-  double opening_width = 0.08;
-  double closing_width = 0.03;
-  double finger_width = 0.03;
-  double deep = 0.06;  // it hsould be 0.03 but in order to consider the width of the gripper's base
-  double height = 0.115;
-  double closing_height = 0.045;
+
   tcp.setGripperModel(opening_width,closing_width,finger_width,deep,height,closing_height);
 
   tcp.computeProjectionsOnTable();
@@ -139,7 +224,7 @@ int main(int argc, char *argv[])
   tcp.computeOBBObjects(true);
 
   tcp.computeSimpleHeuristicGraspingPoses(PCA_GRASPING);
-  tcp.computeBlockPredicates(true, ORTHOGONAL_PUSHING);
+  tcp.computeBlockPredicates(false, ORTHOGONAL_PUSHING, pushing_resolution,pushing_limit,minimum_distance);
   //tcp.computeOnTopPredicates(true);
   //tcp.computeBlockGraspPredicates(true);
   tcp.printExecutionTimes();
@@ -192,18 +277,18 @@ int main(int argc, char *argv[])
   // tcp.viewerAddPushingGraspingPose(viewer,2,3);
   // tcp.viewerAddPushingGraspingPose(viewer,2,4);
 
+
   tcp.printPushingLengths();
+  tcp.printPushingEEDistances();
+
   // tcp.testFclDistance();
 
   while (!viewer->wasStopped() && !exit_)
     viewer->spinOnce (100);
   viewer->close();
+
+  tcp.printPushingLengths();
+  tcp.printPushingEEDistances();
   
   return 0;
 }
-
-
-/*
-To DO:
-- add the checking to push the objects also untl the adjacent one is graspable
-*/

@@ -1566,7 +1566,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
                   break;
         }
 
-        if(grasp_free) // if the grasp is collision free
+        if(grasp_free or step_translation >= this->pushing_limit) // if the grasp is collision free or we reached the limit distance
         {
           // save the length of pushing
           switch(dir_idx){
@@ -1580,11 +1580,13 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
                     break;
           }
 
+
           //exit from the while loop. We do not need to check for more translations
           //break;
           exit_while = true;
 
-        } 
+        }
+
         this->executionTimes.objects_collisions += (double)(util::GetTimeMs64() - t_init_collision);
 
         n++;
@@ -2193,7 +2195,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
         }
       }
     } // end for
-    if(grasp_free) // if the grasp is collision free
+    if(grasp_free or step_translation >= this->pushing_limit)) // if the grasp is collision free or we reached the limit
     {
       // save the length of pushing
       switch(dir_idx)
@@ -2577,9 +2579,9 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
         default: break;
       }
     }
-  }
+  } 
 
-  
+
 
   //remove duplicates 
   std::vector<uint>* vec;

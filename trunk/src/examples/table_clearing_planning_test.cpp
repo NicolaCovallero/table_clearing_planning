@@ -23,7 +23,7 @@ $ ./table_clearing_planning_test cluttered_#.pcd
 #include <pcl/console/parse.h>
 
 // all the measures are given in meters
-double pushing_limit = 0.2;
+double pushing_limit = 0.3;
 double minimum_distance = 0.02;
 double pushing_resolution = 0.01;
 bool print = true;
@@ -85,7 +85,7 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
       viewer->removeAllShapes();
       tcp.viewerAddOriginalPrincipalDirections(viewer,obj_idx);
       tcp.cleanPolygonalMesh(viewer);
-      tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,false,ORTHOGONAL_PUSHING,pushing_resolution,pushing_limit,minimum_distance);
+      tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,true,ORTHOGONAL_PUSHING,pushing_resolution,pushing_limit,minimum_distance,true);
 
 
       if(dir_idx == 4)
@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
   
   tcp.setObjectsPointCloud(segmented_objs);
   tcp.setPlanePointCloud(*(seg.get_plane_cloud()));
-  tcp.setPushingStep(1.0);
+  //tcp.setPushingStep(1.5);
   //tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
 
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
   tcp.computeOBBObjects(true);
 
   tcp.computeSimpleHeuristicGraspingPoses(PCA_GRASPING);
-  tcp.computeBlockPredicates(false, ORTHOGONAL_PUSHING, pushing_resolution,pushing_limit,minimum_distance);
+  tcp.computeBlockPredicates(true, ORTHOGONAL_PUSHING, pushing_resolution,pushing_limit,minimum_distance,true);
   //tcp.computeOnTopPredicates(true);
   //tcp.computeBlockGraspPredicates(true);
   tcp.printExecutionTimes();

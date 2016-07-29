@@ -193,7 +193,7 @@ class CTableClearingPlanning
 
 
   double pushing_limit; //used only from the block predicates computation functions
-  double pushing_step;
+  double pushing_step; // k factor, push the object for a distance equal to pushing_step * dimension(pushing_direction)
   double pushing_object_distance; ///< Distance between the tcp and the object for the first point of the pushing action
 
   uint n_objects; ///< number of objects
@@ -643,10 +643,13 @@ class CTableClearingPlanning
      * N          Note that as soon as it finds a pushing length for which the next pose corresponds to a feasible grasp it checks 
      *            no more for further distances         
      * @param[in] minimum_distance Minimum distance from the closest object to consider to future grasp a feasible one.         
+     * @param[in] pushing_until_graspable pushing_until_graspable True if the algorithm push until the object can be grasped, otherwise it pushes for
+     *            for a length equal to the dimension relative to the pushing direction. The distanceof the end effector during pushing are anyway computed.  
      *                   
      */
     void computeBlockPredicates(  bool print=false, uint pushing_method = ORTHOGONAL_PUSHING, 
-                                  double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02);
+                                  double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02,
+                                  bool pushing_until_graspable = true);
 
     /**
      * @brief Get block grasp predicates
@@ -717,10 +720,13 @@ class CTableClearingPlanning
      * @param[in] dir_idx Index of the direction [1,2,3,4]
      * @param[in] visualization True to enable the visualization
      * @param[in] print True to print in the terminal each block predicate
+     * @param[in] pushing_until_graspable True if the algorithm push until the object can be grasped, otherwise it pushes for
+     *            for a length equal to the dimension relative to the pushing direction. The distanceof the end effector during pushing are anyway computed.  
      */
     void visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,bool visualization = true,
                                       bool print = true, uint pushing_method = ORTHOGONAL_PUSHING,
-                                      double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02);
+                                      double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02,
+                                      bool pushing_until_graspable = true);
 
 
     /**

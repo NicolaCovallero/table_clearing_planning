@@ -758,7 +758,7 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
   }
 }
 
-void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, double width, double distance_plane)
+void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, double width, double distance_plane, uint r, uint g, uint b)
 {
   this->ee_simple_model.height = height;
   this->ee_simple_model.deep = deep;
@@ -784,7 +784,11 @@ void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, d
   // this->ee_simple_model.cloud.points.push_back(p);
 
   //set the vertices of the bounding box
-  pcl::PointXYZ p;
+  pcl::PointXYZRGB p;
+  p.r = r;
+  p.g = g;
+  p.b = b;
+
   p.x = width/2; p.y = height/2; p.z = deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
   p.x = width/2; p.y = height/2; p.z = - deep/2;
@@ -802,8 +806,7 @@ void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, d
   p.x = - width/2; p.y = - height/2; p.z = - deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
 
-
-  pcl::ConvexHull<pcl::PointXYZ> hull;
+  pcl::ConvexHull<pcl::PointXYZRGB> hull;
   hull.setInputCloud(this->ee_simple_model.cloud.makeShared());
   hull.reconstruct(this->ee_simple_model.cloud, this->ee_simple_model.vertices);
   
@@ -811,7 +814,7 @@ void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, d
 }
 
 void CTableClearingPlanning::setGripperModel (double opening_width, double closing_width, double finger_width,
-               double deep, double height, double closing_height)
+               double deep, double height, double closing_height, uint r, uint g, uint b)
 {
   if(height <= closing_height)
   {
@@ -827,7 +830,11 @@ void CTableClearingPlanning::setGripperModel (double opening_width, double closi
   this->gripper_model.closing_height = closing_height;
   
   // creating the cloud
-  pcl::PointXYZ p;
+  pcl::PointXYZRGB p;
+  p.r = r;
+  p.g = g;
+  p.b = b;
+
   p.x = - opening_width/2; p.y = - deep/2; p.z = - closing_height/2;
   this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
@@ -876,7 +883,7 @@ void CTableClearingPlanning::setGripperModel (double opening_width, double closi
   mat_rot(2,0) = 0;mat_rot(2,1) = 0;mat_rot(2,2) = -1;
   Eigen::Matrix3f rot = mat_rot.inverse();
   Eigen::Quaternionf quat(rot);
-  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, this->gripper_model.open_cloud, translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, this->gripper_model.open_cloud, translation , quat);
 
   //manually polygonal mesh reconstruction
   pcl::Vertices v;
@@ -953,7 +960,7 @@ void CTableClearingPlanning::setGripperModel (double opening_width, double closi
   v.vertices[0] = 13;v.vertices[1] = 11;v.vertices[2] = 12;
   this->gripper_model.open_vertices.push_back(v);  
 
-  // creating the cloud
+  // creating the cloud for the closed model
   p.x = - closing_width/2; p.y = - deep/2; p.z = - closing_height/2;
   this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
@@ -995,7 +1002,7 @@ void CTableClearingPlanning::setGripperModel (double opening_width, double closi
   this->gripper_model.closed_cloud.points.push_back(p);  
 
   // make the z axis pointing down
-  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.closed_cloud, this->gripper_model.closed_cloud, translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.closed_cloud, this->gripper_model.closed_cloud, translation , quat);
 
 
   //manually polygonal mesh reconstruction
@@ -1004,14 +1011,28 @@ void CTableClearingPlanning::setGripperModel (double opening_width, double closi
   //shift both them up in order to make the origin being the fingers contact point
   Eigen::Vector3f translation2(0,0,- closing_height/2);
   Eigen::Quaternionf orientation = Eigen::Quaternionf::Identity ();
-  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, this->gripper_model.open_cloud, translation2 , orientation);
-  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.closed_cloud, this->gripper_model.closed_cloud, translation2 , orientation);
-
-  
-  
-
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, this->gripper_model.open_cloud, translation2 , orientation);
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.closed_cloud, this->gripper_model.closed_cloud, translation2 , orientation);
 }
 
+void CTableClearingPlanning::setOpenGripperColor (uint r, uint g, uint b)
+{
+  for (uint i = 0; i < this->gripper_model.open_cloud.size() ; i++)
+  {
+    this->gripper_model.open_cloud.points[i].r = r;
+    this->gripper_model.open_cloud.points[i].g = g;
+    this->gripper_model.open_cloud.points[i].b = b;
+  }
+}
+void CTableClearingPlanning::setClosedGripperColor (uint r, uint g, uint b)
+{
+  for (uint i = 0; i < this->gripper_model.closed_cloud.size() ; i++)
+  {
+    this->gripper_model.closed_cloud.points[i].r = r;
+    this->gripper_model.closed_cloud.points[i].g = g;
+    this->gripper_model.closed_cloud.points[i].b = b;
+  }
+}
 
 void CTableClearingPlanning::computeConvexHulls(bool rand_)
 {
@@ -1179,8 +1200,8 @@ bool CTableClearingPlanning::refineSimpleGraspingPose(GraspingPose& gp, double t
     // We will do this for each point of the convex hull of the gripper
 
     // transforming the fingers model point cloud
-    pcl::PointCloud<pcl::PointXYZ> cloud_tmp;
-    pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud_tmp, gp.translation, gp.quaternion);
+    pcl::PointCloud<pcl::PointXYZRGB> cloud_tmp;
+    pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud_tmp, gp.translation, gp.quaternion);
 
     // we also want the object to be not too much close to the plane
     // project fingers contact point to the table 
@@ -2147,7 +2168,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,
                                                           bool visualization, bool print, uint pushing_method,
                                                           double resolution, double pushing_limit, double minimum_distance,
-                                                          bool pushing_until_graspable)
+                                                          bool pushing_until_graspable, bool show_ee)
 { 
   fcl::Vec3f T;
   double x,y,z;
@@ -2290,12 +2311,16 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
       viewer->addPolygonMesh<PointT>(convex_hull_translated.makeShared(), this->convex_hull_vertices[obj_idx],mesh_idx);
 
       if(pushing_until_graspable)
-      {
-        pcl::PointCloud<pcl::PointXYZ> ee_convex_hull_translated;
-        Eigen::Quaternionf quat_ee(gp_tmp.rotation);
-        pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, ee_convex_hull_translated, gp_tmp.translation , quat_ee);
-        std::string grasp_mesh_idx = "grasp_" + convert.str();
-        viewer->addPolygonMesh<pcl::PointXYZ>(ee_convex_hull_translated.makeShared(), this->gripper_model.open_vertices, grasp_mesh_idx);
+      { 
+        if(show_ee)
+        {
+            pcl::PointCloud<pcl::PointXYZRGB> ee_convex_hull_translated;
+            Eigen::Quaternionf quat_ee(gp_tmp.rotation);
+            pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, ee_convex_hull_translated, gp_tmp.translation , quat_ee);
+            convert << dir_idx;
+            std::string grasp_mesh_idx = "grasp_" + convert.str();
+            viewer->addPolygonMesh<pcl::PointXYZRGB>(ee_convex_hull_translated.makeShared(), this->gripper_model.open_vertices, grasp_mesh_idx);
+        }
       }
     }
 
@@ -2708,17 +2733,17 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   {
     Eigen::Vector4f translation_ee;
     Eigen::Quaternionf quat_ee;
-    pcl::PointCloud<pcl::PointXYZ> ee_translated;
+    pcl::PointCloud<pcl::PointXYZRGB> ee_translated;
     this->fcl2EigenTransform(translation_ee, quat_ee, pose_ee);
     switch(pushing_method)
     {
       case ORTHOGONAL_PUSHING:
-        pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.closed_cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
-        viewer->addPolygonMesh<pcl::PointXYZ>(ee_translated.makeShared(), this->gripper_model.closed_vertices,"ee");
+        pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.closed_cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
+        viewer->addPolygonMesh<pcl::PointXYZRGB>(ee_translated.makeShared(), this->gripper_model.closed_vertices,"ee");
         break;
       case PARALLEL_PUSHING:
-        pcl::transformPointCloud<pcl::PointXYZ>(this->ee_simple_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
-        viewer->addPolygonMesh<pcl::PointXYZ>(ee_translated.makeShared(), this->ee_simple_model.vertices,"ee");
+        pcl::transformPointCloud<pcl::PointXYZRGB>(this->ee_simple_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
+        viewer->addPolygonMesh<pcl::PointXYZRGB>(ee_translated.makeShared(), this->ee_simple_model.vertices,"ee");
         break;
       default:
         break;
@@ -3785,8 +3810,20 @@ void CTableClearingPlanning::cleanPolygonalMesh(Visualizer viewer)
     pol_name += convert.str();
     viewer->removePolygonMesh(pol_name);
 
-    pol_name = "grasp_" + convert.str();
-    viewer->removePolygonMesh(pol_name);
+    std::string grasp_name;
+    
+    for (uint d=1; d <= 4; d++)
+    {
+        grasp_name = "grasp_";
+        convert.str("");
+        convert << i;
+        convert << d;
+        grasp_name += convert.str();        
+        viewer->removePolygonMesh(grasp_name);
+    }
+    
+    
+    
 
     // pol_name = "convex_hull";
     // pol_name += convert.str();
@@ -3954,12 +3991,12 @@ void CTableClearingPlanning::viewerAddGraspingPose(Visualizer viewer,uint idx)
   convert << idx;
   grasp_name += convert.str();
 
-  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl::PointCloud<pcl::PointXYZRGB> cloud;
   Eigen::Quaternionf quat(this->grasping_poses[idx].rotation);
   // Eigen::Quaternionf quat = Eigen::Quaternionf::Identity ();
-  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->grasping_poses[idx].translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->grasping_poses[idx].translation , quat);
 
-  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
 }
 void CTableClearingPlanning::viewerAddPushingGraspingPose(Visualizer viewer, uint obj_idx, uint dir_idx)
 {
@@ -3986,20 +4023,20 @@ void CTableClearingPlanning::viewerAddPushingGraspingPose(Visualizer viewer, uin
   convert << dir_idx;
   grasp_name += convert.str();
 
-  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl::PointCloud<pcl::PointXYZRGB> cloud;
   Eigen::Quaternionf quat(this->grasping_poses[obj_idx].rotation);
   switch(dir_idx){
-    case 1 :  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir1.translation , quat);
+    case 1 :  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir1.translation , quat);
               break;
-    case 2 :  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir2.translation , quat);
+    case 2 :  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir2.translation , quat);
               break;
-    case 3 :  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir3.translation , quat);
+    case 3 :  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir3.translation , quat);
               break;
-    case 4 :  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir4.translation , quat);
+    case 4 :  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir4.translation , quat);
               break;
   }
 
-  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
   
 }
 
@@ -4017,11 +4054,11 @@ void CTableClearingPlanning::viewerAddApproachingPose(Visualizer viewer, uint id
   convert << idx;
   grasp_name += convert.str();
 
-  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl::PointCloud<pcl::PointXYZRGB> cloud;
   Eigen::Quaternionf quat(this->approaching_poses[idx].rotation);
-  pcl::transformPointCloud<pcl::PointXYZ>(this->gripper_model.open_cloud, cloud, this->approaching_poses[idx].translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->approaching_poses[idx].translation , quat);
 
-  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
 }
 void CTableClearingPlanning::viewerAddGraspingPoses(Visualizer viewer)
 {

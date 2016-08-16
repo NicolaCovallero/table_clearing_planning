@@ -83,10 +83,10 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
     if(obj_idx < tcp.getNumObjects())
     {
       viewer->removeAllShapes();
-      tcp.viewerAddOriginalPrincipalDirections(viewer,obj_idx);
+      //tcp.viewerAddOriginalPrincipalDirections(viewer,obj_idx);
       tcp.cleanPolygonalMesh(viewer);
       tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,true,ORTHOGONAL_PUSHING,pushing_resolution,pushing_limit,minimum_distance,true);
-
+      tcp.viewerAddPushingGraspingPose(viewer,obj_idx,dir_idx);
 
       if(dir_idx == 4)
       { 
@@ -217,7 +217,9 @@ int main(int argc, char *argv[])
   tcp.setPlaneCoefficients(plane_coeff);
 
   tcp.setGripperModel(opening_width,closing_width,finger_width,deep,height,closing_height);
-
+  tcp.setOpenGripperColor(0,255,0);
+  tcp.setClosedGripperColor(0,0,255);
+  std::cout << "aaa" << std::endl;
   tcp.computeProjectionsOnTable();
   tcp.computeRichConvexHulls();
   tcp.computePrincipalDirections();

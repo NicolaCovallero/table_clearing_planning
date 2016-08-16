@@ -218,7 +218,7 @@ class CTableClearingPlanning
     double distance_plane; ///< distance from the plane 
 
     // convex hull
-    pcl::PointCloud<pcl::PointXYZ > cloud;
+    pcl::PointCloud<pcl::PointXYZRGB > cloud;
     std::vector<pcl::Vertices> vertices;
 
   }ee_simple_model;///< end effector simple model
@@ -238,8 +238,8 @@ class CTableClearingPlanning
     double closing_height;
 
     // convex hull
-    pcl::PointCloud<pcl::PointXYZ > open_cloud; ///< point cloud of the gripper open
-    pcl::PointCloud<pcl::PointXYZ > closed_cloud; ///< point cloud of the gripper closed
+    pcl::PointCloud<pcl::PointXYZRGB> open_cloud; ///< point cloud of the gripper open
+    pcl::PointCloud<pcl::PointXYZRGB> closed_cloud; ///< point cloud of the gripper closed
     std::vector<pcl::Vertices> open_vertices,closed_vertices; ///< vertices of the convex hull
 
   }gripper_model;
@@ -450,8 +450,10 @@ class CTableClearingPlanning
      * @param[in] width Dimension of the gripper orthogonal to pushing direction during the pushing action
      * @param[in] distance_plane Distance in meters from the table plane during the pushing action
      */
-    void setGripperSimpleModel(double height, double deep, double width, double distance_plane);
+    void setGripperSimpleModel(double height, double deep, double width, double distance_plane, uint r=1, uint g=255, uint b=255);
 
+    
+    
 
     /**
      * @brief Set the fingers model
@@ -467,7 +469,10 @@ class CTableClearingPlanning
      * @param closing_height [description]
      */
     void setGripperModel(double opening_width, double closing_width, double finger_width,
-               double deep, double height, double closing_height);
+               double deep, double height, double closing_height, uint r=255, uint g=255, uint b=255);
+
+    void setOpenGripperColor (uint r, uint g, uint b);
+    void setClosedGripperColor (uint r, uint g, uint b);
 
     /**
      * @brief Set the plane point cloud
@@ -722,11 +727,12 @@ class CTableClearingPlanning
      * @param[in] print True to print in the terminal each block predicate
      * @param[in] pushing_until_graspable True if the algorithm push until the object can be grasped, otherwise it pushes for
      *            for a length equal to the dimension relative to the pushing direction. The distanceof the end effector during pushing are anyway computed.  
+     * @param[in] show_ee True if you want to see the ee for each pushed length
      */
     void visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,bool visualization = true,
                                       bool print = true, uint pushing_method = ORTHOGONAL_PUSHING,
                                       double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02,
-                                      bool pushing_until_graspable = true);
+                                      bool pushing_until_graspable = true, bool show_ee = false);
 
 
     /**

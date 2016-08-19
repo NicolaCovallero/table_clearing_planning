@@ -1034,6 +1034,97 @@ void CTableClearingPlanning::setClosedGripperColor (uint r, uint g, uint b)
   }
 }
 
+void CTableClearingPlanning::refineSegmentationByBiggestPlane()
+{
+
+    std::vector<PointCloudT> tmp_objects = objects;
+
+    std::vector<std::vector<pcl::ModelCoefficients> > v_coefficients;
+    v_coefficients.resize(this->objects.size());
+    std::vector<std::vector< pcl::PointIndices> > v_inliers;
+    v_inliers.resize( this->objects.size());
+
+    for(uint o = 0; o < this->objects.size(); o++)// for each object
+    {
+       pcl::PointCloud<PointT>::Ptr tmp_c = tmp_objects[o].makeShared();
+       // gets the planes
+       while(tmp_c->points.size() > 10)
+       {
+
+         pcl::SACSegmentation<PointT> seg;
+         // Optional
+         seg.setOptimizeCoefficients (true);
+         // Mandatory
+         seg.setModelType (pcl::SACMODEL_PLANE);
+         seg.setMethodType (pcl::SAC_RANSAC);
+         seg.setDistanceThreshold (0.005);
+         seg.setInputCloud(tmp_c);
+         pcl::PointIndices tmp_indices; 
+         pcl::ModelCoefficients tmp_coefficients;
+         seg.segment (tmp_indices, tmp_coefficients);  
+         v_inliers[o].push_back(tmp_indices);
+         v_coefficients[o].push_back(tmp_coefficients);
+         seg.setMaxIterations (100);
+         seg.setDistanceThreshold (0.01);
+         
+         // Create the filtering object
+         pcl::ExtractIndices<PointT> extract;
+         extract.setInputCloud (tmp_c);
+         pcl::PointIndices::Ptr pi (new pcl::PointIndices); 
+         pi->indices = tmp_indices.indices; 
+         extract.setIndices (pi);
+         extract.setNegative (true);//extract outliers
+         extract.filter (*tmp_c);
+       }
+       // get the biggest plane
+       int idx_max = -1;
+       uint max = 0;
+       for(uint i = 0; i < v_inliers[o].size(); i++)
+       {
+         if(v_inliers[o][i].indices.size() >= max)
+         {
+          // check if it is parallel to the table plane up to a threshold
+          Eigen::Vector3f normal_;
+          normal_[0] = v_coefficients[o][i].values[0];  
+          normal_[1] = v_coefficients[o][i].values[1];  
+          normal_[2] = v_coefficients[o][i].values[2];  
+          double angle_degree_th = 45;
+          double th = cos((M_PI * angle_degree_th)/180);
+          double cos_angle = normal_.dot(this->plane_normal);
+          if(cos_angle < 0) cos_angle = - cos_angle;
+          if( cos_angle >= th)
+          {
+            idx_max = i; 
+            max = v_inliers[o][i].indices.size();
+          }
+         }    
+       }
+       // extract the points and substitute the segmented object with that plane's points
+       if (idx_max == -1)
+         PCL_ERROR("Error estimating the number of planes of object %d",o);
+
+       int counter = 0;
+       pcl::ExtractIndices<PointT> extract;
+       while(counter <= idx_max )
+       {
+         //Create the filtering object
+         extract.setInputCloud (this->objects[o].makeShared());
+         pcl::PointIndices::Ptr pi (new pcl::PointIndices); 
+         pi->indices = v_inliers[o][counter].indices; 
+         extract.setIndices (pi);
+         if(counter != idx_max)
+           extract.setNegative (true);//extract outliers
+         else
+           extract.setNegative(false);//extract inliers
+         extract.filter (this->objects[o]);
+
+         counter++;
+       }
+    }
+  std::cout << "done\n";
+}
+
+
 void CTableClearingPlanning::computeConvexHulls(bool rand_)
 {
   // small trick

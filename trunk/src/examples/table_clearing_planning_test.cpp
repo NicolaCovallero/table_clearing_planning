@@ -118,7 +118,6 @@ int main(int argc, char *argv[])
   tos_supervoxels_parameters opt;
   opt.voxel_resolution = 0.005;
   opt.seed_resolution = 0.02;
-  opt.seed_resolution = 0.02;
   opt.concavity_tolerance_threshold = 15;
 
   // Set the parameters given as aguments: ---------------------------------------------
@@ -208,18 +207,19 @@ int main(int argc, char *argv[])
   // ep.viewerSpin();
   // viewer_edge->close();
 
-
+  std::cout << "Number of objects: " << segmented_objs.size() << std::endl;
   
   tcp.setObjectsPointCloud(segmented_objs);
   tcp.setPlanePointCloud(*(seg.get_plane_cloud()));
   //tcp.setPushingStep(1.5);
   //tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
+  tcp.refineSegmentationByBiggestPlane();
+  std::cout << "---------------- Refined segmented objects ------------------\n";
 
   tcp.setGripperModel(opening_width,closing_width,finger_width,deep,height,closing_height);
-  tcp.setOpenGripperColor(0,255,0);
-  tcp.setClosedGripperColor(0,0,255);
-  std::cout << "aaa" << std::endl;
+  tcp.setOpenGripperColor(255,255,255);
+  tcp.setClosedGripperColor(100,100,100);
   tcp.computeProjectionsOnTable();
   tcp.computeRichConvexHulls();
   tcp.computePrincipalDirections();
@@ -233,11 +233,14 @@ int main(int argc, char *argv[])
 
   //----------- VISUALIZATIONS ----------------------
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
-  
+  // set the camera parameters in order to have the same view always. You could need to change it, depends on the experiment
+  viewer->loadCameraParameters("camera_parameters.cam"); 
+  viewer->setSize(500,400); // set size of the window
+
   //tcp.viewerShowClosedFingersModel(viewer);
   //tcp.viewerShowFingersModel(viewer);
-  //tcp.viewerAddGraspingPoses(viewer);
-  //tcp.viewerAddGraspingPose(viewer,1);
+  tcp.viewerAddGraspingPoses(viewer);
+  //tcp.viewerAddGraspingPose(viewer,0);
   //tcp.viewerAddApproachingPoses(viewer);
   tcp.viewerAddPlaneConvexHull(viewer,255,255,255);
   //tcp.viewerAddOriginalPrincipalDirections(viewer,1);

@@ -532,6 +532,11 @@ class CTableClearingPlanning
      */
     void computeSimpleHeuristicGraspingPoses(bool vertical_poses = PCA_GRASPING);
 
+    
+    /** 
+     * @brief Refine the segmentation of the objects by considering only the biggest plane parallel, up to a certain threshold, to the table plane. If the biggest plane is a side of the object this plane is not considered.  
+     */
+    void refineSegmentationByBiggestPlane();
 
     /**
      * @brief      Compute the convex hull of each object

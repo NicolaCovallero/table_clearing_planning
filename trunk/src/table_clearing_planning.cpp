@@ -1663,7 +1663,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
         if(pushing_until_graspable)
         {
           // check if the new grasping pose collides
-          this->block_grasp_predicates.resize(this->n_objects);
+          // this->block_grasp_predicates.resize(this->n_objects);
           
           GraspingPose* gp = &(gp_tmp);
           fcl::Matrix3f R_gp; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
@@ -2443,7 +2443,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     if(pushing_until_graspable)
     {
       // check if the new grasping pose collides
-      this->block_grasp_predicates.resize(this->n_objects);
+      // this->block_grasp_predicates.resize(this->n_objects);
       
       GraspingPose* gp = &(gp_tmp);
       fcl::Matrix3f R_gp; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works

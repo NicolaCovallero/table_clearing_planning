@@ -25,7 +25,7 @@ $ ./table_clearing_planning_test cluttered_#.pcd
 // all the measures are given in meters
 double pushing_limit = 0.3;
 double minimum_distance = 0.02;
-double pushing_resolution = 0.01;
+double pushing_resolution = 0.03;
 bool print = true;
 
 // gripper model dimensions
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
   tcp.viewerAddPlaneConvexHull(viewer,255,255,255);
   //tcp.viewerAddOriginalPrincipalDirections(viewer,1);
   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
-  viewer->setBackgroundColor (255, 255, 255);
+  viewer->setBackgroundColor (0, 0, 0);
   //viewer->addCoordinateSystem (0.3);
 
 

@@ -380,6 +380,16 @@ class CTableClearingPlanning
    */
   FclMesh pcl2FclConvexHull(PointCloudT convex_hull_cloud, std::vector<pcl::Vertices> convex_hull_indices);
 
+
+  /** 
+   * @brief Refine the pushing in pose in order to avoid it to be too close to the table
+   * 
+   * @param x
+   * @param y
+   * @param z
+   * @param safe_margin minimum distace from the table plane to consider the pushing pose not colliding with the table
+   */
+  void refinePushingPose(Eigen::Vector3f &point,  double safe_margin = 0.015);
   
   void fcl2EigenTransform( Eigen::Vector4f& translate, Eigen::Quaternionf& q_rot,
                            fcl::Transform3f& tf);

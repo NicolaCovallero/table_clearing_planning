@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
   tcp.viewerAddPlaneConvexHull(viewer,255,255,255);
   //tcp.viewerAddOriginalPrincipalDirections(viewer,1);
   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
-  viewer->setBackgroundColor (0, 0, 0);
+  viewer->setBackgroundColor (255, 255, 255);
   //viewer->addCoordinateSystem (0.3);
 
 

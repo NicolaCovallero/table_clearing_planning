@@ -477,6 +477,33 @@ CTableClearingPlanning::getGripperModelMesh()
   return fcl_mesh; 
 }
 
+void CTableClearingPlanning::refinePushingPose(Eigen::Vector3f &point, double safe_margin)
+{
+    Eigen::Vector3f proj_eigen_point;
+
+    double a = this->plane_coefficients.values[0];
+    double b = this->plane_coefficients.values[1];
+    double c = this->plane_coefficients.values[2];
+    double d = this->plane_coefficients.values[3];
+    double distance;
+    pcl::geometry::project(point,this->plane_origin,this->plane_normal,proj_eigen_point);
+    distance = (point - proj_eigen_point).norm();
+    bool safe_pose = true;
+    if((a*point[0] + b*point[1] + c*point[2] + d) >  0) // there is a contact with the table
+    {
+      distance = - distance;
+      safe_pose = false;
+    }
+    else if(distance < safe_margin)
+    {
+      safe_pose = false;
+    }
+    if(not safe_pose)
+    {
+      point -= this->plane_normal * (safe_margin - distance);      
+    }
+}
+
 Eigen::Vector3f  CTableClearingPlanning::pointT2vector3f(PointT point)
 {
   Eigen::Vector3f vec;
@@ -1900,7 +1927,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 
         Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
                            (this->obb_objects[obj_idx].height - this->gripper_model.closing_height);        
-        
+        refinePushingPose(new_centroid);        
         switch(dir_idx)
         {
           case 1 :
@@ -2680,7 +2707,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
     Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
                        (this->obb_objects[obj_idx].height - this->gripper_model.closing_height);        
-    
+    refinePushingPose(new_centroid);    
     switch(dir_idx)
     {
       case 1 :

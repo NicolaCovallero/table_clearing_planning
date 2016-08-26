@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
   // viewer_edge->close();
 
   std::cout << "Number of objects: " << segmented_objs.size() << std::endl;
-  
+  util::uint64 t_init = util::GetTimeMs64();
   tcp.setObjectsPointCloud(segmented_objs);
   tcp.setPlanePointCloud(*(seg.get_plane_cloud()));
   //tcp.setPushingStep(1.5);
@@ -230,6 +230,8 @@ int main(int argc, char *argv[])
   tcp.computeOnTopPredicates(true);
   tcp.computeBlockGraspPredicates(true);
   tcp.printExecutionTimes();
+
+  std::cout << "Total time: " << (double)(util::GetTimeMs64() - t_init) << std::endl;
 
   //----------- VISUALIZATIONS ----------------------
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));

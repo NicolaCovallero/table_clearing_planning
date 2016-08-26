@@ -1550,12 +1550,16 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
       break;
   }
   //tic();
+  util::uint64 t_ini_block_predicates2 = util::GetTimeMs64();
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_; //fake viewer
+ 
   for (uint obj_idx = 0; obj_idx < this->n_objects; ++obj_idx)
   {
     for (uint dir_idx = 1; dir_idx <= 4; ++dir_idx)
     { 
+
       visualComputeBlockPredicates(viewer_,obj_idx,dir_idx,false,print,pushing_method,resolution,pushing_limit,minimum_distance,pushing_until_graspable,false);    
+            
     }
   }
   
@@ -1568,7 +1572,8 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
   //toc();
   util::uint64 t_end_block_predicates = util::GetTimeMs64();
   this->executionTimes.block_predicates = (double)(t_end_block_predicates - t_init_block_predicates);
-  // std::cout << "Execution time block predicates: " << this->executionTimes.block_predicates << std::endl;
+  std::cout << "Execution time block predicates: " << this->executionTimes.block_predicates << std::endl;
+  std::cout << "Execution time block predicates2: " << (double)(util::GetTimeMs64() - t_ini_block_predicates2) << std::endl;
 }
 
 void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,

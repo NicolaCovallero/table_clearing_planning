@@ -1148,7 +1148,6 @@ void CTableClearingPlanning::refineSegmentationByBiggestPlane()
          counter++;
        }
     }
-  std::cout << "done\n";
 }
 
 
@@ -2442,6 +2441,8 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
       }
     }
 
+    //check with what objects are they colliding
+    std::vector<uint> free_collision_objects;
     util::uint64 t_init_collision = util::GetTimeMs64();
     for (uint i = 0; i < this->objects.size(); ++i)
     {
@@ -2465,6 +2466,10 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
             default: break;
           }
         } // end if collision
+        else
+        {
+          free_collision_objects.push_back(i);
+        }
     }//end for collision
 
     if(pushing_until_graspable)
@@ -2484,16 +2489,19 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
       bool grasp_free = true; // boolean variale to specify if the grasp is free
 
-      for (uint o = 0; o < this->n_objects; ++o)
+      // Check if the grasping pose only with objects that do not collide with the object when pushed, 
+      // it makes no sense to check how much it should be pushed because of object that anyway should be moved away.
+      for (uint o = 0; o < free_collision_objects.size() ; ++o)
       {
-        if(o != obj_idx)
+
+        if(free_collision_objects[o] != obj_idx)
         {
           double distance_;
-          bool collision_ = this->isOpenGripperModelColliding(o,grasp_pose,distance_);
+          bool collision_ = this->isOpenGripperModelColliding(free_collision_objects[o],grasp_pose,distance_);
           if (distance_ < minimum_distance)
           { 
             if(print)
-              std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped in the new pose\n";
+              std::cout << "Object " << free_collision_objects[o] << " blocks object " << obj_idx << " to be grasped in the new pose\n";
 
             grasp_free = false;
             exit_while = false;

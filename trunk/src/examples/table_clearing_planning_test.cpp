@@ -85,7 +85,9 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
       viewer->removeAllShapes();
       //tcp.viewerAddOriginalPrincipalDirections(viewer,obj_idx);
       tcp.cleanPolygonalMesh(viewer);
+      util::uint64 t_init = util::GetTimeMs64();
       tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,true,ORTHOGONAL_PUSHING,pushing_resolution,pushing_limit,minimum_distance,true);
+      std::cout << "Partial time: " << (double)(util::GetTimeMs64() - t_init) << std::endl;
       tcp.viewerAddPushingGraspingPose(viewer,obj_idx,dir_idx);
 
       if(dir_idx == 4)

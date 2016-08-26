@@ -27,6 +27,7 @@ double pushing_limit = 0.3;
 double minimum_distance = 0.02;
 double pushing_resolution = 0.03;
 bool print = true;
+bool pushing_until_graspable = true;
 
 // gripper model dimensions
 double opening_width = 0.08;
@@ -49,7 +50,8 @@ void help()
   "-pl <value> : set the pushing limit value\n"
   "-pr <value> : set the reolution for the pushing\n"
   "-md <value> : set the minimum distance to the closest object to consider a grasping pose as feasible\n"
-  "-print : to print into the terminal all the info regarding the predicates \n"
+  "-print [true(1)/false(0)]: to print into the terminal all the info regarding the predicates \n"
+  "-pug [true(1)/false(0)]: pushing until graspable"
   "-gow <value> : set the opening width of the gripper\n"
   "-gcw <value> : set the closing width of the gripper\n"
   "-gfw <value> : set the fingers width of the gripper\n"
@@ -86,7 +88,7 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
       //tcp.viewerAddOriginalPrincipalDirections(viewer,obj_idx);
       tcp.cleanPolygonalMesh(viewer);
       util::uint64 t_init = util::GetTimeMs64();
-      tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,true,ORTHOGONAL_PUSHING,pushing_resolution,pushing_limit,minimum_distance,true);
+      tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,true,ORTHOGONAL_PUSHING,pushing_resolution,pushing_limit,minimum_distance,pushing_until_graspable);
       std::cout << "Partial time: " << (double)(util::GetTimeMs64() - t_init) << std::endl;
       tcp.viewerAddPushingGraspingPose(viewer,obj_idx,dir_idx);
 
@@ -126,7 +128,8 @@ int main(int argc, char *argv[])
   pcl::console::parse (argc, argv, "-pl", pushing_limit);
   pcl::console::parse (argc, argv, "-pr", pushing_resolution);
   pcl::console::parse (argc, argv, "-md", minimum_distance);
-
+  pcl::console::parse (argc, argv, "-pug", pushing_until_graspable);
+  
   pcl::console::parse (argc, argv, "-gow", opening_width);
   pcl::console::parse (argc, argv, "-gcw", closing_width);
   pcl::console::parse (argc, argv, "-gfw", finger_width);
@@ -158,6 +161,10 @@ int main(int argc, char *argv[])
   std::cout << "pushing_limit set to: " << pushing_limit << std::endl;
   std::cout << "pushing_resolution set to: " << pushing_resolution << std::endl;
   std::cout << "minimum_distance set to: " << minimum_distance << std::endl;
+  if(pushing_until_graspable)
+    std::cout << "pushing_until_graspable set to: True"  << std::endl;
+  else
+    std::cout << "pushing_until_graspable set to: False"  << std::endl;
 
   std::cout << "opening_width set to: " << opening_width << std::endl;
   std::cout << "closing_width set to: " << closing_width << std::endl;
@@ -228,7 +235,7 @@ int main(int argc, char *argv[])
   tcp.computeOBBObjects(true);
 
   tcp.computeSimpleHeuristicGraspingPoses(PCA_GRASPING);
-  tcp.computeBlockPredicates(false, ORTHOGONAL_PUSHING, pushing_resolution,pushing_limit,minimum_distance,true);
+  tcp.computeBlockPredicates(false, ORTHOGONAL_PUSHING, pushing_resolution,pushing_limit,minimum_distance,pushing_until_graspable);
   tcp.computeOnTopPredicates(true);
   tcp.computeBlockGraspPredicates(true);
   tcp.printExecutionTimes();

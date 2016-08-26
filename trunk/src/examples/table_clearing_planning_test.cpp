@@ -227,8 +227,8 @@ int main(int argc, char *argv[])
 
   tcp.computeSimpleHeuristicGraspingPoses(PCA_GRASPING);
   tcp.computeBlockPredicates(true, ORTHOGONAL_PUSHING, pushing_resolution,pushing_limit,minimum_distance,false);
-  //tcp.computeOnTopPredicates(true);
-  //tcp.computeBlockGraspPredicates(true);
+  tcp.computeOnTopPredicates(true);
+  tcp.computeBlockGraspPredicates(true);
   tcp.printExecutionTimes();
 
   //----------- VISUALIZATIONS ----------------------

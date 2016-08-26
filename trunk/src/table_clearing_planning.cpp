@@ -1526,7 +1526,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
     i->dist_dir4 = 1000;
   }
 
-  if(this->convex_hull_objects.size() == 0)
+  if(this->convex_hull_objects.size() == 0)		
   {
       this->computeProjectionsOnTable();
       this->computeRichConvexHulls();
@@ -1550,726 +1550,15 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
       break;
   }
   //tic();
-
+  boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_; //fake viewer
   for (uint obj_idx = 0; obj_idx < this->n_objects; ++obj_idx)
   {
     for (uint dir_idx = 1; dir_idx <= 4; ++dir_idx)
-    {
-      fcl::Vec3f T;
-      double x,y,z;
-
-      if((dir_idx < 1) || (dir_idx > 4))
-      {
-        PCL_ERROR("Index of the direction wrong: %d it has to belong to be 1,2,3,4\n",dir_idx);
-        return;
-      }
-      uint n = 1;
-      //for (uint n = 1; n <= this->n_pushes; ++n)
-      
-      double step_translation = 0;
-
-      if(not pushing_until_graspable) // pushed for a fixed distance
-      {
-        switch(dir_idx)
-        {
-          case 1: 
-          case 2:
-              resolution = obb_objects[obj_idx].deep;
-              break;
-          case 3:
-          case 4:
-              resolution = obb_objects[obj_idx].width;
-              break;
-          default:break;
-        } 
-        this->pushing_limit = this->pushing_step * resolution;
-      }
-      else
-      {
-        this->pushing_limit = pushing_limit;
-      }
-          
-
-      GraspingPose gp_tmp; // temporary grasping pose
-      bool exit_while = false;
-      while(step_translation < this->pushing_limit and not exit_while )
-      {
-        switch(dir_idx){
-          case 1 :
-                  step_translation += resolution;
-                  if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                    step_translation = this->pushing_limit;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir1[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir1[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir1[2];
-                  T.setValue(x,y,z);               
-
-                  // grasping pose translated
-                  gp_tmp = grasping_poses[obj_idx];
-                  gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir1;
-
-                  break;
-          case 2 :
-                  step_translation += resolution;
-                  if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                    step_translation = this->pushing_limit;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir2[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir2[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir2[2];
-                  T.setValue(x,y,z);
-
-                  // grasping pose translated
-                  gp_tmp = grasping_poses[obj_idx];
-                  gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir2;
-
-                  break; 
-          case 3 :
-                  step_translation += resolution;
-                  if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                    step_translation = this->pushing_limit;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir3[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir3[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir3[2];
-                  T.setValue(x,y,z);
-
-                  // grasping pose translated
-                  gp_tmp = grasping_poses[obj_idx];
-                  gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir3;
-
-                  break; 
-          case 4 :
-                  step_translation += resolution;
-                  if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                    step_translation = this->pushing_limit;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir4[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir4[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir4[2];
-                  T.setValue(x,y,z);
-
-                  // grasping pose translated
-                  gp_tmp = grasping_poses[obj_idx];
-                  gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir4;
-
-                  break; 
-          default: break;
-        }//end switch
-
-        // identity matrix -> no rotation
-        fcl::Matrix3f R(1,0,0,
-                        0,1,0,
-                        0,0,1);
-        //for all the other objects
-        fcl::Transform3f pose(R, T);
-
-        util::uint64 t_init_collision = util::GetTimeMs64();
-        for (uint i = 0; i < this->objects.size(); ++i)
-        {
-          if(i != obj_idx)
-            if(this->areObjectCollidingFcl(obj_idx,pose,i))
-            {
-              //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
-              switch(dir_idx){
-                case 1 :            
-                        this->blocks_predicates[obj_idx].block_dir1.push_back(i);
-                        break;
-                case 2 :
-                        this->blocks_predicates[obj_idx].block_dir2.push_back(i);
-                        break; 
-                case 3 :
-                        this->blocks_predicates[obj_idx].block_dir3.push_back(i);
-                        break; 
-                case 4 :
-                        this->blocks_predicates[obj_idx].block_dir4.push_back(i);
-                        break; 
-                default: break;
-              }
-            } // end if collision
-        }//end for collision
-
-        if(pushing_until_graspable)
-        {
-          // check if the new grasping pose collides
-          // this->block_grasp_predicates.resize(this->n_objects);
-          
-          GraspingPose* gp = &(gp_tmp);
-          fcl::Matrix3f R_gp; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
-          this->eigen2FclRotation(gp->rotation,R_gp);
-          fcl::Vec3f T;
-          T.setValue( gp->translation[0],
-                      gp->translation[1],
-                      gp->translation[2]);
-          fcl::Transform3f grasp_pose(R_gp, T);
-
-
-          bool grasp_free = true; // boolean variale to specify if the grasp is free
-
-          for (uint o = 0; o < this->n_objects; ++o)
-          {
-            if(o != obj_idx)
-            {
-              double distance_;
-              bool collision_ = this->isOpenGripperModelColliding(o,grasp_pose,distance_);
-              if (distance_ < minimum_distance)
-              { 
-                if(print)
-                  std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped in the new pose\n";
-
-                grasp_free = false;
-                exit_while = false;
-                break;
-              }
-            }
-          } // end for
-
-          //save grasp
-          switch(dir_idx){
-            case 1: 
-                    pushing_grasping_poses[obj_idx].gp_dir1 = gp_tmp;
-                    break;
-            case 2: 
-                    pushing_grasping_poses[obj_idx].gp_dir2 = gp_tmp;
-                    break;
-            case 3: 
-                    pushing_grasping_poses[obj_idx].gp_dir3 = gp_tmp;
-                    break;
-            case 4: 
-                    pushing_grasping_poses[obj_idx].gp_dir4 = gp_tmp;
-                    break;
-          }
-
-          if(grasp_free or step_translation >= this->pushing_limit) // if the grasp is collision free or we reached the limit distance
-          {
-            // save the length of pushing
-            switch(dir_idx){
-              case 1: pushing_lengths[obj_idx].dir1 = step_translation;
-                      break;
-              case 2: pushing_lengths[obj_idx].dir2 = step_translation;
-                      break;
-              case 3: pushing_lengths[obj_idx].dir3 = step_translation;
-                      break;
-              case 4: pushing_lengths[obj_idx].dir4 = step_translation;
-                      break;
-            }
-
-
-            //exit from the while loop. We do not need to check for more translations
-            //break;
-            exit_while = true;
-          }
-        }
-        else
-        {
-          // save the length of pushing
-          switch(dir_idx)
-          {
-            case 1: 
-                    pushing_lengths[obj_idx].dir1 = this->pushing_limit;
-                    break;
-            case 2: 
-                    pushing_lengths[obj_idx].dir2 = this->pushing_limit;
-                    break;
-            case 3:
-                    pushing_lengths[obj_idx].dir3 = this->pushing_limit;
-                    break; 
-            case 4: 
-                    pushing_lengths[obj_idx].dir4 = this->pushing_limit;
-                    break;
-          }
-        }
-        this->executionTimes.objects_collisions += (double)(util::GetTimeMs64() - t_init_collision);
-
-        n++;
-      }
-
-      // ----------------------- END EFFECTOR --------------------------------------
-
-      PrincipalDirectionsProjected* pd = &(principal_directions_objects[obj_idx]);
-      Eigen::Matrix3f rot;
-      
-      Eigen::Vector3f normal;
-      Eigen::Vector3f translation;
-      Eigen::Matrix3f mat_rot;
-      Eigen::Quaternionf quat;
-      if(pushing_method == PARALLEL_PUSHING)
-      {
-        // project centroid to the table 
-        Eigen::Vector3f eigen_point = pd->centroid.head<3>();
-        Eigen::Vector3f proj_eigen_point;
-        pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
-
-        Eigen::Vector3f scaled_diff = eigen_point - proj_eigen_point;
-        scaled_diff.normalize(); // this hsould be equal to - this->normal_plane
-
-        scaled_diff = (this->ee_simple_model.distance_plane + this->ee_simple_model.height/2 )* scaled_diff;
-        
-        Eigen::Vector3f new_centroid = proj_eigen_point + scaled_diff;
-
-        switch(dir_idx)
-        {
-          case 1 :
-                  step_translation = - this->obb_objects[obj_idx].deep/2 \
-                                     - this->ee_simple_model.deep/2 - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-                  rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-                  rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // we are now going to save the TCP pose 
-                  translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir1;
-                  this->pushing_poses[obj_idx].pose_dir1.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
-
-                  break;
-          case 2 :
-                  step_translation = - this->obb_objects[obj_idx].deep/2 +
-                                     - this->ee_simple_model.deep/2 - pushing_object_distance;           
-                  x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-                  rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-                  rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP
-                  translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir2;
-                  this->pushing_poses[obj_idx].pose_dir2.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
-
-                  break; 
-          case 3 :
-                  step_translation = - this->obb_objects[obj_idx].width/2 +
-                                     - this->ee_simple_model.deep/2 - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-                  rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-                  rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP
-                  translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir3;
-                  this->pushing_poses[obj_idx].pose_dir3.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
-
-                  break; 
-          case 4 :
-                  step_translation = - this->obb_objects[obj_idx].width/2 +
-                                     - this->ee_simple_model.deep/2 - pushing_object_distance; 
-                  x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-                  rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-                  rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP
-                  translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir4;
-                  this->pushing_poses[obj_idx].pose_dir4.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
-
-                  break; 
-          default: break;
-        }
-      }
-      else if(pushing_method == ORTHOGONAL_PUSHING)
-      {
-        // project centroid to the table 
-        Eigen::Vector3f eigen_point = pd->centroid.head<3>();
-        Eigen::Vector3f proj_eigen_point;
-        pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
-
-        Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
-                           (this->obb_objects[obj_idx].height - this->gripper_model.closing_height);        
-        refinePushingPose(new_centroid);        
-        switch(dir_idx)
-        {
-          case 1 :
-                  // step_translation = - this->obb_objects[obj_idx].deep/2 
-                  //                    - this->gripper_model.finger_width/2
-                  //                    - pushing_object_distance;
-                  step_translation = - this->obb_objects[obj_idx].deep/2 
-                                 - (this->gripper_model.finger_width + 
-                                    this->gripper_model.closing_width/2)
-                                 - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  // rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-                  // rot(1,0) = -pd->dir1[0]; rot(1,1) = -pd->dir1[1]; rot(1,2) = -pd->dir1[2];
-                  // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-
-                  rot(0,0) = -pd->dir1[0]; rot(0,1) = -pd->dir1[1]; rot(0,2) = -pd->dir1[2];
-                  rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
-                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP -> we have to fix the translation accordingly to ROS              
-                  this->pushing_poses[obj_idx].pose_dir1.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
-
-                  break;
-          case 2 :
-                  // step_translation = - this->obb_objects[obj_idx].deep/2 
-                  //                    - this->gripper_model.finger_width/2
-                  //                    - pushing_object_distance;
-
-                  // we want to push in it in the smallest gripper side
-                  step_translation = - this->obb_objects[obj_idx].deep/2 
-                                 - (this->gripper_model.finger_width + 
-                                    this->gripper_model.closing_width/2)
-                                 - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  // rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-                  // rot(1,0) = -pd->dir2[0]; rot(1,1) = -pd->dir2[1]; rot(1,2) = -pd->dir2[2];
-                  // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-
-                  rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-                  rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
-                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP -> we have to fix the translation accordingly to ROS              
-                  this->pushing_poses[obj_idx].pose_dir2.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
-
-                  break; 
-          case 3 :
-                  step_translation = - this->obb_objects[obj_idx].width/2 
-                                     - this->gripper_model.deep/2
-                                     - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-                  rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
-                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP -> we have to fix the translation accordingly to ROS              
-                  this->pushing_poses[obj_idx].pose_dir3.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
-
-                  break; 
-          case 4 :
-                  step_translation = - this->obb_objects[obj_idx].width/2 
-                                     - this->gripper_model.deep/2
-                                     - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-                  rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
-                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP -> we have to fix the translation accordingly to ROS              
-                  this->pushing_poses[obj_idx].pose_dir4.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
-
-                  break; 
-          default: break;
-        }
-      }
-      //for all the other objects
-
-      //we have to compute the rotation accordingly to the direction
-
-      fcl::Matrix3f R; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
-      mat_rot = rot.inverse();
-      this->eigen2FclRotation(mat_rot,R);
-
-      fcl::Transform3f pose_ee(R, T);
-
-      // check for all the other objects what are the ones that collide with it
-      util::uint64 t_init_ee_collision = util::GetTimeMs64();
-      double distance_;
-      for (uint i = 0; i < this->objects.size(); ++i)
-      {
-        if(i != obj_idx)
-        {
-          // is gripper colliding?
-          bool collision;
-          switch(pushing_method)
-          {
-            case ORTHOGONAL_PUSHING:
-              collision = this->isClosedGripperModelColliding(i,pose_ee,distance_);
-              break;
-            case PARALLEL_PUSHING:
-              collision = this->isEEColliding(i,pose_ee, distance_);
-              break;
-            default:
-              break;
-          }
-        
-          //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
-          switch(dir_idx)
-          {
-            case 1 :            
-                    if(distance_ < this->pushing_poses[obj_idx].dist_dir1 )
-                      this->pushing_poses[obj_idx].dist_dir1 = distance_;
-                    if(collision)
-                      this->blocks_predicates[obj_idx].block_dir1.push_back(i);
-                    break;
-            case 2 :
-                    if(distance_ < this->pushing_poses[obj_idx].dist_dir2 )
-                      this->pushing_poses[obj_idx].dist_dir2 = distance_;
-                    if(collision)
-                      this->blocks_predicates[obj_idx].block_dir2.push_back(i);
-                    break; 
-            case 3 :
-                    if(distance_ < this->pushing_poses[obj_idx].dist_dir3 )
-                      this->pushing_poses[obj_idx].dist_dir3 = distance_;
-                    if(collision)
-                      this->blocks_predicates[obj_idx].block_dir3.push_back(i);
-                    break; 
-            case 4 :
-                    if(distance_ < this->pushing_poses[obj_idx].dist_dir4 )
-                      this->pushing_poses[obj_idx].dist_dir4 = distance_;
-                    if(collision)
-                      this->blocks_predicates[obj_idx].block_dir4.push_back(i);
-                    break; 
-            default: break;
-          }
-        
-        }
-      }
-      this->executionTimes.ee_collisions += (double)(util::GetTimeMs64() - t_init_ee_collision);
-
-      // compute the minimum distance along all the pushing action
-      step_translation = 0;
-      fcl::Vec3f T_translation;
-      double pushing_length_;
-      switch(dir_idx)
-      {
-        case 1:
-           pushing_length_ = pushing_lengths[obj_idx].dir1;
-           break;
-        case 2:
-           pushing_length_ = pushing_lengths[obj_idx].dir2;
-           break;
-        case 3:
-           pushing_length_ = pushing_lengths[obj_idx].dir3;
-           break;
-        case 4:
-           pushing_length_ = pushing_lengths[obj_idx].dir4;
-           break;              
-      }
-      while(step_translation <  pushing_length_)
-      {
-        step_translation += resolution;
-        if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-          step_translation = this->pushing_limit;
-        switch(dir_idx)
-        {
-          case 1 :          
-                  x =  step_translation*principal_directions_objects[obj_idx].dir1[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir1[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir1[2];
-                  T_translation.setValue(x,y,z);     
-                  break;
-          case 2 :          
-                  x =  step_translation*principal_directions_objects[obj_idx].dir2[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir2[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir2[2];
-                  T_translation.setValue(x,y,z);     
-                  break;
-          case 3 :          
-                  x =  step_translation*principal_directions_objects[obj_idx].dir3[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir3[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir3[2];
-                  T_translation.setValue(x,y,z);     
-                  break;
-          case 4 :          
-                  x =  step_translation*principal_directions_objects[obj_idx].dir4[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir4[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir4[2];
-                  T_translation.setValue(x,y,z);     
-                  break;
-          default:break;
-        }
-        fcl::Transform3f pose_ee(R, T + T_translation); // translated pushing pose
-        double distance_ee;
-        for (uint i = 0; i < this->objects.size(); ++i)
-        {
-          if(i != obj_idx)
-          {
-            // is gripper colliding?
-            switch(pushing_method)
-            {
-              case ORTHOGONAL_PUSHING:
-                this->isClosedGripperModelColliding(i,pose_ee,distance_ee);
-                break;
-              case PARALLEL_PUSHING:
-                this->isEEColliding(i,pose_ee, distance_ee);
-                break;
-              default:
-                break;
-            }
-          
-            //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
-            switch(dir_idx)
-            {
-              case 1 :            
-                      if(distance_ee < this->pushing_poses[obj_idx].dist_dir1 )
-                        this->pushing_poses[obj_idx].dist_dir1 = distance_ee;
-                      break;
-              case 2 :
-                      if(distance_ee < this->pushing_poses[obj_idx].dist_dir2 )
-                        this->pushing_poses[obj_idx].dist_dir2 = distance_ee;
-                      break; 
-              case 3 :
-                      if(distance_ee < this->pushing_poses[obj_idx].dist_dir3 )
-                        this->pushing_poses[obj_idx].dist_dir3 = distance_ee;
-                      break; 
-              case 4 :
-                      if(distance_ee < this->pushing_poses[obj_idx].dist_dir4 )
-                        this->pushing_poses[obj_idx].dist_dir4 = distance_ee;
-                      break; 
-              default: break;
-            }
-          }
-        }
-      }
-
-      //remove duplicates 
-      std::vector<uint>* vec;
-      switch(dir_idx)
-      {
-        case 1 :
-                vec = &(this->blocks_predicates[obj_idx].block_dir1);            
-                break;
-        case 2 :
-                vec = &(this->blocks_predicates[obj_idx].block_dir2);
-                break; 
-        case 3 :
-                vec = &(this->blocks_predicates[obj_idx].block_dir3);
-                break; 
-        case 4 :
-                vec = &(this->blocks_predicates[obj_idx].block_dir4);
-                break; 
-        default: break;
-      }
-      // reference:
-      // http://stackoverflow.com/questions/1041620/whats-the-most-efficient-way-to-erase-duplicates-and-sort-a-vector
-      sort( vec->begin(), vec->end() );
-      vec->erase( unique( vec->begin(), vec->end() ), vec->end() );
-      
-      if(print)
-      {
-        // print blocks predicates
-        std::vector<uint>* block_dir_pointer;
-        switch(dir_idx)
-        {
-          case 1 :
-                  block_dir_pointer = &(this->blocks_predicates[obj_idx].block_dir1);
-                  break;
-          case 2 :
-                  block_dir_pointer = &(this->blocks_predicates[obj_idx].block_dir2);
-                  break; 
-          case 3 :
-                  block_dir_pointer = &(this->blocks_predicates[obj_idx].block_dir3);
-                  break; 
-          case 4 :
-                  block_dir_pointer = &(this->blocks_predicates[obj_idx].block_dir4);
-                  break; 
-          default: break;
-        }
-        for (uint i = 0; i < block_dir_pointer->size(); ++i)
-        {
-          std::cout << "Object " << obj_idx << " is colliding with object " <<  block_dir_pointer->at(i) << " in direction " << dir_idx << std::endl;
-        }
-      }    
+    { 
+      visualComputeBlockPredicates(viewer_,obj_idx,dir_idx,false,print,pushing_method,resolution,pushing_limit,minimum_distance,pushing_until_graspable,false);    
     }
   }
-
+  
   // get the average to compute the collision between 2 objects dividing by (n_objects-1) the total 
   // objects collison time.(-1 because the object are not tested to collide with themselves)
   this->executionTimes.average_objects_collision = this->executionTimes.objects_collisions/((n_objects-1)*n_objects);
@@ -2311,6 +1600,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   uint n = 1;
   
   double step_translation = 0;
+  std::vector<uint> blocking_objects;
 
   GraspingPose gp_tmp; // temporary grasping pose
 
@@ -2342,8 +1632,371 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   {
     this->pushing_limit = pushing_limit;
   }
+  // ----------------------- END EFFECTOR --------------------------------------
+                                                                                                                                          
+  PrincipalDirectionsProjected* pd = &(principal_directions_objects[obj_idx]);
+  Eigen::Matrix3f rot;
 
+  Eigen::Vector3f normal;
+  Eigen::Vector3f translation;
+  Eigen::Matrix3f mat_rot;
+  Eigen::Quaternionf quat;
+  if(pushing_method == PARALLEL_PUSHING)
+  {
+    // project centroid to the table 
+    Eigen::Vector3f eigen_point = pd->centroid.head<3>();
+    Eigen::Vector3f proj_eigen_point;
+    pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
+                                                                                                                                          
+    Eigen::Vector3f scaled_diff = eigen_point - proj_eigen_point;
+    scaled_diff.normalize(); // this should be equal to - this->normal_plane
+                                                                                                                                          
+    scaled_diff = (this->ee_simple_model.distance_plane + this->ee_simple_model.height/2 )* scaled_diff;
     
+    Eigen::Vector3f new_centroid = proj_eigen_point + scaled_diff;
+                                                                                                                                          
+    switch(dir_idx)
+    {
+      case 1 :
+              step_translation = - this->obb_objects[obj_idx].deep/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // we are now going to save the TCP pose 
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir1;
+              this->pushing_poses[obj_idx].pose_dir1.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
+                                                                                                                                          
+              break;
+      case 2 :
+              step_translation = - this->obb_objects[obj_idx].deep/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance;           
+              x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir2;
+              this->pushing_poses[obj_idx].pose_dir2.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
+                                                                                                                                          
+              break; 
+      case 3 :
+              step_translation = - this->obb_objects[obj_idx].width/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir3;
+              this->pushing_poses[obj_idx].pose_dir3.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
+                                                                                                                                          
+              break; 
+      case 4 :
+              step_translation = - this->obb_objects[obj_idx].width/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance; 
+              x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir4;
+              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
+                                                                                                                                          
+              break; 
+      default: break;
+    }
+  }
+  else if(pushing_method == ORTHOGONAL_PUSHING)
+  {
+    // project centroid to the table 
+    Eigen::Vector3f eigen_point = pd->centroid.head<3>();
+    Eigen::Vector3f proj_eigen_point;
+    pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
+                                                                                                                                          
+    Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
+                       (this->obb_objects[obj_idx].height - this->gripper_model.closing_height);        
+    refinePushingPose(new_centroid);    
+    switch(dir_idx)
+    {
+      case 1 :
+              // step_translation = - this->obb_objects[obj_idx].deep/2 
+              //                    - this->gripper_model.finger_width/2
+              //                    - pushing_object_distance;
+              step_translation = - this->obb_objects[obj_idx].deep/2 
+                                 - (this->gripper_model.finger_width + 
+                                    this->gripper_model.closing_width/2)
+                                 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              // rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+              // rot(1,0) = -pd->dir1[0]; rot(1,1) = -pd->dir1[1]; rot(1,2) = -pd->dir1[2];
+              // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+                                                                                                                                          
+              rot(0,0) = -pd->dir1[0]; rot(0,1) = -pd->dir1[1]; rot(0,2) = -pd->dir1[2];
+              rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
+              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir1.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
+                                                                                                                                          
+              break;
+      case 2 :
+              // step_translation = - this->obb_objects[obj_idx].deep/2 
+              //                    - this->gripper_model.finger_width/2
+              //                    - pushing_object_distance;
+                                                                                                                                          
+              // we want to push in it in the smallest gripper side
+              step_translation = - this->obb_objects[obj_idx].deep/2 
+                                 - (this->gripper_model.finger_width + 
+                                    this->gripper_model.closing_width/2)
+                                 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              // rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+              // rot(1,0) = -pd->dir2[0]; rot(1,1) = -pd->dir2[1]; rot(1,2) = -pd->dir2[2];
+              // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+                                                                                                                                          
+              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+              rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
+              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir2.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
+                                                                                                                                          
+              break; 
+      case 3 :
+              step_translation = - this->obb_objects[obj_idx].width/2 
+                                 - this->gripper_model.deep/2
+                                 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+              rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
+              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir3.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
+                                                                                                                                          
+              break; 
+      case 4 :
+              step_translation = - this->obb_objects[obj_idx].width/2 
+                                 - this->gripper_model.deep/2
+                                 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+              rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
+              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
+                                                                                                                                          
+              break; 
+      default: break;
+    }
+  }
+                                                                                                                                          
+  //we have to compute the rotation accordingly to the direction
+  fcl::Matrix3f R; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
+  mat_rot = rot.inverse();
+  this->eigen2FclRotation(mat_rot,R);
+                                                                                                                                          
+  fcl::Transform3f pose_ee(R, T);
+                                                                                                                                          
+  if(visualization)
+  {
+    Eigen::Vector4f translation_ee;
+    Eigen::Quaternionf quat_ee;
+    pcl::PointCloud<pcl::PointXYZRGB> ee_translated;
+    this->fcl2EigenTransform(translation_ee, quat_ee, pose_ee);
+    switch(pushing_method)
+    {
+      case ORTHOGONAL_PUSHING:
+        pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.closed_cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
+        viewer->addPolygonMesh<pcl::PointXYZRGB>(ee_translated.makeShared(), this->gripper_model.closed_vertices,"ee");
+        break;
+      case PARALLEL_PUSHING:
+        pcl::transformPointCloud<pcl::PointXYZRGB>(this->ee_simple_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
+        viewer->addPolygonMesh<pcl::PointXYZRGB>(ee_translated.makeShared(), this->ee_simple_model.vertices,"ee");
+        break;
+      default:
+        break;
+    }
+  }
+                                                                                                                                          
+  // check for all the other objects what are the ones that collide with it
+  util::uint64 t_init_ee_collision = util::GetTimeMs64();
+  double distance_;
+  for (uint i = 0; i < this->objects.size(); ++i)
+  {
+    if(i != obj_idx)
+    {
+      // is gripper colliding?
+      bool collision;
+      switch(pushing_method)
+      {
+        case ORTHOGONAL_PUSHING:
+          collision = this->isClosedGripperModelColliding(i,pose_ee,distance_);
+          break;
+        case PARALLEL_PUSHING:
+          collision = this->isEEColliding(i,pose_ee, distance_);
+          break;
+        default:
+          break;
+      }
+      if(collision)
+        blocking_objects.push_back(i); 
+      //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
+      switch(dir_idx)
+      {
+        case 1 :            
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir1 )
+                  this->pushing_poses[obj_idx].dist_dir1 = distance_;
+                if(collision)
+                  this->blocks_predicates[obj_idx].block_dir1.push_back(i);
+                break;
+        case 2 :
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir2 )
+                  this->pushing_poses[obj_idx].dist_dir2 = distance_;
+                if(collision)
+                  this->blocks_predicates[obj_idx].block_dir2.push_back(i);
+                break; 
+        case 3 :
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir3 )
+                  this->pushing_poses[obj_idx].dist_dir3 = distance_;
+                if(collision)
+                  this->blocks_predicates[obj_idx].block_dir3.push_back(i);
+                break; 
+        case 4 :
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir4 )
+                  this->pushing_poses[obj_idx].dist_dir4 = distance_;
+                if(collision)
+                  this->blocks_predicates[obj_idx].block_dir4.push_back(i);
+                break; 
+        default: break;
+      }
+    
+    }
+  }
+  this->executionTimes.ee_collisions += (double)(util::GetTimeMs64() - t_init_ee_collision);
+
+  // -------------------------- OBJECTS ---------------------
+
+  step_translation = - resolution; 
   while(step_translation < this->pushing_limit and not exit_while )
   {
     switch(dir_idx){
@@ -2446,10 +2099,17 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     util::uint64 t_init_collision = util::GetTimeMs64();
     for (uint i = 0; i < this->objects.size(); ++i)
     {
-      if(i != obj_idx)
+      bool no_blocking = true;
+      for (uint bo = 0; bo < blocking_objects.size(); bo++)
+      {
+        if( i == blocking_objects[bo])
+          no_blocking = false;
+      }
+      if(i != obj_idx && no_blocking)
         if(this->areObjectCollidingFcl(obj_idx,pose,i))
         {
-          //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
+          blocking_objects.push_back(i);
+          std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << " distance: " << step_translation << std::endl;
           switch(dir_idx){
             case 1 :            
                     this->blocks_predicates[obj_idx].block_dir1.push_back(i);
@@ -2491,17 +2151,25 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
       // Check if the grasping pose only with objects that do not collide with the object when pushed, 
       // it makes no sense to check how much it should be pushed because of object that anyway should be moved away.
-      for (uint o = 0; o < free_collision_objects.size() ; ++o)
+      for (uint o = 0; o < this->objects.size() ; ++o)
       {
+        bool no_blocking = true;
+        for (uint bo = 0; bo < blocking_objects.size(); bo++)
+        {
+          if( o == blocking_objects[bo])
+            no_blocking = false;
+        }
 
-        if(free_collision_objects[o] != obj_idx)
+        if(o != obj_idx && no_blocking)
         {
           double distance_;
-          bool collision_ = this->isOpenGripperModelColliding(free_collision_objects[o],grasp_pose,distance_);
+          bool collision_ = this->isOpenGripperModelColliding(o,grasp_pose,distance_);
           if (distance_ < minimum_distance)
           { 
             if(print)
-              std::cout << "Object " << free_collision_objects[o] << " blocks object " << obj_idx << " to be grasped in the new pose\n";
+            {
+              std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped in the new pose  distance: " << step_translation << std::endl;
+            }
 
             grasp_free = false;
             exit_while = false;
@@ -2569,367 +2237,6 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
     n++;
   }
-
-  // ----------------------- END EFFECTOR --------------------------------------
-
-  PrincipalDirectionsProjected* pd = &(principal_directions_objects[obj_idx]);
-  Eigen::Matrix3f rot;
-  
-  Eigen::Vector3f normal;
-  Eigen::Vector3f translation;
-  Eigen::Matrix3f mat_rot;
-  Eigen::Quaternionf quat;
-  if(pushing_method == PARALLEL_PUSHING)
-  {
-    // project centroid to the table 
-    Eigen::Vector3f eigen_point = pd->centroid.head<3>();
-    Eigen::Vector3f proj_eigen_point;
-    pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
-
-    Eigen::Vector3f scaled_diff = eigen_point - proj_eigen_point;
-    scaled_diff.normalize(); // this should be equal to - this->normal_plane
-
-    scaled_diff = (this->ee_simple_model.distance_plane + this->ee_simple_model.height/2 )* scaled_diff;
-    
-    Eigen::Vector3f new_centroid = proj_eigen_point + scaled_diff;
-
-    switch(dir_idx)
-    {
-      case 1 :
-              step_translation = - this->obb_objects[obj_idx].deep/2 +
-                                 - this->ee_simple_model.deep/2 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-              rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // we are now going to save the TCP pose 
-              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir1;
-              this->pushing_poses[obj_idx].pose_dir1.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
-
-              break;
-      case 2 :
-              step_translation = - this->obb_objects[obj_idx].deep/2 +
-                                 - this->ee_simple_model.deep/2 - pushing_object_distance;           
-              x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-              rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP
-              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir2;
-              this->pushing_poses[obj_idx].pose_dir2.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
-
-              break; 
-      case 3 :
-              step_translation = - this->obb_objects[obj_idx].width/2 +
-                                 - this->ee_simple_model.deep/2 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-              rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP
-              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir3;
-              this->pushing_poses[obj_idx].pose_dir3.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
-
-              break; 
-      case 4 :
-              step_translation = - this->obb_objects[obj_idx].width/2 +
-                                 - this->ee_simple_model.deep/2 - pushing_object_distance; 
-              x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-              rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP
-              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir4;
-              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
-
-              break; 
-      default: break;
-    }
-  }
-  else if(pushing_method == ORTHOGONAL_PUSHING)
-  {
-    // project centroid to the table 
-    Eigen::Vector3f eigen_point = pd->centroid.head<3>();
-    Eigen::Vector3f proj_eigen_point;
-    pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
-
-    Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
-                       (this->obb_objects[obj_idx].height - this->gripper_model.closing_height);        
-    refinePushingPose(new_centroid);    
-    switch(dir_idx)
-    {
-      case 1 :
-              // step_translation = - this->obb_objects[obj_idx].deep/2 
-              //                    - this->gripper_model.finger_width/2
-              //                    - pushing_object_distance;
-              step_translation = - this->obb_objects[obj_idx].deep/2 
-                                 - (this->gripper_model.finger_width + 
-                                    this->gripper_model.closing_width/2)
-                                 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              // rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-              // rot(1,0) = -pd->dir1[0]; rot(1,1) = -pd->dir1[1]; rot(1,2) = -pd->dir1[2];
-              // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-
-              rot(0,0) = -pd->dir1[0]; rot(0,1) = -pd->dir1[1]; rot(0,2) = -pd->dir1[2];
-              rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
-              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP -> we have to fix the translation accordingly to ROS              
-              this->pushing_poses[obj_idx].pose_dir1.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
-
-              break;
-      case 2 :
-              // step_translation = - this->obb_objects[obj_idx].deep/2 
-              //                    - this->gripper_model.finger_width/2
-              //                    - pushing_object_distance;
-
-              // we want to push in it in the smallest gripper side
-              step_translation = - this->obb_objects[obj_idx].deep/2 
-                                 - (this->gripper_model.finger_width + 
-                                    this->gripper_model.closing_width/2)
-                                 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              // rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-              // rot(1,0) = -pd->dir2[0]; rot(1,1) = -pd->dir2[1]; rot(1,2) = -pd->dir2[2];
-              // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-
-              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-              rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
-              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP -> we have to fix the translation accordingly to ROS              
-              this->pushing_poses[obj_idx].pose_dir2.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
-
-              break; 
-      case 3 :
-              step_translation = - this->obb_objects[obj_idx].width/2 
-                                 - this->gripper_model.deep/2
-                                 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-              rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
-              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP -> we have to fix the translation accordingly to ROS              
-              this->pushing_poses[obj_idx].pose_dir3.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
-
-              break; 
-      case 4 :
-              step_translation = - this->obb_objects[obj_idx].width/2 
-                                 - this->gripper_model.deep/2
-                                 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-              rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
-              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP -> we have to fix the translation accordingly to ROS              
-              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
-
-              break; 
-      default: break;
-    }
-  }
-
-  //we have to compute the rotation accordingly to the direction
-  fcl::Matrix3f R; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
-  mat_rot = rot.inverse();
-  this->eigen2FclRotation(mat_rot,R);
-
-  fcl::Transform3f pose_ee(R, T);
-
-  if(visualization)
-  {
-    Eigen::Vector4f translation_ee;
-    Eigen::Quaternionf quat_ee;
-    pcl::PointCloud<pcl::PointXYZRGB> ee_translated;
-    this->fcl2EigenTransform(translation_ee, quat_ee, pose_ee);
-    switch(pushing_method)
-    {
-      case ORTHOGONAL_PUSHING:
-        pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.closed_cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
-        viewer->addPolygonMesh<pcl::PointXYZRGB>(ee_translated.makeShared(), this->gripper_model.closed_vertices,"ee");
-        break;
-      case PARALLEL_PUSHING:
-        pcl::transformPointCloud<pcl::PointXYZRGB>(this->ee_simple_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
-        viewer->addPolygonMesh<pcl::PointXYZRGB>(ee_translated.makeShared(), this->ee_simple_model.vertices,"ee");
-        break;
-      default:
-        break;
-    }
-  }
-
-  // check for all the other objects what are the ones that collide with it
-  util::uint64 t_init_ee_collision = util::GetTimeMs64();
-  double distance_;
-  for (uint i = 0; i < this->objects.size(); ++i)
-  {
-    if(i != obj_idx)
-    {
-      // is gripper colliding?
-      bool collision;
-      switch(pushing_method)
-      {
-        case ORTHOGONAL_PUSHING:
-          collision = this->isClosedGripperModelColliding(i,pose_ee,distance_);
-          break;
-        case PARALLEL_PUSHING:
-          collision = this->isEEColliding(i,pose_ee, distance_);
-          break;
-        default:
-          break;
-      }
-    
-      //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
-      switch(dir_idx)
-      {
-        case 1 :            
-                if(distance_ < this->pushing_poses[obj_idx].dist_dir1 )
-                  this->pushing_poses[obj_idx].dist_dir1 = distance_;
-                if(collision)
-                  this->blocks_predicates[obj_idx].block_dir1.push_back(i);
-                break;
-        case 2 :
-                if(distance_ < this->pushing_poses[obj_idx].dist_dir2 )
-                  this->pushing_poses[obj_idx].dist_dir2 = distance_;
-                if(collision)
-                  this->blocks_predicates[obj_idx].block_dir2.push_back(i);
-                break; 
-        case 3 :
-                if(distance_ < this->pushing_poses[obj_idx].dist_dir3 )
-                  this->pushing_poses[obj_idx].dist_dir3 = distance_;
-                if(collision)
-                  this->blocks_predicates[obj_idx].block_dir3.push_back(i);
-                break; 
-        case 4 :
-                if(distance_ < this->pushing_poses[obj_idx].dist_dir4 )
-                  this->pushing_poses[obj_idx].dist_dir4 = distance_;
-                if(collision)
-                  this->blocks_predicates[obj_idx].block_dir4.push_back(i);
-                break; 
-        default: break;
-      }
-    
-    }
-  }
-  this->executionTimes.ee_collisions += (double)(util::GetTimeMs64() - t_init_ee_collision);
 
   // compute the minimum distance along all the pushing action
   step_translation = 0;
@@ -3927,7 +3234,7 @@ void CTableClearingPlanning::cleanPolygonalMesh(Visualizer viewer)
 {
   viewer->removePolygonMesh("ee");
 
-  for (uint i = 0; i < 100; ++i) //high value -> ineficcient but fast to implement -> it is only for visualization
+  for (uint i = 0; i < 1000; ++i) //high value -> ineficcient but fast to implement -> it is only for visualization
   {
     std::string pol_name;
     std::ostringstream convert;   // stream used for the conversion
@@ -3947,10 +3254,6 @@ void CTableClearingPlanning::cleanPolygonalMesh(Visualizer viewer)
         grasp_name += convert.str();        
         viewer->removePolygonMesh(grasp_name);
     }
-    
-    
-    
-
     // pol_name = "convex_hull";
     // pol_name += convert.str();
     // viewer->removePolygonMesh(pol_name);

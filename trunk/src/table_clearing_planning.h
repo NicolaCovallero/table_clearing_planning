@@ -186,10 +186,12 @@ class CTableClearingPlanning
   };
 
   // constant values
+  
   static const double PUSHING_STEP = 1.5; // default value 1.5 the OBB dimension
   static const double PUSHING_OBJECT_DISTANCE = 0.05; //5 cm
   static const double APPROACHING_DISTANCE = 0.10; // 10 cm
   static const double DISTANCE_FROM_PLANE_GRASPING_POSES = 0.01; // 1cm
+
 
 
   double pushing_limit; //used only from the block predicates computation functions

@@ -1,5 +1,5 @@
 # Pre-requisites about cmake itself
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0005 NEW) 
@@ -14,7 +14,13 @@ endif (${UNIX})
 
 
 # The project name and the type of project
-PROJECT(table-clearing-planning)
+PROJECT(table-clearing-planning CXX)
+
+message("Your CMake version supports these C++ features:")
+get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
+foreach(i ${known_features})
+  message("aa ${i}")
+endforeach()
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)

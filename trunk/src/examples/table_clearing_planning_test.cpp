@@ -85,7 +85,7 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
       viewer->removeAllShapes();
       //tcp.viewerAddOriginalPrincipalDirections(viewer,obj_idx);
       tcp.cleanPolygonalMesh(viewer);
-      tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,true,ORTHOGONAL_PUSHING,pushing_resolution,pushing_limit,minimum_distance,true);
+      tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,true,ORTHOGONAL_PUSHING,pushing_resolution,pushing_limit,minimum_distance,false);
       tcp.viewerAddPushingGraspingPose(viewer,obj_idx,dir_idx);
 
       if(dir_idx == 4)
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
   tcp.computeOBBObjects(true);
 
   tcp.computeSimpleHeuristicGraspingPoses(PCA_GRASPING);
-  tcp.computeBlockPredicates(true, ORTHOGONAL_PUSHING, pushing_resolution,pushing_limit,minimum_distance,false);
+  tcp.computeBlockPredicates(false, ORTHOGONAL_PUSHING, pushing_resolution,pushing_limit,minimum_distance,true);
   tcp.computeOnTopPredicates(true);
   tcp.computeBlockGraspPredicates(true);
   tcp.printExecutionTimes();

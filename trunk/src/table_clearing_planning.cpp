@@ -1858,9 +1858,28 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
                                                                                                                                           
               break; 
       case 3 :
-              step_translation = - this->obb_objects[obj_idx].width/2 
-                                 - this->gripper_model.deep/2
-                                 - pushing_object_distance;
+              if(this->obb_objects[obj_idx].deep > (this->gripper_model.closing_width + 2*this->gripper_model.finger_width))
+              {
+                  step_translation = - this->obb_objects[obj_idx].width/2 
+                                     - this->gripper_model.deep/2
+                                     - pushing_object_distance;
+
+                  rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+                  rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
+                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              }
+              else
+              {
+                  step_translation = - this->obb_objects[obj_idx].deep/2 
+                  - (this->gripper_model.finger_width + 
+                  this->gripper_model.closing_width/2)
+                  - pushing_object_distance;
+
+                  rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+                  rot(1,0) = -pd->dir1[0]; rot(1,1) = -pd->dir1[1]; rot(1,2) = -pd->dir1[2];
+                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              }
+             
               x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
                    new_centroid[0];
               y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
@@ -1872,9 +1891,6 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               translation[1] = y;
               translation[2] = z;
                                                                                                                                           
-              rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-              rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
-              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
               mat_rot = rot.inverse();
               quat = mat_rot;
                                                                                                                                           
@@ -1885,9 +1901,28 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
                                                                                                                                           
               break; 
       case 4 :
-              step_translation = - this->obb_objects[obj_idx].width/2 
-                                 - this->gripper_model.deep/2
-                                 - pushing_object_distance;
+              if(this->obb_objects[obj_idx].deep > (this->gripper_model.closing_width + 2*this->gripper_model.finger_width))
+              {
+                    step_translation = - this->obb_objects[obj_idx].width/2 
+                    - this->gripper_model.deep/2
+                    - pushing_object_distance;
+                                                                                                                                   
+                    rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+                    rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
+                    rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              }
+              else
+              {
+                    step_translation = - this->obb_objects[obj_idx].deep/2 
+                    - (this->gripper_model.finger_width + 
+                    this->gripper_model.closing_width/2)
+                    - pushing_object_distance;
+                                                                                                                                   
+                    rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+                    rot(1,0) = pd->dir1[0]; rot(1,1) = pd->dir1[1]; rot(1,2) = pd->dir1[2];
+                    rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              }
+
               x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
                    new_centroid[0];
               y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
@@ -1899,9 +1934,9 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               translation[1] = y;
               translation[2] = z;
                                                                                                                                           
-              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-              rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
-              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              //rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+              //rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
+              //rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
               mat_rot = rot.inverse();
               quat = mat_rot;
                                                                                                                                           

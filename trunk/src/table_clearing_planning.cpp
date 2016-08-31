@@ -2111,6 +2111,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               break; 
       default: break;
     }//end switch
+    std::cout << "step_translation: " << step_translation << std::endl;
 
     // identity matrix -> no rotation
     fcl::Matrix3f R(1,0,0,
@@ -2289,7 +2290,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
     this->executionTimes.objects_collisions += (double)(util::GetTimeMs64() - t_init_collision);
 
     n++;
-  }
+  }//end while
 
   // compute the minimum distance along all the pushing action
   step_translation = 0;

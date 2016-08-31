@@ -1499,8 +1499,14 @@ void CTableClearingPlanning::setPushingObjectDistance(double pushing_object_dist
   this->pushing_object_distance = pushing_object_distance;
 }
 void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_method, double resolution, double pushing_limit, double minimum_distance,
-                                                    bool pushing_until_graspable)
+                                                    bool pushing_until_graspable, double pushing_fixed_distance)
 { 
+  if(pushing_until_graspable && pushing_fixed_distance > 0.0)
+  {
+    PCL_WARN("The computation of the states was specified both with the method to push until graspable and for a fixed distance, the method to push until graspable has priority."); 
+    pushing_fixed_distance = 0.0;
+  }
+
   pushing_lengths.resize(this->n_objects);
   pushing_grasping_poses.resize(this->n_objects);
 
@@ -1557,9 +1563,7 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
   {
     for (uint dir_idx = 1; dir_idx <= 4; ++dir_idx)
     { 
-
-      visualComputeBlockPredicates(viewer_,obj_idx,dir_idx,false,print,pushing_method,resolution,pushing_limit,minimum_distance,pushing_until_graspable,false);    
-            
+        visualComputeBlockPredicates(viewer_,obj_idx,dir_idx,false,print,pushing_method,resolution,pushing_limit,minimum_distance,pushing_until_graspable,false,pushing_fixed_distance);              
     }
   }
   
@@ -1579,11 +1583,17 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
 void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,
                                                           bool visualization, bool print, uint pushing_method,
                                                           double resolution, double pushing_limit, double minimum_distance,
-                                                          bool pushing_until_graspable, bool show_ee)
+                                                          bool pushing_until_graspable, bool show_ee,
+                                                          double pushing_fixed_distance)
 { 
   fcl::Vec3f T;
   double x,y,z;
   
+  if(pushing_until_graspable && pushing_fixed_distance > 0.0)
+  {
+    PCL_WARN("The computation of the states was specified both with the method to push until graspable and for a fixed distance, the method to push until graspable has priority."); 
+    pushing_fixed_distance = 0.0;
+  }
 
   if((dir_idx < 1) || (dir_idx > 4))
   {
@@ -1879,7 +1889,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
                   rot(1,0) = -pd->dir1[0]; rot(1,1) = -pd->dir1[1]; rot(1,2) = -pd->dir1[2];
                   rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
               }
-             
+                                 
               x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
                    new_centroid[0];
               y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
@@ -1934,9 +1944,6 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               translation[1] = y;
               translation[2] = z;
                                                                                                                                           
-              //rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-              //rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
-              //rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
               mat_rot = rot.inverse();
               quat = mat_rot;
                                                                                                                                           
@@ -2035,6 +2042,12 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   this->executionTimes.ee_collisions += (double)(util::GetTimeMs64() - t_init_ee_collision);
 
   // -------------------------- OBJECTS ---------------------
+
+  if(pushing_fixed_distance > 0.0)
+  {
+    resolution = 0.03; // we used a fixed resolution, this is for the experiment comparison, we do not care about the computation time
+    this->pushing_limit = pushing_fixed_distance;
+  }
 
   step_translation = - resolution; 
   while(step_translation < this->pushing_limit and not exit_while )

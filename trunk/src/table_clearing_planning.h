@@ -671,7 +671,7 @@ class CTableClearingPlanning
      */
     void computeBlockPredicates(  bool print=false, uint pushing_method = ORTHOGONAL_PUSHING, 
                                   double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02,
-                                  bool pushing_until_graspable = true);
+                                  bool pushing_until_graspable = true, double pushing_fixed_distance = 0.0);
 
     /**
      * @brief Get block grasp predicates
@@ -745,12 +745,12 @@ class CTableClearingPlanning
      * @param[in] pushing_until_graspable True if the algorithm push until the object can be grasped, otherwise it pushes for
      *            for a length equal to the dimension relative to the pushing direction. The distanceof the end effector during pushing are anyway computed.  
      * @param[in] show_ee True if you want to see the ee for each pushed length
+     * @param[in] pushing_fixed_distance Maximum distance to push. This is used only for the experiment comparison. 
      */
     void visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,bool visualization = true,
                                       bool print = true, uint pushing_method = ORTHOGONAL_PUSHING,
                                       double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02,
-                                      bool pushing_until_graspable = true, bool show_ee = false);
-
+                                      bool pushing_until_graspable = true, bool show_ee = false, double pushing_fixed_distance = 0.0);
 
     /**
      * @brief      Show the convex hulls

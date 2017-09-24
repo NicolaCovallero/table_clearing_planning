@@ -44,6 +44,8 @@ uint dir_idx = 1;
 bool exit_ = false;
 CTableClearingPlanning tcp;
 
+char camera_params[50] = "camera_parameters.cam";
+
 void help()
 {
   pcl::console::print_error ("The command is: ./table_clearing_planning_test <pcd-file> \n"
@@ -93,7 +95,8 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event,
       tcp.visualComputeBlockPredicates(viewer,obj_idx,dir_idx,true,true,ORTHOGONAL_PUSHING,pushing_resolution,pushing_limit,minimum_distance,pushing_until_graspable,false,pushing_fixed_distance);
       std::cout << "Partial time: " << (double)(util::GetTimeMs64() - t_init) << std::endl;
       tcp.viewerAddPushingGraspingPose(viewer,obj_idx,dir_idx);
-
+      tcp.viewerAddPrincipalDirections(viewer, obj_idx);
+      
       if(dir_idx == 4)
       { 
         dir_idx = 1;
@@ -122,11 +125,22 @@ int main(int argc, char *argv[])
 
   // parameters for the LCCP segmentation
   tos_supervoxels_parameters opt;
-  opt.voxel_resolution = 0.005;
-  opt.seed_resolution = 0.02;
+  //opt.voxel_resolution = 0.005;
+  //opt.seed_resolution = 0.02;
   opt.concavity_tolerance_threshold = 15;
+  opt.th_points = 800;
+  opt.voxel_resolution = 0.007;
+  opt.seed_resolution = 0.025;
+  //opt.concavity_tolerance_threshold = 40;
+  //opt.use_extended_convexity = true;
+  //opt.smoothness_threshold = 10;
+
+  
 
   // Set the parameters given as aguments: ---------------------------------------------
+  pcl::console::parse (argc, argv, "-cp", camera_params);
+ 
+   
   pcl::console::parse (argc, argv, "-pl", pushing_limit);
   pcl::console::parse (argc, argv, "-pr", pushing_resolution);
   pcl::console::parse (argc, argv, "-pfd", pushing_fixed_distance);
@@ -227,7 +241,7 @@ int main(int argc, char *argv[])
   //tcp.setPushingStep(1.5);
   //tcp.voxelizeObjects();
   tcp.setPlaneCoefficients(plane_coeff);
-  tcp.refineSegmentationByBiggestPlane();
+  //tcp.refineSegmentationByBiggestPlane();
   std::cout << "---------------- Refined segmented objects ------------------\n";
 
   tcp.setGripperModel(opening_width,closing_width,finger_width,deep,height,closing_height);
@@ -249,20 +263,19 @@ int main(int argc, char *argv[])
   //----------- VISUALIZATIONS ----------------------
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
   // set the camera parameters in order to have the same view always. You could need to change it, depends on the experiment
-  viewer->loadCameraParameters("camera_parameters.cam"); 
+  viewer->loadCameraParameters(camera_params); 
   viewer->setSize(500,400); // set size of the window
 
   //tcp.viewerShowClosedFingersModel(viewer);
   //tcp.viewerShowFingersModel(viewer);
-  tcp.viewerAddGraspingPoses(viewer);
+  //tcp.viewerAddGraspingPoses(viewer);
   //tcp.viewerAddGraspingPose(viewer,0);
   //tcp.viewerAddApproachingPoses(viewer);
-  tcp.viewerAddPlaneConvexHull(viewer,255,255,255);
+  tcp.viewerAddPlaneConvexHull(viewer,200,200,200);
   //tcp.viewerAddOriginalPrincipalDirections(viewer,1);
   viewer->registerKeyboardCallback (keyboardEventOccurred, (void*)&viewer);  
   viewer->setBackgroundColor (255, 255, 255);
   //viewer->addCoordinateSystem (0.3);
-
 
   //tcp.viewerAddObjectsClouds(viewer);
   //tcp.viewerAddProjection(viewer,0,0,255,0);

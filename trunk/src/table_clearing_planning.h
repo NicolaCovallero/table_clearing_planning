@@ -13,6 +13,7 @@
 #include <pcl/common/common.h>
 #include <pcl/surface/convex_hull.h>
 #include <pcl/surface/concave_hull.h>
+#include <pcl/filters/crop_hull.h>
 #include <pcl/common/pca.h>
 #include <Eigen/Dense>
 #include <string>
@@ -35,8 +36,16 @@
 #include "fcl/BVH/BVH_model.h"
 #include "fcl/BV/BV.h"
 #include "fcl/collision_object.h"
+#include "fcl/collision_node.h"
 #include "fcl/collision.h"
 #include "fcl/collision_data.h"
+#include "fcl/traversal/traversal_node_bvhs.h"
+#include "fcl/traversal/traversal_node_setup.h"
+#include "fcl/distance.h"
+
+//#include "fcl_resources/config.h"
+
+
 #include <ctime>
 
 #include "utilities.h"
@@ -96,16 +105,37 @@ struct GraspingPose{
   Eigen::Quaternionf quaternion;
 };
 
+/**
+ * @details Grasping poses after pushing
+ * 
+ */
+struct PushingGraspingPose{
+  GraspingPose gp_dir1,gp_dir2,gp_dir3,gp_dir4;
+  GraspingPose app_dir1,app_dir2,app_dir3,app_dir4;
+};
+
 struct Pose{
   Eigen::Matrix3f rotation;
   Eigen::Vector3f translation;
   Eigen::Quaternionf quaternion;
 };
 
+/**
+ * @brief Structure for the pushing pose
+ * @details It includes the pushing poses for the several pushing directions
+ *          and the distacne between the gripper and the closest point of the other objects
+ * 
+ */
 struct PushingPose{
   Pose pose_dir1, pose_dir2, pose_dir3, pose_dir4;
+  double dist_dir1,dist_dir2,dist_dir3,dist_dir4;
 };
 
+/**
+ * @brief Structure which includes all the relevan elapsed times of the algorithm
+ * @details Structure which includes all the relevan elapsed times of the algorithm
+ * 
+ */
 struct ExecutionTimes{
 double on_predicates;
 double block_predicates;
@@ -114,6 +144,15 @@ double objects_collisions; ///< total time to compute the collision between all 
 double ee_collisions; ///< total time to compute the collision between the gripper and all the objects O(n^2)
 double average_objects_collision; ///< average time to compute a collision between two objects
 double average_ee_collision; ///< average time to compute a collision between two objects
+};
+
+/**
+ * @details Struct which defines the pushing length for each direction
+ * 
+ */
+struct PushingLength
+{
+  double dir1,dir2,dir3,dir4;
 };
 
 // check this
@@ -147,14 +186,16 @@ class CTableClearingPlanning
   };
 
   // constant values
-  static const double PUSHING_STEP = 1.5; // default value 1.5 the AABB dimension
+  
+  static const double PUSHING_STEP = 1.5; // default value 1.5 the OBB dimension
   static const double PUSHING_OBJECT_DISTANCE = 0.05; //5 cm
   static const double APPROACHING_DISTANCE = 0.10; // 10 cm
   static const double DISTANCE_FROM_PLANE_GRASPING_POSES = 0.01; // 1cm
 
 
+
   double pushing_limit; //used only from the block predicates computation functions
-  double pushing_step;
+  double pushing_step; // k factor, push the object for a distance equal to pushing_step * dimension(pushing_direction)
   double pushing_object_distance; ///< Distance between the tcp and the object for the first point of the pushing action
 
   uint n_objects; ///< number of objects
@@ -166,7 +207,11 @@ class CTableClearingPlanning
   // --------------------------------------
 
   // ------------- Gripper Model ----------
-  // We here define the gripper model, we just use its AABB
+  /**
+   * @brief Structure to define the end effector model
+   * @details This structure is used only when you use the PARALLEL pushing pose method (not recommended).
+   * 
+   */
   struct EndEffector{
     double width;
     double deep;
@@ -175,12 +220,18 @@ class CTableClearingPlanning
     double distance_plane; ///< distance from the plane 
 
     // convex hull
-    pcl::PointCloud<pcl::PointXYZ > cloud;
+    pcl::PointCloud<pcl::PointXYZRGB > cloud;
     std::vector<pcl::Vertices> vertices;
 
   }ee_simple_model;///< end effector simple model
 
-  struct FingersModel{
+  /**
+   * @brief Structure to define the gripper model
+   * @details Structure to define the gripper model for a two finger parallel gripper with a fixed
+   *          opening width. It includes all the relevant measures to built a simple model. 
+   * 
+   */
+  struct GripperModel{
     double opening_width;
     double closing_width;
     double finger_width;
@@ -189,37 +240,43 @@ class CTableClearingPlanning
     double closing_height;
 
     // convex hull
-    pcl::PointCloud<pcl::PointXYZ > open_cloud; ///< point cloud of the gripper open
-    pcl::PointCloud<pcl::PointXYZ > closed_cloud; ///< point cloud of the gripper closed
-    std::vector<pcl::Vertices> open_vertices,closed_vertices;
+    pcl::PointCloud<pcl::PointXYZRGB> open_cloud; ///< point cloud of the gripper open
+    pcl::PointCloud<pcl::PointXYZRGB> closed_cloud; ///< point cloud of the gripper closed
+    std::vector<pcl::Vertices> open_vertices,closed_vertices; ///< vertices of the convex hull
 
-  }fingers_model;
+  }gripper_model;
 
-  ExecutionTimes executionTimes;
+  ExecutionTimes executionTimes; ///< Data regarding the elapsed times of the several phases of the algorithm
 
-  PointCloudT original_cloud;
+  PointCloudT original_cloud; ///< Original point cloud (The oen seen by the Kinect)
   
   PointCloudT plane_cloud;
   PointCloudT plane_convex_hull_2d;
   std::vector<pcl::Vertices> plane_convex_hull_indices;
 
   std::vector<PointCloudT > objects;///< vector of objects point cloud
-  std::vector<PointCloudT > rich_objects;
-  std::vector<ObjectFull> objects_full;
-  std::vector<PointCloudT > projections; 
+  pcl::PointCloud<pcl::PointXYZL> objects_labeled_cloud; ///< A single point cloud with the objects are labelled
+  std::vector<PointCloudT > rich_objects;///< Add also the projections onto the table plane to the segmented objects
+  std::vector<ObjectFull> objects_full; 
+  std::vector<PointCloudT > projections; ///< projections of the segmented objects onto the table plane 
   std::vector<PointCloudT > convex_hull_objects;///< vector of the convex hull of each object
   std::vector<PointCloudT > concave_hull_objects;///< vector of the concave hull of each object
-  std::vector<PrincipalDirectionsProjected> principal_directions_objects;///< principal directions of 
-  std::vector<OriginalPrincipalDirections> original_principal_directions_objects;
-  std::vector<std::vector<pcl::Vertices> > convex_hull_vertices,concave_hull_vertices;
+  std::vector<PrincipalDirectionsProjected> principal_directions_objects;///< principal directions projected onto the table plane 
+  std::vector<OriginalPrincipalDirections> original_principal_directions_objects; ///< Original principal directions = principal components
+  std::vector<std::vector<pcl::Vertices> > convex_hull_vertices,concave_hull_vertices;///< vertices of the hulls
 
-  std::vector<AABB> aabb_objects;
 
-  std::vector<GraspingPose> grasping_poses,approaching_poses;
-  double approaching_distance;
-  double distance_from_plane_grasping_poses;
+  std::vector<PushingLength> pushing_lengths; ///< The pushing length for each object and pushing direction
+  std::vector<PushingGraspingPose> pushing_grasping_poses; // grasping poses estimated for the object once pushed
 
-  std::vector<PushingPose> pushing_poses;
+
+  std::vector<OBB> obb_objects; ///< Oriented Bounding Box of each object
+
+  std::vector<GraspingPose> grasping_poses,approaching_poses; ///< Grasping and approaching poses
+  double approaching_distance; ///< Distance between the approaching distance and the grasping pose
+  double distance_from_plane_grasping_poses; ///< Parameter which specifies how much the gripper should be far from the table in the graspin pose (This is a safety measure in roder to avoid collision between the gripper and the table)
+
+  std::vector<PushingPose> pushing_poses;///< Pose of the end effector when push 
 
   // projections on plane
   std::vector<PointCloudT > concave_hull_projections; 
@@ -245,24 +302,39 @@ class CTableClearingPlanning
    */
   bool areObjectCollidingFcl(uint idx_1, fcl::Transform3f tf, uint idx_2);
 
+
+
   /**
   * @brief Check if the gripper is colliding with object indexed by "idx"
-  * @details [long description]
+  * @details Check if the gripper is colliding with object indexed by "idx".
+  *           NOTE: this function is used only when you choose a pushing pose
+  *           parallel to the table plane. The usggested one is the vertical/ortoghonal one. 
   * @return true if there is a collision with object indexed by "idx"
   */
-  bool isEEColliding(uint idx, fcl::Transform3f tf);
+  bool isEEColliding(uint idx, fcl::Transform3f tf, double& distance);
 
   /**
    * @details Collission checking for the case we push in orhtoganl mode
    * 
-   * @param idx Index of the object 
-   * @param tf tf of the gripper
+   * @param[in] idx Index of the object 
+   * @param[in] tf tf of the gripper
+   * @param[out] distance distance to the closest point 
    * 
-  * @return true if there is a collision with object indexed by "idx"
+   * @return true if there is a collision with object indexed by "idx"
    */
-  bool isClosedFinderModelColliding(uint idx, fcl::Transform3f tf);
+  bool isClosedGripperModelColliding  (uint idx, fcl::Transform3f tf, double& distance);
 
-  bool isFingersModelColliding(uint idx, fcl::Transform3f tf);
+  /**
+   * @brief Check if the open gripper model is colliding with other objects
+   * @details Check if the open gripper model is colliding with other objects
+   * 
+   * @param[in] idx Index of the object 
+   * @param[in] tf tf of the gripper
+   * @param[out] distance distance to the closest point 
+   * 
+   * @return true if there is collision, false otherwise
+   */
+  bool isOpenGripperModelColliding(uint idx, fcl::Transform3f tf, double& distance);
 
   /**
    * @brief Get the mesh of the gripper model
@@ -278,7 +350,7 @@ class CTableClearingPlanning
    */
   FclMesh getClosedFingersMesh();
 
-  FclMesh getFingersModelMesh();
+  FclMesh getGripperModelMesh();
 
   // --------- MY CONVERSIONS --------------------
 
@@ -310,6 +382,16 @@ class CTableClearingPlanning
    */
   FclMesh pcl2FclConvexHull(PointCloudT convex_hull_cloud, std::vector<pcl::Vertices> convex_hull_indices);
 
+
+  /** 
+   * @brief Refine the pushing in pose in order to avoid it to be too close to the table
+   * 
+   * @param x
+   * @param y
+   * @param z
+   * @param safe_margin minimum distace from the table plane to consider the pushing pose not colliding with the table
+   */
+  void refinePushingPose(Eigen::Vector3f &point,  double safe_margin = 0.015);
   
   void fcl2EigenTransform( Eigen::Vector4f& translate, Eigen::Quaternionf& q_rot,
                            fcl::Transform3f& tf);
@@ -322,10 +404,7 @@ class CTableClearingPlanning
   // -----------------
   
   /**
-   * @brief      { function_description }
-   *
-   * @param      cloud1  { parameter_description }
-   * @param      cloud2  { parameter_description }
+   * @brief      Test function
    */
   void translate(PointCloudT& cloud1, PointCloudT& cloud2, Eigen::Vector4f& translation);
 
@@ -357,6 +436,7 @@ class CTableClearingPlanning
    */
   bool refineSimpleGraspingPose(GraspingPose& gp, double translation_step = 0.005, double distance_from_plane = 0.01);
 
+  //void getClosestObjectAndDistance( ,uint object_label, double distance);
 
   public:
 
@@ -373,21 +453,25 @@ class CTableClearingPlanning
     /**
      * @brief Set the gripper model
      * @details Set the dimension of the bounding box of the gripper. This model will be used
-     *          during the computation of the block predicates
+     *          during the computation of the block predicates if you choose PARALLEL_PUSHING(not recommended).
+     *          You don't need to set this model if you do not use the PARALLEL_PUSHING. Here the gripper
+     *          is considered as a cube. 
      * 
      * @param[in] height Dimension of the gripper orthogonal to the plane during the pushing action
      * @param[in] deep Dimension of the gripper parallel to pushing direction during the pushing action
      * @param[in] width Dimension of the gripper orthogonal to pushing direction during the pushing action
      * @param[in] distance_plane Distance in meters from the table plane during the pushing action
      */
-    void setGripperSimpleModel(double height, double deep, double width, double distance_plane);
+    void setGripperSimpleModel(double height, double deep, double width, double distance_plane, uint r=1, uint g=255, uint b=255);
 
+    
+    
 
     /**
      * @brief Set the fingers model
      * @details Set the fingers model. The origin is located at height/2, deep/2 and (opening_width + finger_width*2)/2
      * 
-     * @image html fingers_model.png
+     * @image html gripper_model.png
      * 
      * @param opening_width 
      * @param closing_width
@@ -396,8 +480,11 @@ class CTableClearingPlanning
      * @param height [description]
      * @param closing_height [description]
      */
-    void setFingersModel(double opening_width, double closing_width, double finger_width,
-               double deep, double height, double closing_height);
+    void setGripperModel(double opening_width, double closing_width, double finger_width,
+               double deep, double height, double closing_height, uint r=255, uint g=255, uint b=255);
+
+    void setOpenGripperColor (uint r, uint g, uint b);
+    void setClosedGripperColor (uint r, uint g, uint b);
 
     /**
      * @brief Set the plane point cloud
@@ -419,8 +506,9 @@ class CTableClearingPlanning
      *             http://www.maplesoft.com/support/help/Maple/view.aspx?path=MathApps%2FProjectionOfVectorOntoPlane
      *
      * @param[in]  objects  vector of point clouds, one per object
+     * @param[in]  convert_to_label true if you want to create a unique point cloud labeled,
      */
-    void setObjectsPointCloud(std::vector<PointCloudT > &objects);
+    void setObjectsPointCloud(std::vector<PointCloudT > &objects, bool convert_to_label = false);
 
     /**
      * @brief      Set the coefficients of the table plane
@@ -432,11 +520,18 @@ class CTableClearingPlanning
     void testTranslation(uint idx);
 
     /**
+     * @brief Function to test the distance of FCL for two simple mesh models
+     * @details You should see the code to understand how this work. There is a model of a simple
+     * pyramid, and a transformation defined in order to check that the distance is correct. 
+     */
+    void testFclDistance();
+
+    /**
      * @brief Compute the Axis Aligned Bounding Box of each object
      * 
      * @param refine_centroids True if you want to refine the centroid by computing the mean of the bounding box
      */
-    void computeAABBObjects(bool refine_centroids = true);  
+    void computeOBBObjects(bool refine_centroids = true);  
 
     /**
      * @brief Compute the grasping pose with a simple heuristic.
@@ -449,6 +544,11 @@ class CTableClearingPlanning
      */
     void computeSimpleHeuristicGraspingPoses(bool vertical_poses = PCA_GRASPING);
 
+    
+    /** 
+     * @brief Refine the segmentation of the objects by considering only the biggest plane parallel, up to a certain threshold, to the table plane. If the biggest plane is a side of the object this plane is not considered.  
+     */
+    void refineSegmentationByBiggestPlane();
 
     /**
      * @brief      Compute the convex hull of each object
@@ -513,9 +613,9 @@ class CTableClearingPlanning
     /**
      * @brief Set the pushing limit
      * @details If it is not setted a default value will be used. The pushing step
-     * is here defined as the maximum times of the aabb dimension to be pushed. 
+     * is here defined as the maximum times of the OBB dimension to be pushed. 
      * (e.g. : If the pushing_step is 1.5 considering to push ht eojbect 1 in direction 1 
-     *  it is pushed for 1.5 the AABB dimension relative to direction 1 (which is the aabb.deep))
+     *  it is pushed for 1.5 the OBB dimension relative to direction 1 (which is the OBB.deep))
      * 
      * @param[in] pushing_step Desired value for the pushing limit.
      */
@@ -550,18 +650,38 @@ class CTableClearingPlanning
      * @details This method computes the block predicates for a each object by detecting
      *          collision with the other objects, determining also what object collides 
      *          with the current one, along each principal direction. The length of the push
-     *          considered in saved in the private memeber 
+     *          considered in saved in the private memeber. THis functions also computes
+     *          the new grasping poses for a pose in which the object, when it has been pushed, 
+     *          can be grasped (If it is not possible grasping it in any pose until having reached 
+     *          the maxmimum pushing distance [pushing_limit] the returned grasping pose will be the one at the 
+     *          final checked pose).  
+     *          
+     * @param[in] print True if you want to print in the terminal the predicates
+     * @param[in] pushing_method There exist two pushing method: 1) ORTHOGONAL_PUSHING is the one recommended
+     *            and it referes to put the end effector orthogonal to the plane 2) PARALLEL_PUSHING refers to
+     *            the end effector approaching direction is parallel to the plane (Not recommended)
+     * @param[in] resolution It specifies the resolution of checking for the pushing action
+     * @param[in] pushing_limit It specifies the maximum limit (in meters) the method checks for collision and grasping. 
+     * N          Note that as soon as it finds a pushing length for which the next pose corresponds to a feasible grasp it checks 
+     *            no more for further distances         
+     * @param[in] minimum_distance Minimum distance from the closest object to consider to future grasp a feasible one.         
+     * @param[in] pushing_until_graspable pushing_until_graspable True if the algorithm push until the object can be grasped, otherwise it pushes for
+     *            for a length equal to the dimension relative to the pushing direction. The distanceof the end effector during pushing are anyway computed.  
+     *                   
      */
-    void computeBlockPredicates(bool print=false, uint pushing_method = ORTHOGONAL_PUSHING);
+    void computeBlockPredicates(  bool print=false, uint pushing_method = ORTHOGONAL_PUSHING, 
+                                  double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02,
+                                  bool pushing_until_graspable = true, double pushing_fixed_distance = 0.0);
 
     /**
      * @brief Get block grasp predicates
      * @details This method computes the block grasp predicates for each object by detecting 
-     *          collision of the fingers model with the other objects.
+     *          collision of the open gripper model with the other objects.
      * 
      * @param print True if you want to print in the terminal the predicates.
+     * @param minimum_grasping_distance Minimum distance to the closest object to consider the grasp as collision free
      */
-    void computeBlockGraspPredicates(bool print=false);
+    void computeBlockGraspPredicates(bool print=false, double minimum_grasping_distance = 0.02 );
 
 
     void testFcl();
@@ -622,10 +742,15 @@ class CTableClearingPlanning
      * @param[in] dir_idx Index of the direction [1,2,3,4]
      * @param[in] visualization True to enable the visualization
      * @param[in] print True to print in the terminal each block predicate
+     * @param[in] pushing_until_graspable True if the algorithm push until the object can be grasped, otherwise it pushes for
+     *            for a length equal to the dimension relative to the pushing direction. The distanceof the end effector during pushing are anyway computed.  
+     * @param[in] show_ee True if you want to see the ee for each pushed length
+     * @param[in] pushing_fixed_distance Maximum distance to push. This is used only for the experiment comparison. 
      */
     void visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,bool visualization = true,
-                                      bool print = true, uint pushing_method = ORTHOGONAL_PUSHING);
-
+                                      bool print = true, uint pushing_method = ORTHOGONAL_PUSHING,
+                                      double resolution = 0.05, double pushing_limit = 0.2, double minimum_distance = 0.02,
+                                      bool pushing_until_graspable = true, bool show_ee = false, double pushing_fixed_distance = 0.0);
 
     /**
      * @brief      Show the convex hulls
@@ -759,7 +884,7 @@ class CTableClearingPlanning
      * @param g [description]
      * @param b [description]
      */
-    void viewerShowFingersModel(Visualizer viewer,double r=1,double g=1,double b=1);
+    void viewerShowGripperModel(Visualizer viewer,double r=1,double g=1,double b=1);
 
     /**
      * @details Add in the viewer the closed gripper model with colors specified as input [0-1].
@@ -770,7 +895,7 @@ class CTableClearingPlanning
      * @param g [0-255]
      * @param b [0-255]
      */
-    void viewerShowClosedFingersModel(Visualizer viewer,double r=1,double g=1,double b=1);
+    void viewerShowClosedGripperModel(Visualizer viewer,double r=1,double g=1,double b=1);
 
     /**
      * @brief Show in the viewer associated to the class a transformed object. 
@@ -780,13 +905,24 @@ class CTableClearingPlanning
 
     void viewerAddGraspingPose(Visualizer viewer,uint idx);
     void viewerAddGraspingPoses(Visualizer viewer);
+
+    /**
+     * @brief Add to the viewer the grasping pose estimated after having pushed the object
+     * @details Add to the viewer the grasping pose estimated after having pushed the object
+     * 
+     * @param viewer 
+     * @param obj_idx index of the obejct 
+     * @param dir_idx index of the direction
+     */
+    void viewerAddPushingGraspingPose(Visualizer viewer, uint obj_idx, uint dir_idx);
+
     void viewerAddApproachingPose(Visualizer viewer, uint idx);
     void viewerAddApproachingPoses(Visualizer viewer);
 
     uint getNumObjects();
     std::vector<ObjectFull> getFullObjects();
 
-    std::vector<AABB> getAABBObjects();
+    std::vector<OBB> getOBBObjects();
 
     std::vector<BlocksPredicate> getBlockPredicates();
     std::vector<std::vector<uint> > getOnTopPredicates();
@@ -806,9 +942,19 @@ class CTableClearingPlanning
 
     std::vector<PushingPose> getPushingPoses();
 
+    std::vector<PushingGraspingPose> getPushingGraspingPoses(); 
+
+
+
     ExecutionTimes getExecutionTimes();
 
     double getPushingObjectDistance();
+
+    /**
+     * @brief Return the pushing lengths per each object and per each direction
+     * @details Return the pushing lengths per each object and per each direction
+     */    
+     std::vector<PushingLength> getPushingLengths();
 
     /**
      * @brief Delete all the data ot the class
@@ -820,6 +966,13 @@ class CTableClearingPlanning
      * @details Print in the terminal the several execution times.
      */
     void printExecutionTimes();
+
+    void printPushingLengths();
+
+    void printPushingEEDistances();
+
+    void resetPushingLengths();
+    void resetPushingDistance();
 
 };
 

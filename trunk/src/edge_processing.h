@@ -70,7 +70,7 @@ class EdgeProcessing
 	std::vector<PointCloudT > objects;	///< vector of objects									    
 	std::vector<PointCloudT > occluded_sides; ///< vector of occluded sides									    
 
-	std::vector<AABB> aabb_objects;
+	std::vector<OBB> obb_objects;
 
 	struct Edges3D
 	{
@@ -104,7 +104,7 @@ class EdgeProcessing
 
     void setPlaneCoefficients(pcl::ModelCoefficients &plane_coefficients);
 
-    void setAABBObjects(std::vector<AABB>& aabb_objects);
+    void setOBBObjects(std::vector<OBB>& obb_objects);
 
 	/**
 	 * @brief Assign the precomputed 3D edges to each object

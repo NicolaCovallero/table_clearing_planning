@@ -45,9 +45,9 @@ void EdgeProcessing::setPlaneCoefficients(pcl::ModelCoefficients &plane_coeffici
                           this->plane_coefficients.values[3]) / (- this->plane_coefficients.values[2]);
 }
 
-void EdgeProcessing::setAABBObjects(std::vector<AABB>& aabb_objects)
+void EdgeProcessing::setOBBObjects(std::vector<OBB>& obb_objects)
 {
-	this->aabb_objects = aabb_objects;
+	this->obb_objects = obb_objects;
 }
 
 void EdgeProcessing::assignObjects3DEdges()

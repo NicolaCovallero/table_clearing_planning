@@ -3,6 +3,7 @@ FIND_PACKAGE(fcl REQUIRED)
 FIND_PACKAGE(OpenCV REQUIRED)
 
 
+
 # driver source files
 SET(sources table_clearing_planning.cpp edge_processing.cpp utilities.cpp)
 # application header files
@@ -22,6 +23,13 @@ include_directories(${fcl_INCLUDE_DIR} )
 # create the shared library
 ADD_LIBRARY(table_clearing_planning SHARED ${sources})
 TARGET_LINK_LIBRARIES(table_clearing_planning ${PCL_LIBRARIES} ${fcl_LIBRARIES} ${OpenCV_LIBS}) 
+#set(needed_features
+#    cxx_strong_enums
+#    cxx_constexpr
+#    cxx_auto_type)
+#target_compile_features(table_clearing_planning PRIVATE ${needed_features}	)
+#set_property(TARGET table_clearing_planning PROPERTY CXX_STANDARD 11)
+#set_property(TARGET table_clearing_planning PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # link necessary libraries
 INSTALL(TARGETS table_clearing_planning

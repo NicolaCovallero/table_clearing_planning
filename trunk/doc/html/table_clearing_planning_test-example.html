@@ -40,13 +40,14 @@
 <div class="title">table_clearing_planning_test</div>  </div>
 </div><!--header-->
 <div class="contents">
-<p><b>Description:</b> This examples show how to compute the blocks and onTop predicates for the objects standing on the table. The objects have to be previously segmented and given to the class as a vector of point clouds. To do the segmentation it is suggested to use the tos_supervoxel library. Also this example present an example of use of the <a class="el" href="classEdgeProcessing.html" title="EdgeProcessing class detects 3D edges (only depth one - rgb ones are ommited) of the objects and fill...">EdgeProcessing</a> class that will be used to enhance the perception of the segmented objects by estimating in a deterministic way the occluded sides.</p>
+<p><b>Description:</b> This examples show how to compute the blocks and onTop predicates for the objects standing on the table. The objects have to be previously segmented and given to the class as a vector of point clouds. To do the segmentation it is suggested to use the tos_supervoxel library. Also this example presents an example of the use of the <a class="el" href="classEdgeProcessing.html" title="EdgeProcessing class detects 3D edges (only depth one - rgb ones are ommited) of the objects and fill...">EdgeProcessing</a> class that will be used to enhance the perception of the segmented objects by estimating the occluded sides.</p>
+<p>The <a class="el" href="classEdgeProcessing.html" title="EdgeProcessing class detects 3D edges (only depth one - rgb ones are ommited) of the objects and fill...">EdgeProcessing</a> class could be used to improved the library, for example instead of using the convex hull you can use the concave hull, more precise, but you need to fill the occluded sides with points. This final part is still not well integrated.</p>
 <p><b>Usage:</b> </p>
 <div class="fragment"><div class="line">$ ./table_clearing_planning_test cluttered_#.pcd </div>
 </div><!-- fragment --><div class="fragment"></div><!-- fragment --> </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 20 2016 14:41:03 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Sep 20 2017 16:55:29 for Table Clearing Planning Module by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

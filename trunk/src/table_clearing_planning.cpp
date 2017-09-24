@@ -7,6 +7,7 @@ CTableClearingPlanning::CTableClearingPlanning()
   this->pushing_object_distance = PUSHING_OBJECT_DISTANCE; //5 cm
   this->approaching_distance = APPROACHING_DISTANCE; // 10 cm 
   this->distance_from_plane_grasping_poses = DISTANCE_FROM_PLANE_GRASPING_POSES; // 1cm
+
   return;
 }
 
@@ -18,6 +19,15 @@ CTableClearingPlanning::CTableClearingPlanning(std::vector<PointCloudT> &objects
   this->pushing_object_distance = PUSHING_OBJECT_DISTANCE; //5 cm
   this->approaching_distance = APPROACHING_DISTANCE; // 10 cm 
   this->distance_from_plane_grasping_poses = DISTANCE_FROM_PLANE_GRASPING_POSES; // 1cm
+
+  this->pushing_poses.resize(this->n_objects);
+  for (std::vector<PushingPose>::iterator i = this->pushing_poses.begin(); i != this->pushing_poses.end(); ++i)
+  {
+    i->dist_dir1 = 1000;
+    i->dist_dir2 = 1000;
+    i->dist_dir3 = 1000;
+    i->dist_dir4 = 1000;
+  }
 
   return;
 } 
@@ -92,7 +102,84 @@ bool CTableClearingPlanning::areObjectCollidingFcl(uint idx_1, fcl::Transform3f 
   return false;
 }
 
-bool CTableClearingPlanning::isEEColliding(uint idx, fcl::Transform3f tf)
+// this one first checks if there are points inside the convex hull - TOO SLOW
+// bool CTableClearingPlanning::areObjectCollidingFcl(uint idx_1, fcl::Transform3f tf, uint idx_2)
+// {
+//   FclMesh mesh1,mesh2;
+
+//   mesh1 = this->pcl2FclConvexHull(idx_1);
+//   mesh2 = this->pcl2FclConvexHull(idx_2);
+
+//   // BVHModel is a template class for mesh geometry, for default OBBRSS template is used
+//   typedef fcl::BVHModel<fcl::OBBRSS> Model;
+//   Model* model1 = new Model();
+//   model1->beginModel();
+//   model1->addSubModel(mesh1.vertices, mesh1.triangles);
+//   model1->endModel();
+
+
+
+//   //first check if the convex hulls contain points of the other one
+//   Eigen::Vector4f translation;
+//   Eigen::Quaternionf orientation;
+//   this->fcl2EigenTransform(translation,orientation,tf);
+
+//   pcl::PointCloud<PointT>::Ptr objects (new pcl::PointCloud<PointT>);
+//   PointCloudT cloud_tmp;
+//   pcl::transformPointCloud<PointT>(this->convex_hull_objects[idx_1], cloud_tmp, translation.head<3>()  , orientation);
+
+//   pcl::CropHull<PointT> bb_filter;
+//   bb_filter.setDim(3);  
+//   bb_filter.setInputCloud(cloud_tmp.makeShared());
+//   bb_filter.setHullIndices(this->convex_hull_vertices[idx_2]);
+//   bb_filter.setHullCloud(this->convex_hull_objects[idx_2].makeShared());
+//   bb_filter.filter(*objects);
+//   if (objects->points.size() > 0)
+//     return true;
+//   objects->points.resize(0);
+
+//   bb_filter.setInputCloud(this->convex_hull_objects[idx_2].makeShared());
+//   bb_filter.setHullIndices(this->convex_hull_vertices[idx_1]);
+//   bb_filter.setHullCloud(cloud_tmp.makeShared());
+//   bb_filter.filter(*objects);
+//   if (objects->points.size() > 0)
+//     return true;
+
+//   // get the bounding box 
+//   //fcl::BVNode<fcl::OBBRSS> p = model1->getBV(0);
+//   //double a = p.bv.width();
+
+//   Model* model2 = new Model();
+//   model2->beginModel();
+//   model2->addSubModel(mesh2.vertices, mesh2.triangles);
+//   model2->endModel();
+
+
+//   // no rotation
+//   fcl::Matrix3f R(1,0,0,
+//                   0,1,0,
+//                   0,0,1);
+//   fcl::Vec3f T(0,0,0); // no translation
+
+
+//   fcl::Transform3f pose(R, T);
+
+//   bool enable_contact = true;
+//   int num_max_contacts = std::numeric_limits<int>::max();
+//   // set the collision request structure, here we just use the default setting
+//   fcl::CollisionRequest request(num_max_contacts, enable_contact);
+//   // result will be returned via the collision result structure
+//   fcl::CollisionResult result;
+
+//   int num_contacts = fcl::collide(model1, tf, model2, pose, 
+//                              request, result);
+//   if(num_contacts > 0)
+//     return true;
+
+//   return false;
+// }
+
+bool CTableClearingPlanning::isEEColliding(uint idx, fcl::Transform3f tf, double& distance)
 {
   FclMesh mesh1,mesh2;
 
@@ -125,21 +212,34 @@ bool CTableClearingPlanning::isEEColliding(uint idx, fcl::Transform3f tf)
 
   fcl::Transform3f pose(R, T);
 
-  bool enable_contact = true;
-  int num_max_contacts = std::numeric_limits<int>::max();
-  // set the collision request structure, here we just use the default setting
-  fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // bool enable_contact = true;
+  // int num_max_contacts = std::numeric_limits<int>::max();
+  // // set the collision request structure, here we just use the default setting
+  // fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // // result will be returned via the collision result structure
+  // fcl::CollisionResult result;
+
+  // int num_contacts = fcl::collide(ee_model1, tf, model2, pose, 
+  //                            request, result);
+
+  // The collision will be performed by checking for the distances
+  // set the distance request structure, here we just use the default setting
+  fcl::DistanceRequest distance_request;
   // result will be returned via the collision result structure
-  fcl::CollisionResult result;
+  fcl::DistanceResult distance_result;
 
-  int num_contacts = fcl::collide(ee_model1, tf, model2, pose, 
-                             request, result);
-  if(num_contacts > 0)
+  // perform distance test
+  fcl::distance(ee_model1, tf, model2, pose, distance_request, distance_result);
+
+  distance = distance_result.min_distance;
+
+  if(distance <= 0)
+  {
     return true;
-
+  }
   return false;
 }
-bool CTableClearingPlanning::isClosedFinderModelColliding(uint idx, fcl::Transform3f tf)
+bool CTableClearingPlanning::isClosedGripperModelColliding(uint idx, fcl::Transform3f tf, double& distance)
 {
   FclMesh mesh1,mesh2;
 
@@ -172,27 +272,40 @@ bool CTableClearingPlanning::isClosedFinderModelColliding(uint idx, fcl::Transfo
 
   fcl::Transform3f pose(R, T);
 
-  bool enable_contact = true;
-  int num_max_contacts = std::numeric_limits<int>::max();
-  // set the collision request structure, here we just use the default setting
-  fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // bool enable_contact = true;
+  // int num_max_contacts = std::numeric_limits<int>::max();
+  // // set the collision request structure, here we just use the default setting
+  // fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // // result will be returned via the collision result structure
+  // fcl::CollisionResult result;
+
+  // int num_contacts = fcl::collide(ee_model1, tf, model2, pose, 
+  //                            request, result);
+
+  // The collision will be performed by checking for the distances
+  // set the distance request structure, here we just use the default setting
+  fcl::DistanceRequest distance_request;
   // result will be returned via the collision result structure
-  fcl::CollisionResult result;
+  fcl::DistanceResult distance_result;
 
-  int num_contacts = fcl::collide(ee_model1, tf, model2, pose, 
-                             request, result);
-  if(num_contacts > 0)
+  // perform distance test
+  fcl::distance(ee_model1, tf, model2, pose, distance_request, distance_result);
+
+  distance = distance_result.min_distance;
+
+  if(distance <= 0)
+  {
     return true;
-
+  }
   return false;
 }
 
 
-bool CTableClearingPlanning::isFingersModelColliding(uint idx, fcl::Transform3f tf)
+bool CTableClearingPlanning::isOpenGripperModelColliding(uint idx, fcl::Transform3f tf, double& distance)
 {
   FclMesh mesh1,mesh2;
 
-  mesh1 = this->getFingersModelMesh();
+  mesh1 = this->getGripperModelMesh();
   mesh2 = this->pcl2FclConvexHull(idx);
 
   // BVHModel is a template class for mesh geometry, for default OBBRSS template is used
@@ -221,18 +334,32 @@ bool CTableClearingPlanning::isFingersModelColliding(uint idx, fcl::Transform3f 
 
   fcl::Transform3f pose(R, T);
 
-  bool enable_contact = true;
-  int num_max_contacts = std::numeric_limits<int>::max();
-  // set the collision request structure, here we just use the default setting
-  fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // bool enable_contact = true;
+  // int num_max_contacts = std::numeric_limits<int>::max();
+  // // set the collision request structure, here we just use the default setting
+  // fcl::CollisionRequest request(num_max_contacts, enable_contact);
+  // // result will be returned via the collision result structure
+  // fcl::CollisionResult result;
+
+  // int num_contacts = fcl::collide(finger_model, tf, model2, pose, 
+  //                            request, result);
+
+
+  // The collision will be performed by checking for the distances
+  // set the distance request structure, here we just use the default setting
+  fcl::DistanceRequest distance_request;
   // result will be returned via the collision result structure
-  fcl::CollisionResult result;
+  fcl::DistanceResult distance_result;
 
-  int num_contacts = fcl::collide(finger_model, tf, model2, pose, 
-                             request, result);
-  if(num_contacts > 0)
+  // perform distance test
+  fcl::distance(finger_model, tf, model2, pose, distance_request, distance_result);
+
+  distance = distance_result.min_distance;
+
+  if(distance <= 0)
+  {
     return true;
-
+  }
   return false;
 }
 
@@ -283,7 +410,7 @@ CTableClearingPlanning::getClosedFingersMesh()
   fcl_mesh.triangles.resize(0);
 
   // check for correct input
-  if(this->fingers_model.closed_cloud.points.size() == 0 )
+  if(this->gripper_model.closed_cloud.points.size() == 0 )
   {
     PCL_ERROR("Gripper Model not set\n");
     return fcl_mesh;
@@ -291,21 +418,21 @@ CTableClearingPlanning::getClosedFingersMesh()
 
   // ----------------- fill vertices ----------------------------
   // for each vertex of the convex hull
-  for (uint i = 0; i < this->fingers_model.closed_cloud.points.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.closed_cloud.points.size(); ++i)
   {
-    fcl::Vec3f vec_tmp(this->fingers_model.closed_cloud.points[i].x,
-                       this->fingers_model.closed_cloud.points[i].y,
-                       this->fingers_model.closed_cloud.points[i].z);
+    fcl::Vec3f vec_tmp(this->gripper_model.closed_cloud.points[i].x,
+                       this->gripper_model.closed_cloud.points[i].y,
+                       this->gripper_model.closed_cloud.points[i].z);
     fcl_mesh.vertices.push_back(vec_tmp);
   }
 
   // ----------------- fill triangles ---------------------------
-  for (uint i = 0; i < this->fingers_model.closed_vertices.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.closed_vertices.size(); ++i)
   {
 
-    fcl::Triangle triangle_tmp(this->fingers_model.closed_vertices[i].vertices[0],
-                               this->fingers_model.closed_vertices[i].vertices[1],
-                               this->fingers_model.closed_vertices[i].vertices[2]);
+    fcl::Triangle triangle_tmp(this->gripper_model.closed_vertices[i].vertices[0],
+                               this->gripper_model.closed_vertices[i].vertices[1],
+                               this->gripper_model.closed_vertices[i].vertices[2]);
     fcl_mesh.triangles.push_back(triangle_tmp);
   }
 
@@ -313,7 +440,7 @@ CTableClearingPlanning::getClosedFingersMesh()
 }
 
 CTableClearingPlanning::FclMesh
-CTableClearingPlanning::getFingersModelMesh()
+CTableClearingPlanning::getGripperModelMesh()
 {
   FclMesh fcl_mesh;
   // initialize the struct
@@ -321,7 +448,7 @@ CTableClearingPlanning::getFingersModelMesh()
   fcl_mesh.triangles.resize(0);
 
   // check for correct input
-  if(this->fingers_model.open_cloud.points.size() == 0 )
+  if(this->gripper_model.open_cloud.points.size() == 0 )
   {
     PCL_ERROR("Fingers Model not set\n");
     return fcl_mesh;
@@ -329,25 +456,52 @@ CTableClearingPlanning::getFingersModelMesh()
 
   // ----------------- fill vertices ----------------------------
   // for each vertex of the convex hull
-  for (uint i = 0; i < this->fingers_model.open_cloud.points.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.open_cloud.points.size(); ++i)
   {
-    fcl::Vec3f vec_tmp(this->fingers_model.open_cloud.points[i].x,
-                       this->fingers_model.open_cloud.points[i].y,
-                       this->fingers_model.open_cloud.points[i].z);
+    fcl::Vec3f vec_tmp(this->gripper_model.open_cloud.points[i].x,
+                       this->gripper_model.open_cloud.points[i].y,
+                       this->gripper_model.open_cloud.points[i].z);
     fcl_mesh.vertices.push_back(vec_tmp);
   }
 
   // ----------------- fill triangles ---------------------------
-  for (uint i = 0; i < this->fingers_model.open_vertices.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.open_vertices.size(); ++i)
   {
 
-    fcl::Triangle triangle_tmp(this->fingers_model.open_vertices[i].vertices[0],
-                               this->fingers_model.open_vertices[i].vertices[1],
-                               this->fingers_model.open_vertices[i].vertices[2]);
+    fcl::Triangle triangle_tmp(this->gripper_model.open_vertices[i].vertices[0],
+                               this->gripper_model.open_vertices[i].vertices[1],
+                               this->gripper_model.open_vertices[i].vertices[2]);
     fcl_mesh.triangles.push_back(triangle_tmp);
   }
 
   return fcl_mesh; 
+}
+
+void CTableClearingPlanning::refinePushingPose(Eigen::Vector3f &point, double safe_margin)
+{
+    Eigen::Vector3f proj_eigen_point;
+
+    double a = this->plane_coefficients.values[0];
+    double b = this->plane_coefficients.values[1];
+    double c = this->plane_coefficients.values[2];
+    double d = this->plane_coefficients.values[3];
+    double distance;
+    pcl::geometry::project(point,this->plane_origin,this->plane_normal,proj_eigen_point);
+    distance = (point - proj_eigen_point).norm();
+    bool safe_pose = true;
+    if((a*point[0] + b*point[1] + c*point[2] + d) >  0) // there is a contact with the table
+    {
+      distance = - distance;
+      safe_pose = false;
+    }
+    else if(distance < safe_margin)
+    {
+      safe_pose = false;
+    }
+    if(not safe_pose)
+    {
+      point -= this->plane_normal * (safe_margin - distance);      
+    }
 }
 
 Eigen::Vector3f  CTableClearingPlanning::pointT2vector3f(PointT point)
@@ -499,12 +653,12 @@ void CTableClearingPlanning::eigen2FclRotation(Eigen::Matrix3f eig_rot, fcl::Mat
   rot(2,2) = eig_rot(2,2);
 }
 
-void CTableClearingPlanning::computeAABBObjects(bool refine_centroids)
+void CTableClearingPlanning::computeOBBObjects(bool refine_centroids)
 {
   if(this->principal_directions_objects.size() == 0)
     this->computePrincipalDirections();
 
-  this->aabb_objects.resize(this->n_objects);
+  this->obb_objects.resize(this->n_objects);
   for (uint i = 0; i < n_objects; ++i)
   {
     PrincipalDirectionsProjected* pd = &(principal_directions_objects[i]);
@@ -532,9 +686,9 @@ void CTableClearingPlanning::computeAABBObjects(bool refine_centroids)
     pd->dir1_limit= (max_pt.x - min_pt.x);
     pd->dir3_limit= (max_pt.y - min_pt.y);
 
-    this->aabb_objects[i].deep = (max_pt.x - min_pt.x);
-    this->aabb_objects[i].width = (max_pt.y - min_pt.y);
-    this->aabb_objects[i].height = (max_pt.z - min_pt.z);
+    this->obb_objects[i].deep = (max_pt.x - min_pt.x);
+    this->obb_objects[i].width = (max_pt.y - min_pt.y);
+    this->obb_objects[i].height = (max_pt.z - min_pt.z);
 
     if(refine_centroids)
     {
@@ -631,7 +785,7 @@ void CTableClearingPlanning::computeSimpleHeuristicGraspingPoses(bool vertical_p
   }
 }
 
-void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, double width, double distance_plane)
+void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, double width, double distance_plane, uint r, uint g, uint b)
 {
   this->ee_simple_model.height = height;
   this->ee_simple_model.deep = deep;
@@ -657,7 +811,11 @@ void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, d
   // this->ee_simple_model.cloud.points.push_back(p);
 
   //set the vertices of the bounding box
-  pcl::PointXYZ p;
+  pcl::PointXYZRGB p;
+  p.r = r;
+  p.g = g;
+  p.b = b;
+
   p.x = width/2; p.y = height/2; p.z = deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
   p.x = width/2; p.y = height/2; p.z = - deep/2;
@@ -675,16 +833,15 @@ void CTableClearingPlanning::setGripperSimpleModel(double height, double deep, d
   p.x = - width/2; p.y = - height/2; p.z = - deep/2;
   this->ee_simple_model.cloud.points.push_back(p);
 
-
-  pcl::ConvexHull<pcl::PointXYZ> hull;
+  pcl::ConvexHull<pcl::PointXYZRGB> hull;
   hull.setInputCloud(this->ee_simple_model.cloud.makeShared());
   hull.reconstruct(this->ee_simple_model.cloud, this->ee_simple_model.vertices);
   
   this->ee_simple_model.distance_plane = distance_plane;
 }
 
-void CTableClearingPlanning::setFingersModel (double opening_width, double closing_width, double finger_width,
-               double deep, double height, double closing_height)
+void CTableClearingPlanning::setGripperModel (double opening_width, double closing_width, double finger_width,
+               double deep, double height, double closing_height, uint r, uint g, uint b)
 {
   if(height <= closing_height)
   {
@@ -692,54 +849,58 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
     return;
   }
 
-  this->fingers_model.opening_width = opening_width;
-  this->fingers_model.closing_width = closing_width;
-  this->fingers_model.finger_width = finger_width;
-  this->fingers_model.deep = deep;
-  this->fingers_model.height = height;
-  this->fingers_model.closing_height = closing_height;
+  this->gripper_model.opening_width = opening_width;
+  this->gripper_model.closing_width = closing_width;
+  this->gripper_model.finger_width = finger_width;
+  this->gripper_model.deep = deep;
+  this->gripper_model.height = height;
+  this->gripper_model.closing_height = closing_height;
   
   // creating the cloud
-  pcl::PointXYZ p;
+  pcl::PointXYZRGB p;
+  p.r = r;
+  p.g = g;
+  p.b = b;
+
   p.x = - opening_width/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
 
   p.x = - (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
 
   p.x = - (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);  
+  this->gripper_model.open_cloud.points.push_back(p);  
 
   p.x = (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
 
   p.x = (opening_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
 
   p.x = (opening_width)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
 
   p.x = (opening_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);  
+  this->gripper_model.open_cloud.points.push_back(p);  
 
   p.x = - (opening_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->fingers_model.open_cloud.points.push_back(p);
+  this->gripper_model.open_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.open_cloud.points.push_back(p);  
+  this->gripper_model.open_cloud.points.push_back(p);  
 
   // make the z axis pointing down
   Eigen::Vector3f translation(0,0,0);
@@ -749,7 +910,7 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
   mat_rot(2,0) = 0;mat_rot(2,1) = 0;mat_rot(2,2) = -1;
   Eigen::Matrix3f rot = mat_rot.inverse();
   Eigen::Quaternionf quat(rot);
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, this->fingers_model.open_cloud, translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, this->gripper_model.open_cloud, translation , quat);
 
   //manually polygonal mesh reconstruction
   pcl::Vertices v;
@@ -757,132 +918,236 @@ void CTableClearingPlanning::setFingersModel (double opening_width, double closi
 
   //front side
   v.vertices[0] = 1;v.vertices[1] = 3;v.vertices[2] = 5;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 1;v.vertices[1] = 5;v.vertices[2] = 15;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 5;v.vertices[1] = 7;v.vertices[2] = 15;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 15;v.vertices[1] = 7;v.vertices[2] = 13;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 11;v.vertices[1] = 7;v.vertices[2] = 13;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 7;v.vertices[1] = 9;v.vertices[2] = 11;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
 
   //back side
   v.vertices[0] = 0;v.vertices[1] = 2;v.vertices[2] = 4;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 0;v.vertices[1] = 4;v.vertices[2] = 14;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 4;v.vertices[1] = 6;v.vertices[2] = 14;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 14;v.vertices[1] = 6;v.vertices[2] = 12;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 10;v.vertices[1] = 6;v.vertices[2] = 12;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 6;v.vertices[1] = 8;v.vertices[2] = 10;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
 
   v.vertices[0] = 0;v.vertices[1] = 1;v.vertices[2] = 2;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 3;v.vertices[1] = 1;v.vertices[2] = 2;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
 
   v.vertices[0] = 8;v.vertices[1] = 9;v.vertices[2] = 10;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 11;v.vertices[1] = 9;v.vertices[2] = 10;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
 
   v.vertices[0] = 2;v.vertices[1] = 3;v.vertices[2] = 4;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 5;v.vertices[1] = 3;v.vertices[2] = 4;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
   v.vertices[0] = 8;v.vertices[1] = 7;v.vertices[2] = 6;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 8;v.vertices[1] = 9;v.vertices[2] = 7;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
   //top "roof"
   v.vertices[0] = 4;v.vertices[1] = 5;v.vertices[2] = 6;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 5;v.vertices[1] = 6;v.vertices[2] = 7;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
   //bottom "roof"
   v.vertices[0] = 14;v.vertices[1] = 15;v.vertices[2] = 12;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 12;v.vertices[1] = 15;v.vertices[2] = 13;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
   //internal sides
   v.vertices[0] = 0;v.vertices[1] = 1;v.vertices[2] = 14;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 15;v.vertices[1] = 1;v.vertices[2] = 14;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
   v.vertices[0] = 10;v.vertices[1] = 11;v.vertices[2] = 12;
-  this->fingers_model.open_vertices.push_back(v);
+  this->gripper_model.open_vertices.push_back(v);
   v.vertices[0] = 13;v.vertices[1] = 11;v.vertices[2] = 12;
-  this->fingers_model.open_vertices.push_back(v);  
+  this->gripper_model.open_vertices.push_back(v);  
 
-  // creating the cloud
+  // creating the cloud for the closed model
   p.x = - closing_width/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
 
   p.x = - (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
 
   p.x = - (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);  
+  this->gripper_model.closed_cloud.points.push_back(p);  
 
   p.x = (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = closing_height/2 + (height - closing_height);
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
 
   p.x = (closing_width +finger_width*2)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
 
   p.x = (closing_width)/2; p.y = - deep/2; p.z = - closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
 
   p.x = (closing_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);  
+  this->gripper_model.closed_cloud.points.push_back(p);  
 
   p.x = - (closing_width)/2; p.y = - deep/2; p.z = closing_height/2;
-  this->fingers_model.closed_cloud.points.push_back(p);
+  this->gripper_model.closed_cloud.points.push_back(p);
   p.y = deep/2;
-  this->fingers_model.closed_cloud.points.push_back(p);  
+  this->gripper_model.closed_cloud.points.push_back(p);  
 
   // make the z axis pointing down
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.closed_cloud, this->fingers_model.closed_cloud, translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.closed_cloud, this->gripper_model.closed_cloud, translation , quat);
 
 
   //manually polygonal mesh reconstruction
-  this->fingers_model.closed_vertices = this->fingers_model.open_vertices;
+  this->gripper_model.closed_vertices = this->gripper_model.open_vertices;
 
   //shift both them up in order to make the origin being the fingers contact point
   Eigen::Vector3f translation2(0,0,- closing_height/2);
   Eigen::Quaternionf orientation = Eigen::Quaternionf::Identity ();
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, this->fingers_model.open_cloud, translation2 , orientation);
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.closed_cloud, this->fingers_model.closed_cloud, translation2 , orientation);
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, this->gripper_model.open_cloud, translation2 , orientation);
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.closed_cloud, this->gripper_model.closed_cloud, translation2 , orientation);
+}
 
-  
-  
+void CTableClearingPlanning::setOpenGripperColor (uint r, uint g, uint b)
+{
+  for (uint i = 0; i < this->gripper_model.open_cloud.size() ; i++)
+  {
+    this->gripper_model.open_cloud.points[i].r = r;
+    this->gripper_model.open_cloud.points[i].g = g;
+    this->gripper_model.open_cloud.points[i].b = b;
+  }
+}
+void CTableClearingPlanning::setClosedGripperColor (uint r, uint g, uint b)
+{
+  for (uint i = 0; i < this->gripper_model.closed_cloud.size() ; i++)
+  {
+    this->gripper_model.closed_cloud.points[i].r = r;
+    this->gripper_model.closed_cloud.points[i].g = g;
+    this->gripper_model.closed_cloud.points[i].b = b;
+  }
+}
 
+void CTableClearingPlanning::refineSegmentationByBiggestPlane()
+{
+
+    std::vector<PointCloudT> tmp_objects = objects;
+
+    std::vector<std::vector<pcl::ModelCoefficients> > v_coefficients;
+    v_coefficients.resize(this->objects.size());
+    std::vector<std::vector< pcl::PointIndices> > v_inliers;
+    v_inliers.resize( this->objects.size());
+
+    for(uint o = 0; o < this->objects.size(); o++)// for each object
+    {
+       pcl::PointCloud<PointT>::Ptr tmp_c = tmp_objects[o].makeShared();
+       // gets the planes
+       while(tmp_c->points.size() > 10)
+       {
+
+         pcl::SACSegmentation<PointT> seg;
+         // Optional
+         seg.setOptimizeCoefficients (true);
+         // Mandatory
+         seg.setModelType (pcl::SACMODEL_PLANE);
+         seg.setMethodType (pcl::SAC_RANSAC);
+         seg.setDistanceThreshold (0.005);
+         seg.setInputCloud(tmp_c);
+         pcl::PointIndices tmp_indices; 
+         pcl::ModelCoefficients tmp_coefficients;
+         seg.segment (tmp_indices, tmp_coefficients);  
+         v_inliers[o].push_back(tmp_indices);
+         v_coefficients[o].push_back(tmp_coefficients);
+         seg.setMaxIterations (100);
+         seg.setDistanceThreshold (0.01);
+         
+         // Create the filtering object
+         pcl::ExtractIndices<PointT> extract;
+         extract.setInputCloud (tmp_c);
+         pcl::PointIndices::Ptr pi (new pcl::PointIndices); 
+         pi->indices = tmp_indices.indices; 
+         extract.setIndices (pi);
+         extract.setNegative (true);//extract outliers
+         extract.filter (*tmp_c);
+       }
+       // get the biggest plane
+       int idx_max = -1;
+       uint max = 0;
+       for(uint i = 0; i < v_inliers[o].size(); i++)
+       {
+         if(v_inliers[o][i].indices.size() >= max)
+         {
+          // check if it is parallel to the table plane up to a threshold
+          Eigen::Vector3f normal_;
+          normal_[0] = v_coefficients[o][i].values[0];  
+          normal_[1] = v_coefficients[o][i].values[1];  
+          normal_[2] = v_coefficients[o][i].values[2];  
+          double angle_degree_th = 45;
+          double th = cos((M_PI * angle_degree_th)/180);
+          double cos_angle = normal_.dot(this->plane_normal);
+          if(cos_angle < 0) cos_angle = - cos_angle;
+          if( cos_angle >= th)
+          {
+            idx_max = i; 
+            max = v_inliers[o][i].indices.size();
+          }
+         }    
+       }
+       // extract the points and substitute the segmented object with that plane's points
+       if (idx_max == -1)
+         PCL_ERROR("Error estimating the number of planes of object %d",o);
+
+       int counter = 0;
+       pcl::ExtractIndices<PointT> extract;
+       while(counter <= idx_max )
+       {
+         //Create the filtering object
+         extract.setInputCloud (this->objects[o].makeShared());
+         pcl::PointIndices::Ptr pi (new pcl::PointIndices); 
+         pi->indices = v_inliers[o][counter].indices; 
+         extract.setIndices (pi);
+         if(counter != idx_max)
+           extract.setNegative (true);//extract outliers
+         else
+           extract.setNegative(false);//extract inliers
+         extract.filter (this->objects[o]);
+
+         counter++;
+       }
+    }
 }
 
 
@@ -930,6 +1195,79 @@ void CTableClearingPlanning::testTranslation(uint idx)
   translation[2] = 0.1*principal_directions_objects[idx].dir1[2];
   this->translate(this->convex_hull_objects[idx],this->convex_hull_objects[idx],translation);
 }
+void CTableClearingPlanning::testFclDistance()
+{
+  // set mesh triangles and vertice indices
+  std::vector<fcl::Vec3f> vertices;
+  std::vector<fcl::Triangle> triangles;
+
+  // code to set the vertices and triangles
+  // set just a simple shape, 1 triangle
+  fcl::Vec3f vec_tmp1(0,0,0);
+  vertices.push_back(vec_tmp1);
+  fcl::Vec3f vec_tmp2(0,0,1);
+  vertices.push_back(vec_tmp2);
+  fcl::Vec3f vec_tmp3(0,1,0);
+  vertices.push_back(vec_tmp3);
+  fcl::Vec3f vec_tmp4(0.5,0.5,0);
+  vertices.push_back(vec_tmp4);
+
+  fcl::Triangle triangle_tmp(0,1,2);
+  triangles.push_back(triangle_tmp);
+  fcl::Triangle triangle_tmp2(0,1,3);
+  triangles.push_back(triangle_tmp2);
+  fcl::Triangle triangle_tmp3(0,2,3);
+  triangles.push_back(triangle_tmp3);
+  fcl::Triangle triangle_tmp4(1,2,3);
+  triangles.push_back(triangle_tmp4);
+
+  // BVHModel is a template class for mesh geometry, for default OBBRSS template is used
+  typedef fcl::BVHModel<fcl::OBBRSS> Model;
+  Model* model = new Model();
+  //fcl::BVHModel<fcl::BV>* model = new Model();
+  // add the mesh data into the BVHModel structure
+  
+  model->beginModel();
+  model->addSubModel(vertices, triangles);
+  model->endModel();
+
+  // identity matrix -> no rotation
+  fcl::Matrix3f R(1,0,0,
+                  0,1,0,
+                  0,0,1);
+  fcl::Vec3f T(0,0,0); // no translation
+
+  fcl::Matrix3f R2(1,0,0,
+                  0,1,0,
+                  0,0,1);
+  fcl::Vec3f T2(0.25,0.751,0); // no translation
+
+  fcl::Transform3f pose(R, T);
+  fcl::Transform3f pose2(R2, T2);
+  
+
+  // The collision will be performed by checking for the distances
+  // set the distance request structure, here we just use the default setting
+  fcl::DistanceRequest distance_request;
+  // result will be returned via the collision result structure
+  fcl::DistanceResult distance_result;
+
+  // perform distance test
+  fcl::distance(model, pose, model, pose2, distance_request, distance_result);
+
+  double distance = distance_result.min_distance;
+
+  if(distance <= 0)
+  {
+    PCL_ERROR("FCL::COLLISION DETCTED\n");
+    std::cout << "The distance is: " << distance << std::endl;
+  }
+  else
+  {
+   std::cout << "NO COLLISION, The distance is: " << distance << std::endl; 
+  }
+  
+}
 
 void CTableClearingPlanning::computeSurfaceGraspPoint(Eigen::Vector3f& surface_point, uint idx)
 {
@@ -957,7 +1295,7 @@ void CTableClearingPlanning::computeSurfaceGraspPoint(Eigen::Vector3f& surface_p
   // translate the contact point in order to make the center of the gripper concide with it
   PrincipalDirectionsProjected* pd = &(this->principal_directions_objects[idx]);
   Eigen::Vector3f new_axis = pd->dir3.cross(pd->dir2); 
-  surface_point = surface_point + new_axis * this->fingers_model.closing_height/2;
+  surface_point = surface_point + new_axis * this->gripper_model.closing_height/2;
 }
 
 bool CTableClearingPlanning::refineSimpleGraspingPose(GraspingPose& gp, double translation_step, double distance_from_plane)
@@ -979,8 +1317,8 @@ bool CTableClearingPlanning::refineSimpleGraspingPose(GraspingPose& gp, double t
     // We will do this for each point of the convex hull of the gripper
 
     // transforming the fingers model point cloud
-    pcl::PointCloud<pcl::PointXYZ> cloud_tmp;
-    pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud_tmp, gp.translation, gp.quaternion);
+    pcl::PointCloud<pcl::PointXYZRGB> cloud_tmp;
+    pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud_tmp, gp.translation, gp.quaternion);
 
     // we also want the object to be not too much close to the plane
     // project fingers contact point to the table 
@@ -1160,15 +1498,41 @@ void CTableClearingPlanning::setPushingObjectDistance(double pushing_object_dist
 {
   this->pushing_object_distance = pushing_object_distance;
 }
-void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_method)
+void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_method, double resolution, double pushing_limit, double minimum_distance,
+                                                    bool pushing_until_graspable, double pushing_fixed_distance)
 { 
+  if(pushing_until_graspable && pushing_fixed_distance > 0.0)
+  {
+    PCL_WARN("The computation of the states was specified both with the method to push until graspable and for a fixed distance, the method to push until graspable has priority."); 
+    pushing_fixed_distance = 0.0;
+  }
+
+  pushing_lengths.resize(this->n_objects);
+  pushing_grasping_poses.resize(this->n_objects);
+
+  // control checking
+  if( this->grasping_poses.size() == 0)
+  {
+    PCL_ERROR("You are trying to compute the block predicates without first computing the grasping poses.");
+    return;
+  }
+
   util::uint64 t_init_block_predicates = util::GetTimeMs64();
   this->executionTimes.objects_collisions = 0; // initialization
   this->executionTimes.ee_collisions = 0;
 
   this->blocks_predicates.resize(this->n_objects);
   this->pushing_poses.resize(this->n_objects);
-  if(this->convex_hull_objects.size() == 0)
+  // initialize
+  for (std::vector<PushingPose>::iterator i = this->pushing_poses.begin(); i != this->pushing_poses.end(); ++i)
+  {
+    i->dist_dir1 = 1000;
+    i->dist_dir2 = 1000;
+    i->dist_dir3 = 1000;
+    i->dist_dir4 = 1000;
+  }
+
+  if(this->convex_hull_objects.size() == 0)		
   {
       this->computeProjectionsOnTable();
       this->computeRichConvexHulls();
@@ -1192,498 +1556,17 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
       break;
   }
   //tic();
-
+  util::uint64 t_ini_block_predicates2 = util::GetTimeMs64();
+  boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_; //fake viewer
+ 
   for (uint obj_idx = 0; obj_idx < this->n_objects; ++obj_idx)
   {
     for (uint dir_idx = 1; dir_idx <= 4; ++dir_idx)
-    {
-      fcl::Vec3f T;
-      double x,y,z;
-
-      if((dir_idx < 1) || (dir_idx > 4))
-      {
-        PCL_ERROR("Index of the direction wrong: %d it has to belong to be 1,2,3,4\n",dir_idx);
-        return;
-      }
-      uint n = 1;
-      //for (uint n = 1; n <= this->n_pushes; ++n)
-      double step_translation = 0;
-      switch(dir_idx)
-      {
-        case 1:
-        case 2:
-            this->pushing_limit =  this->pushing_step * aabb_objects[obj_idx].deep;
-            break;
-        case 3:
-        case 4:
-            this->pushing_limit =  this->pushing_step * aabb_objects[obj_idx].width;     
-            break;
-        default: break;
-      }
-      while(step_translation < this->pushing_limit)
-      {
-        switch(dir_idx)
-        {
-          case 1 :
-                  step_translation = n * this->principal_directions_objects[obj_idx].dir1_limit;
-                  if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                    step_translation = this->pushing_limit;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir1[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir1[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir1[2];
-                  T.setValue(x,y,z);               
-
-                  break;
-          case 2 :
-                  step_translation = n * this->principal_directions_objects[obj_idx].dir1_limit;
-                  if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                    step_translation = this->pushing_limit;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir2[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir2[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir2[2];
-                  T.setValue(x,y,z);
-
-                  break; 
-          case 3 :
-                  step_translation = n * this->principal_directions_objects[obj_idx].dir3_limit;
-                  if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                    step_translation = this->pushing_limit;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir3[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir3[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir3[2];
-                  T.setValue(x,y,z);
-
-                  break; 
-          case 4 :
-                  step_translation = n * this->principal_directions_objects[obj_idx].dir3_limit;
-                  if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
-                    step_translation = this->pushing_limit;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir4[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir4[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir4[2];
-                  T.setValue(x,y,z);
-
-                  break; 
-          default: break;
-        }
-        // identity matrix -> no rotation
-        fcl::Matrix3f R(1,0,0,
-                        0,1,0,
-                        0,0,1);
-        //for all the other objects
-        fcl::Transform3f pose(R, T);
-        util::uint64 t_init_collision = util::GetTimeMs64();
-        for (uint i = 0; i < this->objects.size(); ++i)
-        {
-          if(i != obj_idx)
-            if(this->areObjectCollidingFcl(obj_idx,pose,i))
-            {
-              //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
-              switch(dir_idx)
-              {
-                case 1 :            
-                        this->blocks_predicates[obj_idx].block_dir1.push_back(i);
-                        break;
-                case 2 :
-                        this->blocks_predicates[obj_idx].block_dir2.push_back(i);
-                        break; 
-                case 3 :
-                        this->blocks_predicates[obj_idx].block_dir3.push_back(i);
-                        break; 
-                case 4 :
-                        this->blocks_predicates[obj_idx].block_dir4.push_back(i);
-                        break; 
-                default: break;
-              }
-            }
-        }
-        this->executionTimes.objects_collisions += (double)(util::GetTimeMs64() - t_init_collision);
-
-        n++;
-      }
-
-      // ----------------------- END EFFECTOR --------------------------------------
-
-      PrincipalDirectionsProjected* pd = &(principal_directions_objects[obj_idx]);
-      Eigen::Matrix3f rot;
-      
-      Eigen::Vector3f normal;
-      Eigen::Vector3f translation;
-      Eigen::Matrix3f mat_rot;
-      Eigen::Quaternionf quat;
-      if(pushing_method == PARALLEL_PUSHING)
-      {
-        // project centroid to the table 
-        Eigen::Vector3f eigen_point = pd->centroid.head<3>();
-        Eigen::Vector3f proj_eigen_point;
-        pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
-
-        Eigen::Vector3f scaled_diff = eigen_point - proj_eigen_point;
-        scaled_diff.normalize(); // this hsould be equal to - this->normal_plane
-
-        scaled_diff = (this->ee_simple_model.distance_plane + this->ee_simple_model.height/2 )* scaled_diff;
-        
-        Eigen::Vector3f new_centroid = proj_eigen_point + scaled_diff;
-
-        switch(dir_idx)
-        {
-          case 1 :
-                  step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                                     - this->ee_simple_model.deep/2 - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-                  rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-                  rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // we are now going to save the TCP pose 
-                  translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir1;
-                  this->pushing_poses[obj_idx].pose_dir1.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
-
-                  break;
-          case 2 :
-                  step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                                     - this->ee_simple_model.deep/2 - pushing_object_distance;           
-                  x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-                  rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-                  rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP
-                  translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir2;
-                  this->pushing_poses[obj_idx].pose_dir2.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
-
-                  break; 
-          case 3 :
-                  step_translation = - this->aabb_objects[obj_idx].width/2 +
-                                     - this->ee_simple_model.deep/2 - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-                  rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-                  rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP
-                  translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir3;
-                  this->pushing_poses[obj_idx].pose_dir3.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
-
-                  break; 
-          case 4 :
-                  step_translation = - this->aabb_objects[obj_idx].width/2 +
-                                     - this->ee_simple_model.deep/2 - pushing_object_distance; 
-                  x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-                  rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-                  rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP
-                  translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir4;
-                  this->pushing_poses[obj_idx].pose_dir4.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
-
-                  break; 
-          default: break;
-        }
-      }
-      else if(pushing_method == ORTHOGONAL_PUSHING)
-      {
-        // project centroid to the table 
-        Eigen::Vector3f eigen_point = pd->centroid.head<3>();
-        Eigen::Vector3f proj_eigen_point;
-        pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
-
-        Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
-                           (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height);        
-        
-        switch(dir_idx)
-        {
-          case 1 :
-                  // step_translation = - this->aabb_objects[obj_idx].deep/2 
-                  //                    - this->fingers_model.finger_width/2
-                  //                    - pushing_object_distance;
-                  step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                     - (this->fingers_model.finger_width + 
-                                        this->fingers_model.closing_width/2)/2
-                                     - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  // rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-                  // rot(1,0) = -pd->dir1[0]; rot(1,1) = -pd->dir1[1]; rot(1,2) = -pd->dir1[2];
-                  // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-
-                  rot(0,0) = -pd->dir1[0]; rot(0,1) = -pd->dir1[1]; rot(0,2) = -pd->dir1[2];
-                  rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
-                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP -> we have to fix the translation accordingly to ROS              
-                  this->pushing_poses[obj_idx].pose_dir1.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
-
-                  break;
-          case 2 :
-                  // step_translation = - this->aabb_objects[obj_idx].deep/2 
-                  //                    - this->fingers_model.finger_width/2
-                  //                    - pushing_object_distance;
-
-                  // we want to push in it in the smallest gripper side
-                  step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                     - (this->fingers_model.finger_width + 
-                                        this->fingers_model.closing_width/2)/2
-                                     - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  // rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-                  // rot(1,0) = -pd->dir2[0]; rot(1,1) = -pd->dir2[1]; rot(1,2) = -pd->dir2[2];
-                  // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-
-                  rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-                  rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
-                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP -> we have to fix the translation accordingly to ROS              
-                  this->pushing_poses[obj_idx].pose_dir2.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
-
-                  break; 
-          case 3 :
-                  step_translation = - this->aabb_objects[obj_idx].width/2 
-                                     - this->fingers_model.deep/2
-                                     - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-                  rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
-                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP -> we have to fix the translation accordingly to ROS              
-                  this->pushing_poses[obj_idx].pose_dir3.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
-
-                  break; 
-          case 4 :
-                  step_translation = - this->aabb_objects[obj_idx].width/2 
-                                     - this->fingers_model.deep/2
-                                     - pushing_object_distance;
-                  x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
-                       new_centroid[0];
-                  y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
-                       new_centroid[1];
-                  z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
-                       new_centroid[2];
-                  T.setValue(x,y,z);
-                  translation[0] = x;
-                  translation[1] = y;
-                  translation[2] = z;
-
-                  rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-                  rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
-                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-                  mat_rot = rot.inverse();
-                  quat = mat_rot;
-
-                  // TCP -> we have to fix the translation accordingly to ROS              
-                  this->pushing_poses[obj_idx].pose_dir4.translation = translation;
-                  this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
-                  this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
-
-                  break; 
-          default: break;
-        }
-      }
-      //for all the other objects
-
-      //we have to compute the rotation accordingly to the direction
-
-      fcl::Matrix3f R; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
-      mat_rot = rot.inverse();
-      this->eigen2FclRotation(mat_rot,R);
-
-      fcl::Transform3f pose_ee(R, T);
-
-      // check for all the other objects what are the ones that collide with it
-      util::uint64 t_init_ee_collision = util::GetTimeMs64();
-      for (uint i = 0; i < this->objects.size(); ++i)
-      {
-        if(i != obj_idx)
-        {
-          // is gripper colliding?
-          bool collision;
-          switch(pushing_method)
-          {
-            case ORTHOGONAL_PUSHING:
-              collision = this->isClosedFinderModelColliding(i,pose_ee);
-              break;
-            case PARALLEL_PUSHING:
-              collision = this->isEEColliding(i,pose_ee);
-              break;
-            default:
-              break;
-          }
-          if(collision)
-          {
-            //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
-            switch(dir_idx)
-            {
-              case 1 :            
-                      this->blocks_predicates[obj_idx].block_dir1.push_back(i);
-                      break;
-              case 2 :
-                      this->blocks_predicates[obj_idx].block_dir2.push_back(i);
-                      break; 
-              case 3 :
-                      this->blocks_predicates[obj_idx].block_dir3.push_back(i);
-                      break; 
-              case 4 :
-                      this->blocks_predicates[obj_idx].block_dir4.push_back(i);
-                      break; 
-              default: break;
-            }
-          }
-        }
-      }
-      this->executionTimes.ee_collisions += (double)(util::GetTimeMs64() - t_init_ee_collision);
-
-
-      //remove duplicates 
-      std::vector<uint>* vec;
-      switch(dir_idx)
-      {
-        case 1 :
-                vec = &(this->blocks_predicates[obj_idx].block_dir1);            
-                break;
-        case 2 :
-                vec = &(this->blocks_predicates[obj_idx].block_dir2);
-                break; 
-        case 3 :
-                vec = &(this->blocks_predicates[obj_idx].block_dir3);
-                break; 
-        case 4 :
-                vec = &(this->blocks_predicates[obj_idx].block_dir4);
-                break; 
-        default: break;
-      }
-      // reference:
-      // http://stackoverflow.com/questions/1041620/whats-the-most-efficient-way-to-erase-duplicates-and-sort-a-vector
-      sort( vec->begin(), vec->end() );
-      vec->erase( unique( vec->begin(), vec->end() ), vec->end() );
-      
-      if(print)
-      {
-        // print blocks predicates
-        std::vector<uint>* block_dir_pointer;
-        switch(dir_idx)
-        {
-          case 1 :
-                  block_dir_pointer = &(this->blocks_predicates[obj_idx].block_dir1);
-                  break;
-          case 2 :
-                  block_dir_pointer = &(this->blocks_predicates[obj_idx].block_dir2);
-                  break; 
-          case 3 :
-                  block_dir_pointer = &(this->blocks_predicates[obj_idx].block_dir3);
-                  break; 
-          case 4 :
-                  block_dir_pointer = &(this->blocks_predicates[obj_idx].block_dir4);
-                  break; 
-          default: break;
-        }
-        for (uint i = 0; i < block_dir_pointer->size(); ++i)
-        {
-          std::cout << "Object " << obj_idx << " is colliding with object " <<  block_dir_pointer->at(i) << " in direction " << dir_idx << std::endl;
-        }
-      }    
+    { 
+        visualComputeBlockPredicates(viewer_,obj_idx,dir_idx,false,print,pushing_method,resolution,pushing_limit,minimum_distance,pushing_until_graspable,false,pushing_fixed_distance);              
     }
   }
-
+  
   // get the average to compute the collision between 2 objects dividing by (n_objects-1) the total 
   // objects collison time.(-1 because the object are not tested to collide with themselves)
   this->executionTimes.average_objects_collision = this->executionTimes.objects_collisions/((n_objects-1)*n_objects);
@@ -1693,14 +1576,24 @@ void CTableClearingPlanning::computeBlockPredicates(bool print, uint pushing_met
   //toc();
   util::uint64 t_end_block_predicates = util::GetTimeMs64();
   this->executionTimes.block_predicates = (double)(t_end_block_predicates - t_init_block_predicates);
-  // std::cout << "Execution time block predicates: " << this->executionTimes.block_predicates << std::endl;
+  std::cout << "Execution time block predicates: " << this->executionTimes.block_predicates << std::endl;
+  std::cout << "Execution time block predicates2: " << (double)(util::GetTimeMs64() - t_ini_block_predicates2) << std::endl;
 }
 
 void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uint obj_idx, uint dir_idx,
-                                                          bool visualization, bool print, uint pushing_method)
+                                                          bool visualization, bool print, uint pushing_method,
+                                                          double resolution, double pushing_limit, double minimum_distance,
+                                                          bool pushing_until_graspable, bool show_ee,
+                                                          double pushing_fixed_distance)
 { 
   fcl::Vec3f T;
   double x,y,z;
+  
+  if(pushing_until_graspable && pushing_fixed_distance > 0.0)
+  {
+    PCL_WARN("The computation of the states was specified both with the method to push until graspable and for a fixed distance, the method to push until graspable has priority."); 
+    pushing_fixed_distance = 0.0;
+  }
 
   if((dir_idx < 1) || (dir_idx > 4))
   {
@@ -1720,28 +1613,448 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
   }
 
   uint n = 1;
-  //for (uint n = 1; n <= this->n_pushes; ++n)
+  
   double step_translation = 0;
-  // double pushing_limit;
-  switch(dir_idx)
+  std::vector<uint> blocking_objects;
+
+  GraspingPose gp_tmp; // temporary grasping pose
+
+  if((dir_idx < 1) || (dir_idx > 4))
   {
-    case 1:
-    case 2:
-        this->pushing_limit =  this->pushing_step * aabb_objects[obj_idx].deep;
-        break;
-    case 3:
-    case 4:
-        this->pushing_limit =  this->pushing_step * aabb_objects[obj_idx].width;     
-        break;
-    default: break;
+    PCL_ERROR("Index of the direction wrong: %d it has to belong to be 1,2,3,4\n",dir_idx);
+    return;
   }
 
-  while(step_translation < this->pushing_limit )
+  bool exit_while = false;
+
+  if(not pushing_until_graspable) // pushed for a fixed distance
   {
     switch(dir_idx)
     {
+      case 1: 
+      case 2:
+          resolution = obb_objects[obj_idx].deep;
+          break;
+      case 3:
+      case 4:
+          resolution = obb_objects[obj_idx].width;
+          break;
+      default:break;
+    } 
+    this->pushing_limit = this->pushing_step * resolution;
+  }
+  else
+  {
+    this->pushing_limit = pushing_limit;
+  }
+  // ----------------------- END EFFECTOR --------------------------------------
+                                                                                                                                          
+  PrincipalDirectionsProjected* pd = &(principal_directions_objects[obj_idx]);
+  Eigen::Matrix3f rot;
+
+  Eigen::Vector3f normal;
+  Eigen::Vector3f translation;
+  Eigen::Matrix3f mat_rot;
+  Eigen::Quaternionf quat;
+  if(pushing_method == PARALLEL_PUSHING)
+  {
+    // project centroid to the table 
+    Eigen::Vector3f eigen_point = pd->centroid.head<3>();
+    Eigen::Vector3f proj_eigen_point;
+    pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
+                                                                                                                                          
+    Eigen::Vector3f scaled_diff = eigen_point - proj_eigen_point;
+    scaled_diff.normalize(); // this should be equal to - this->normal_plane
+                                                                                                                                          
+    scaled_diff = (this->ee_simple_model.distance_plane + this->ee_simple_model.height/2 )* scaled_diff;
+    
+    Eigen::Vector3f new_centroid = proj_eigen_point + scaled_diff;
+                                                                                                                                          
+    switch(dir_idx)
+    {
       case 1 :
-              step_translation = n * this->principal_directions_objects[obj_idx].dir1_limit;
+              step_translation = - this->obb_objects[obj_idx].deep/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // we are now going to save the TCP pose 
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir1;
+              this->pushing_poses[obj_idx].pose_dir1.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
+                                                                                                                                          
+              break;
+      case 2 :
+              step_translation = - this->obb_objects[obj_idx].deep/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance;           
+              x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir2;
+              this->pushing_poses[obj_idx].pose_dir2.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
+                                                                                                                                          
+              break; 
+      case 3 :
+              step_translation = - this->obb_objects[obj_idx].width/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir3;
+              this->pushing_poses[obj_idx].pose_dir3.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
+                                                                                                                                          
+              break; 
+      case 4 :
+              step_translation = - this->obb_objects[obj_idx].width/2 +
+                                 - this->ee_simple_model.deep/2 - pushing_object_distance; 
+              x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
+              rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP
+              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir4;
+              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
+                                                                                                                                          
+              break; 
+      default: break;
+    }
+  }
+  else if(pushing_method == ORTHOGONAL_PUSHING)
+  {
+    // project centroid to the table 
+    Eigen::Vector3f eigen_point = pd->centroid.head<3>();
+    Eigen::Vector3f proj_eigen_point;
+    pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
+                                                                                                                                          
+    Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
+                       (this->obb_objects[obj_idx].height - this->gripper_model.closing_height);        
+    refinePushingPose(new_centroid);    
+    switch(dir_idx)
+    {
+      case 1 :
+              // step_translation = - this->obb_objects[obj_idx].deep/2 
+              //                    - this->gripper_model.finger_width/2
+              //                    - pushing_object_distance;
+              step_translation = - this->obb_objects[obj_idx].deep/2 
+                                 - (this->gripper_model.finger_width + 
+                                    this->gripper_model.closing_width/2)
+                                 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              // rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+              // rot(1,0) = -pd->dir1[0]; rot(1,1) = -pd->dir1[1]; rot(1,2) = -pd->dir1[2];
+              // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+                                                                                                                                          
+              rot(0,0) = -pd->dir1[0]; rot(0,1) = -pd->dir1[1]; rot(0,2) = -pd->dir1[2];
+              rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
+              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir1.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
+                                                                                                                                          
+              break;
+      case 2 :
+              // step_translation = - this->obb_objects[obj_idx].deep/2 
+              //                    - this->gripper_model.finger_width/2
+              //                    - pushing_object_distance;
+                                                                                                                                          
+              // we want to push in it in the smallest gripper side
+              step_translation = - this->obb_objects[obj_idx].deep/2 
+                                 - (this->gripper_model.finger_width + 
+                                    this->gripper_model.closing_width/2)
+                                 - pushing_object_distance;
+              x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              // rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+              // rot(1,0) = -pd->dir2[0]; rot(1,1) = -pd->dir2[1]; rot(1,2) = -pd->dir2[2];
+              // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+                                                                                                                                          
+              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+              rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
+              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir2.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
+                                                                                                                                          
+              break; 
+      case 3 :
+              if(this->obb_objects[obj_idx].deep > (this->gripper_model.closing_width + 2*this->gripper_model.finger_width))
+              {
+                  step_translation = - this->obb_objects[obj_idx].width/2 
+                                     - this->gripper_model.deep/2
+                                     - pushing_object_distance;
+
+                  rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
+                  rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
+                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              }
+              else
+              {
+                  step_translation = - this->obb_objects[obj_idx].deep/2 
+                  - (this->gripper_model.finger_width + 
+                  this->gripper_model.closing_width/2)
+                  - pushing_object_distance;
+
+                  rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
+                  rot(1,0) = -pd->dir1[0]; rot(1,1) = -pd->dir1[1]; rot(1,2) = -pd->dir1[2];
+                  rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              }
+                                 
+              x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir3.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
+                                                                                                                                          
+              break; 
+      case 4 :
+              if(this->obb_objects[obj_idx].deep > (this->gripper_model.closing_width + 2*this->gripper_model.finger_width))
+              {
+                    step_translation = - this->obb_objects[obj_idx].width/2 
+                    - this->gripper_model.deep/2
+                    - pushing_object_distance;
+                                                                                                                                   
+                    rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
+                    rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
+                    rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              }
+              else
+              {
+                    step_translation = - this->obb_objects[obj_idx].deep/2 
+                    - (this->gripper_model.finger_width + 
+                    this->gripper_model.closing_width/2)
+                    - pushing_object_distance;
+                                                                                                                                   
+                    rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
+                    rot(1,0) = pd->dir1[0]; rot(1,1) = pd->dir1[1]; rot(1,2) = pd->dir1[2];
+                    rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
+              }
+
+              x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
+                   new_centroid[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
+                   new_centroid[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
+                   new_centroid[2];
+              T.setValue(x,y,z);
+              translation[0] = x;
+              translation[1] = y;
+              translation[2] = z;
+                                                                                                                                          
+              mat_rot = rot.inverse();
+              quat = mat_rot;
+                                                                                                                                          
+              // TCP -> we have to fix the translation accordingly to ROS              
+              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
+              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
+              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
+                                                                                                                                          
+              break; 
+      default: break;
+    }
+  }
+                                                                                                                                          
+  //we have to compute the rotation accordingly to the direction
+  fcl::Matrix3f R; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
+  mat_rot = rot.inverse();
+  this->eigen2FclRotation(mat_rot,R);
+                                                                                                                                          
+  fcl::Transform3f pose_ee(R, T);
+                                                                                                                                          
+  if(visualization)
+  {
+    Eigen::Vector4f translation_ee;
+    Eigen::Quaternionf quat_ee;
+    pcl::PointCloud<pcl::PointXYZRGB> ee_translated;
+    this->fcl2EigenTransform(translation_ee, quat_ee, pose_ee);
+    switch(pushing_method)
+    {
+      case ORTHOGONAL_PUSHING:
+        pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.closed_cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
+        viewer->addPolygonMesh<pcl::PointXYZRGB>(ee_translated.makeShared(), this->gripper_model.closed_vertices,"ee");
+        break;
+      case PARALLEL_PUSHING:
+        pcl::transformPointCloud<pcl::PointXYZRGB>(this->ee_simple_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
+        viewer->addPolygonMesh<pcl::PointXYZRGB>(ee_translated.makeShared(), this->ee_simple_model.vertices,"ee");
+        break;
+      default:
+        break;
+    }
+  }
+                                                                                                                                          
+  // check for all the other objects what are the ones that collide with it
+  util::uint64 t_init_ee_collision = util::GetTimeMs64();
+  double distance_;
+  for (uint i = 0; i < this->objects.size(); ++i)
+  {
+    if(i != obj_idx)
+    {
+      // is gripper colliding?
+      bool collision;
+      switch(pushing_method)
+      {
+        case ORTHOGONAL_PUSHING:
+          collision = this->isClosedGripperModelColliding(i,pose_ee,distance_);
+          break;
+        case PARALLEL_PUSHING:
+          collision = this->isEEColliding(i,pose_ee, distance_);
+          break;
+        default:
+          break;
+      }
+      if(collision)
+        blocking_objects.push_back(i); 
+      //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
+      switch(dir_idx)
+      {
+        case 1 :            
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir1 )
+                  this->pushing_poses[obj_idx].dist_dir1 = distance_;
+                if(collision)
+                  this->blocks_predicates[obj_idx].block_dir1.push_back(i);
+                break;
+        case 2 :
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir2 )
+                  this->pushing_poses[obj_idx].dist_dir2 = distance_;
+                if(collision)
+                  this->blocks_predicates[obj_idx].block_dir2.push_back(i);
+                break; 
+        case 3 :
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir3 )
+                  this->pushing_poses[obj_idx].dist_dir3 = distance_;
+                if(collision)
+                  this->blocks_predicates[obj_idx].block_dir3.push_back(i);
+                break; 
+        case 4 :
+                if(distance_ < this->pushing_poses[obj_idx].dist_dir4 )
+                  this->pushing_poses[obj_idx].dist_dir4 = distance_;
+                if(collision)
+                  this->blocks_predicates[obj_idx].block_dir4.push_back(i);
+                break; 
+        default: break;
+      }
+    
+    }
+  }
+  this->executionTimes.ee_collisions += (double)(util::GetTimeMs64() - t_init_ee_collision);
+
+  // -------------------------- OBJECTS ---------------------
+
+  if(pushing_fixed_distance > 0.0)
+  {
+    resolution = 0.03; // we used a fixed resolution, this is for the experiment comparison, we do not care about the computation time
+    this->pushing_limit = pushing_fixed_distance;
+  }
+
+  step_translation = - resolution; 
+  while(step_translation < this->pushing_limit and not exit_while )
+  {
+    switch(dir_idx){
+      case 1 :
+              step_translation += resolution;
               if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
                 step_translation = this->pushing_limit;
               x =  step_translation*principal_directions_objects[obj_idx].dir1[0];
@@ -1749,9 +2062,13 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               z =  step_translation*principal_directions_objects[obj_idx].dir1[2];
               T.setValue(x,y,z);               
 
+              // grasping pose translated
+              gp_tmp = grasping_poses[obj_idx];
+              gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir1;
+
               break;
       case 2 :
-              step_translation = n * this->principal_directions_objects[obj_idx].dir1_limit;
+              step_translation += resolution;
               if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
                 step_translation = this->pushing_limit;
               x =  step_translation*principal_directions_objects[obj_idx].dir2[0];
@@ -1759,9 +2076,13 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               z =  step_translation*principal_directions_objects[obj_idx].dir2[2];
               T.setValue(x,y,z);
 
+              // grasping pose translated
+              gp_tmp = grasping_poses[obj_idx];
+              gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir2;
+
               break; 
       case 3 :
-              step_translation = n * this->principal_directions_objects[obj_idx].dir3_limit;
+              step_translation += resolution;
               if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
                 step_translation = this->pushing_limit;
               x =  step_translation*principal_directions_objects[obj_idx].dir3[0];
@@ -1769,9 +2090,13 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               z =  step_translation*principal_directions_objects[obj_idx].dir3[2];
               T.setValue(x,y,z);
 
+              // grasping pose translated
+              gp_tmp = grasping_poses[obj_idx];
+              gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir3;
+
               break; 
       case 4 :
-              step_translation = n * this->principal_directions_objects[obj_idx].dir3_limit;
+              step_translation += resolution;
               if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
                 step_translation = this->pushing_limit;
               x =  step_translation*principal_directions_objects[obj_idx].dir4[0];
@@ -1779,9 +2104,15 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
               z =  step_translation*principal_directions_objects[obj_idx].dir4[2];
               T.setValue(x,y,z);
 
+              // grasping pose translated
+              gp_tmp = grasping_poses[obj_idx];
+              gp_tmp.translation +=  step_translation * this->principal_directions_objects[obj_idx].dir4;
+
               break; 
       default: break;
-    }
+    }//end switch
+    std::cout << "step_translation: " << step_translation << std::endl;
+
     // identity matrix -> no rotation
     fcl::Matrix3f R(1,0,0,
                     0,1,0,
@@ -1802,16 +2133,38 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
       convert << n;
       mesh_idx += convert.str();
       viewer->addPolygonMesh<PointT>(convex_hull_translated.makeShared(), this->convex_hull_vertices[obj_idx],mesh_idx);
+
+      if(pushing_until_graspable)
+      { 
+        if(show_ee)
+        {
+            pcl::PointCloud<pcl::PointXYZRGB> ee_convex_hull_translated;
+            Eigen::Quaternionf quat_ee(gp_tmp.rotation);
+            pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, ee_convex_hull_translated, gp_tmp.translation , quat_ee);
+            convert << dir_idx;
+            std::string grasp_mesh_idx = "grasp_" + convert.str();
+            viewer->addPolygonMesh<pcl::PointXYZRGB>(ee_convex_hull_translated.makeShared(), this->gripper_model.open_vertices, grasp_mesh_idx);
+        }
+      }
     }
 
+    //check with what objects are they colliding
+    std::vector<uint> free_collision_objects;
+    util::uint64 t_init_collision = util::GetTimeMs64();
     for (uint i = 0; i < this->objects.size(); ++i)
     {
-      if(i != obj_idx)
+      bool no_blocking = true;
+      for (uint bo = 0; bo < blocking_objects.size(); bo++)
+      {
+        if( i == blocking_objects[bo])
+          no_blocking = false;
+      }
+      if(i != obj_idx && no_blocking)
         if(this->areObjectCollidingFcl(obj_idx,pose,i))
         {
-          //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
-          switch(dir_idx)
-          {
+          blocking_objects.push_back(i);
+          std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << " distance: " << step_translation << std::endl;
+          switch(dir_idx){
             case 1 :            
                     this->blocks_predicates[obj_idx].block_dir1.push_back(i);
                     break;
@@ -1826,353 +2179,208 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
                     break; 
             default: break;
           }
+        } // end if collision
+        else
+        {
+          free_collision_objects.push_back(i);
         }
-    }
-    n++;
-  }
+    }//end for collision
 
-  // ----------------------- END EFFECTOR --------------------------------------
-
-  PrincipalDirectionsProjected* pd = &(principal_directions_objects[obj_idx]);
-  Eigen::Matrix3f rot;
-  
-  Eigen::Vector3f normal;
-  Eigen::Vector3f translation;
-  Eigen::Matrix3f mat_rot;
-  Eigen::Quaternionf quat;
-  if(pushing_method == PARALLEL_PUSHING)
-  {
-    // project centroid to the table 
-    Eigen::Vector3f eigen_point = pd->centroid.head<3>();
-    Eigen::Vector3f proj_eigen_point;
-    pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
-
-    Eigen::Vector3f scaled_diff = eigen_point - proj_eigen_point;
-    scaled_diff.normalize(); // this hsould be equal to - this->normal_plane
-
-    scaled_diff = (this->ee_simple_model.distance_plane + this->ee_simple_model.height/2 )* scaled_diff;
-    
-    Eigen::Vector3f new_centroid = proj_eigen_point + scaled_diff;
-
-    switch(dir_idx)
+    if(pushing_until_graspable)
     {
-      case 1 :
-              step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                                 - this->ee_simple_model.deep/2 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
+      // check if the new grasping pose collides
+      // this->block_grasp_predicates.resize(this->n_objects);
+      
+      GraspingPose* gp = &(gp_tmp);
+      fcl::Matrix3f R_gp; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
+      this->eigen2FclRotation(gp->rotation,R_gp);
+      fcl::Vec3f T;
+      T.setValue( gp->translation[0],
+                  gp->translation[1],
+                  gp->translation[2]);
+      fcl::Transform3f grasp_pose(R_gp, T);
 
-              rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-              rot(2,0) = pd->dir1[0]; rot(2,1) = pd->dir1[1]; rot(2,2) = pd->dir1[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
 
-              // we are now going to save the TCP pose 
-              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir1;
-              this->pushing_poses[obj_idx].pose_dir1.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
+      bool grasp_free = true; // boolean variale to specify if the grasp is free
 
-              break;
-      case 2 :
-              step_translation = - this->aabb_objects[obj_idx].deep/2 +
-                                 - this->ee_simple_model.deep/2 - pushing_object_distance;           
-              x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-              rot(2,0) = pd->dir2[0]; rot(2,1) = pd->dir2[1]; rot(2,2) = pd->dir2[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP
-              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir2;
-              this->pushing_poses[obj_idx].pose_dir2.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
-
-              break; 
-      case 3 :
-              step_translation = - this->aabb_objects[obj_idx].width/2 +
-                                 - this->ee_simple_model.deep/2 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-              rot(2,0) = pd->dir3[0]; rot(2,1) = pd->dir3[1]; rot(2,2) = pd->dir3[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP
-              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir3;
-              this->pushing_poses[obj_idx].pose_dir3.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
-
-              break; 
-      case 4 :
-              step_translation = - this->aabb_objects[obj_idx].width/2 +
-                                 - this->ee_simple_model.deep/2 - pushing_object_distance; 
-              x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-              rot(1,0) = this->plane_normal[0]; rot(1,1) = this->plane_normal[1]; rot(1,2) = this->plane_normal[2];
-              rot(2,0) = pd->dir4[0]; rot(2,1) = pd->dir4[1]; rot(2,2) = pd->dir4[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP
-              translation = translation + this->ee_simple_model.deep/2 * principal_directions_objects[obj_idx].dir4;
-              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
-
-              break; 
-      default: break;
-    }
-  }
-  else if(pushing_method == ORTHOGONAL_PUSHING)
-  {
-    // project centroid to the table 
-    Eigen::Vector3f eigen_point = pd->centroid.head<3>();
-    Eigen::Vector3f proj_eigen_point;
-    pcl::geometry::project(eigen_point,this->plane_origin,this->plane_normal,proj_eigen_point);
-
-    Eigen::Vector3f new_centroid = proj_eigen_point - this->plane_normal * 
-                       (this->aabb_objects[obj_idx].height - this->fingers_model.closing_height);        
-    
-    switch(dir_idx)
-    {
-      case 1 :
-              // step_translation = - this->aabb_objects[obj_idx].deep/2 
-              //                    - this->fingers_model.finger_width/2
-              //                    - pushing_object_distance;
-              step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                 - (this->fingers_model.finger_width + 
-                                    this->fingers_model.closing_width/2)/2
-                                 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir1[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir1[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir1[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              // rot(0,0) = pd->dir3[0]; rot(0,1) = pd->dir3[1]; rot(0,2) = pd->dir3[2];
-              // rot(1,0) = -pd->dir1[0]; rot(1,1) = -pd->dir1[1]; rot(1,2) = -pd->dir1[2];
-              // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-
-              rot(0,0) = -pd->dir1[0]; rot(0,1) = -pd->dir1[1]; rot(0,2) = -pd->dir1[2];
-              rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
-              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP -> we have to fix the translation accordingly to ROS              
-              this->pushing_poses[obj_idx].pose_dir1.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir1.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir1.quaternion = quat;
-
-              break;
-      case 2 :
-              // step_translation = - this->aabb_objects[obj_idx].deep/2 
-              //                    - this->fingers_model.finger_width/2
-              //                    - pushing_object_distance;
-
-              // we want to push in it in the smallest gripper side
-              step_translation = - this->aabb_objects[obj_idx].deep/2 
-                                 - (this->fingers_model.finger_width + 
-                                    this->fingers_model.closing_width/2)/2
-                                 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir2[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir2[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir2[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              // rot(0,0) = pd->dir4[0]; rot(0,1) = pd->dir4[1]; rot(0,2) = pd->dir4[2];
-              // rot(1,0) = -pd->dir2[0]; rot(1,1) = -pd->dir2[1]; rot(1,2) = -pd->dir2[2];
-              // rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-
-              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-              rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
-              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP -> we have to fix the translation accordingly to ROS              
-              this->pushing_poses[obj_idx].pose_dir2.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir2.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir2.quaternion = quat;
-
-              break; 
-      case 3 :
-              step_translation = - this->aabb_objects[obj_idx].width/2 
-                                 - this->fingers_model.deep/2
-                                 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir3[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir3[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir3[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              rot(0,0) = pd->dir2[0]; rot(0,1) = pd->dir2[1]; rot(0,2) = pd->dir2[2];
-              rot(1,0) = -pd->dir3[0]; rot(1,1) = -pd->dir3[1]; rot(1,2) = -pd->dir3[2];
-              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP -> we have to fix the translation accordingly to ROS              
-              this->pushing_poses[obj_idx].pose_dir3.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir3.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir3.quaternion = quat;
-
-              break; 
-      case 4 :
-              step_translation = - this->aabb_objects[obj_idx].width/2 
-                                 - this->fingers_model.deep/2
-                                 - pushing_object_distance;
-              x =  step_translation*principal_directions_objects[obj_idx].dir4[0] + 
-                   new_centroid[0];
-              y =  step_translation*principal_directions_objects[obj_idx].dir4[1] +
-                   new_centroid[1];
-              z =  step_translation*principal_directions_objects[obj_idx].dir4[2] +
-                   new_centroid[2];
-              T.setValue(x,y,z);
-              translation[0] = x;
-              translation[1] = y;
-              translation[2] = z;
-
-              rot(0,0) = pd->dir1[0]; rot(0,1) = pd->dir1[1]; rot(0,2) = pd->dir1[2];
-              rot(1,0) = -pd->dir4[0]; rot(1,1) = -pd->dir4[1]; rot(1,2) = -pd->dir4[2];
-              rot(2,0) = this->plane_normal[0]; rot(2,1) = this->plane_normal[1]; rot(2,2) = this->plane_normal[2];
-              mat_rot = rot.inverse();
-              quat = mat_rot;
-
-              // TCP -> we have to fix the translation accordingly to ROS              
-              this->pushing_poses[obj_idx].pose_dir4.translation = translation;
-              this->pushing_poses[obj_idx].pose_dir4.rotation = mat_rot;
-              this->pushing_poses[obj_idx].pose_dir4.quaternion = quat;
-
-              break; 
-      default: break;
-    }
-  }
-  //for all the other objects
-
-  //we have to compute the rotation accordingly to the direction
-
-  fcl::Matrix3f R; // the rotation matrix has to be chosen accordingly to the irection, but now just let's try if it works
-  mat_rot = rot.inverse();
-  this->eigen2FclRotation(mat_rot,R);
-
-  fcl::Transform3f pose_ee(R, T);
-
-  if(visualization)
-  {
-    Eigen::Vector4f translation_ee;
-    Eigen::Quaternionf quat_ee;
-    pcl::PointCloud<pcl::PointXYZ> ee_translated;
-    this->fcl2EigenTransform(translation_ee, quat_ee, pose_ee);
-    switch(pushing_method)
-    {
-      case ORTHOGONAL_PUSHING:
-        pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.closed_cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
-        viewer->addPolygonMesh<pcl::PointXYZ>(ee_translated.makeShared(), this->fingers_model.closed_vertices,"ee");
-        break;
-      case PARALLEL_PUSHING:
-        pcl::transformPointCloud<pcl::PointXYZ>(this->ee_simple_model.cloud, ee_translated, translation_ee.head<3>()  , quat_ee);
-        viewer->addPolygonMesh<pcl::PointXYZ>(ee_translated.makeShared(), this->ee_simple_model.vertices,"ee");
-        break;
-      default:
-        break;
-    }
-  }
-
-  // check for all the other objects what are the ones that collide with it
-  for (uint i = 0; i < this->objects.size(); ++i)
-  {
-    if(i != obj_idx)
-    {
-      // is gripper colliding?
-      bool collision;
-      switch(pushing_method)
+      // Check if the grasping pose only with objects that do not collide with the object when pushed, 
+      // it makes no sense to check how much it should be pushed because of object that anyway should be moved away.
+      for (uint o = 0; o < this->objects.size() ; ++o)
       {
-        case ORTHOGONAL_PUSHING:
-          collision = this->isClosedFinderModelColliding(i,pose_ee);
-          break;
-        case PARALLEL_PUSHING:
-          collision = this->isEEColliding(i,pose_ee);
-          break;
-        default:
-          break;
+        bool no_blocking = true;
+        for (uint bo = 0; bo < blocking_objects.size(); bo++)
+        {
+          if( o == blocking_objects[bo])
+            no_blocking = false;
+        }
+
+        if(o != obj_idx && no_blocking)
+        {
+          double distance_;
+          bool collision_ = this->isOpenGripperModelColliding(o,grasp_pose,distance_);
+          if (distance_ < minimum_distance)
+          { 
+            if(print)
+            {
+              std::cout << "Object " << o << " blocks object " << obj_idx << " to be grasped in the new pose  distance: " << step_translation << std::endl;
+            }
+
+            grasp_free = false;
+            exit_while = false;
+            break;
+          }
+        }
+      } // end for
+
+      //save grasp
+      switch(dir_idx){
+        case 1: 
+                pushing_grasping_poses[obj_idx].gp_dir1 = gp_tmp;
+                break;
+        case 2: 
+                pushing_grasping_poses[obj_idx].gp_dir2 = gp_tmp;
+                break;
+        case 3: 
+                pushing_grasping_poses[obj_idx].gp_dir3 = gp_tmp;
+                break;
+        case 4: 
+                pushing_grasping_poses[obj_idx].gp_dir4 = gp_tmp;
+                break;
       }
-      if(collision)
+
+      if(grasp_free or step_translation >= this->pushing_limit) // if the grasp is collision free or we reached the limit distance
       {
+        // save the length of pushing
+        switch(dir_idx){
+          case 1: pushing_lengths[obj_idx].dir1 = step_translation;
+                  break;
+          case 2: pushing_lengths[obj_idx].dir2 = step_translation;
+                  break;
+          case 3: pushing_lengths[obj_idx].dir3 = step_translation;
+                  break;
+          case 4: pushing_lengths[obj_idx].dir4 = step_translation;
+                  break;
+        }
+
+        //exit from the while loop. We do not need to check for more translations
+        //break;
+        exit_while = true;
+      }
+    }
+    else
+    {
+      // save the length of pushing
+      switch(dir_idx)
+      {
+        case 1: 
+                pushing_lengths[obj_idx].dir1 = this->pushing_limit;
+                break;
+        case 2: 
+                pushing_lengths[obj_idx].dir2 = this->pushing_limit;
+                break;
+        case 3:
+                pushing_lengths[obj_idx].dir3 = this->pushing_limit;
+                break; 
+        case 4: 
+                pushing_lengths[obj_idx].dir4 = this->pushing_limit;
+                break;
+      }
+    }
+
+    this->executionTimes.objects_collisions += (double)(util::GetTimeMs64() - t_init_collision);
+
+    n++;
+  }//end while
+
+  // compute the minimum distance along all the pushing action
+  step_translation = 0;
+  fcl::Vec3f T_translation;
+  double pushing_length_;
+  switch(dir_idx)
+  {
+    case 1:
+       pushing_length_ = pushing_lengths[obj_idx].dir1;
+       break;
+    case 2:
+       pushing_length_ = pushing_lengths[obj_idx].dir2;
+       break;
+    case 3:
+       pushing_length_ = pushing_lengths[obj_idx].dir3;
+       break;
+    case 4:
+       pushing_length_ = pushing_lengths[obj_idx].dir4;
+       break;              
+  }
+  while(step_translation <  pushing_length_)
+  {
+    step_translation += resolution;
+    if (step_translation > this->pushing_limit) //stop when we reach the desired pushing limit 
+      step_translation = this->pushing_limit;
+    switch(dir_idx)
+    {
+      case 1 :          
+              x =  step_translation*principal_directions_objects[obj_idx].dir1[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir1[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir1[2];
+              T_translation.setValue(x,y,z);     
+              break;
+      case 2 :          
+              x =  step_translation*principal_directions_objects[obj_idx].dir2[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir2[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir2[2];
+              T_translation.setValue(x,y,z);     
+              break;
+      case 3 :          
+              x =  step_translation*principal_directions_objects[obj_idx].dir3[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir3[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir3[2];
+              T_translation.setValue(x,y,z);     
+              break;
+      case 4 :          
+              x =  step_translation*principal_directions_objects[obj_idx].dir4[0];
+              y =  step_translation*principal_directions_objects[obj_idx].dir4[1];
+              z =  step_translation*principal_directions_objects[obj_idx].dir4[2];
+              T_translation.setValue(x,y,z);     
+              break;
+      default:break;
+    }
+    fcl::Transform3f pose_ee(R, T + T_translation); // translated pushing pose
+    double distance_ee;
+    for (uint i = 0; i < this->objects.size(); ++i)
+    {
+      if(i != obj_idx)
+      {
+        // is gripper colliding?
+        switch(pushing_method)
+        {
+          case ORTHOGONAL_PUSHING:
+            this->isClosedGripperModelColliding(i,pose_ee,distance_ee);
+            break;
+          case PARALLEL_PUSHING:
+            this->isEEColliding(i,pose_ee, distance_ee);
+            break;
+          default:
+            break;
+        }
+      
         //std::cout << "Object " << obj_idx << " is colliding with object " << i << " in direction " << dir_idx << std::endl;
         switch(dir_idx)
         {
           case 1 :            
-                  this->blocks_predicates[obj_idx].block_dir1.push_back(i);
+                  if(distance_ee < this->pushing_poses[obj_idx].dist_dir1 )
+                    this->pushing_poses[obj_idx].dist_dir1 = distance_ee;
                   break;
           case 2 :
-                  this->blocks_predicates[obj_idx].block_dir2.push_back(i);
+                  if(distance_ee < this->pushing_poses[obj_idx].dist_dir2 )
+                    this->pushing_poses[obj_idx].dist_dir2 = distance_ee;
                   break; 
           case 3 :
-                  this->blocks_predicates[obj_idx].block_dir3.push_back(i);
+                  if(distance_ee < this->pushing_poses[obj_idx].dist_dir3 )
+                    this->pushing_poses[obj_idx].dist_dir3 = distance_ee;
                   break; 
           case 4 :
-                  this->blocks_predicates[obj_idx].block_dir4.push_back(i);
+                  if(distance_ee < this->pushing_poses[obj_idx].dist_dir4 )
+                    this->pushing_poses[obj_idx].dist_dir4 = distance_ee;
                   break; 
           default: break;
         }
@@ -2231,7 +2439,7 @@ void CTableClearingPlanning::visualComputeBlockPredicates(Visualizer viewer, uin
 
 }  
 
-void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
+void CTableClearingPlanning::computeBlockGraspPredicates(bool print, double minimum_grasping_distance)
 {
   util::uint64 t_init_block_grasp_predicates = util::GetTimeMs64();
 
@@ -2257,12 +2465,21 @@ void CTableClearingPlanning::computeBlockGraspPredicates(bool print)
     for (uint o = 0; o < this->n_objects; ++o)
     {
       if(i != o)
-        if(this->isFingersModelColliding(o,grasp_pose))
+      {
+        double distance_;
+        if(this->isOpenGripperModelColliding(o,grasp_pose,distance_))
         {
           this->block_grasp_predicates[i].push_back(o);
           if(print)
             std::cout << "Object " << o << " blocks object " << i << " to be grasped\n";
         }
+        else if (distance_ < minimum_grasping_distance)
+        {
+          this->block_grasp_predicates[i].push_back(o);
+          if(print)
+            std::cout << "Object " << o << " blocks object " << i << " to be grasped\n";
+        }
+      }
     }
   }
   util::uint64 t_end_block_grasp_predicates = util::GetTimeMs64();
@@ -2400,6 +2617,11 @@ void CTableClearingPlanning::testFcl2()
 
 void CTableClearingPlanning::viewerAddConvexHulls(Visualizer viewer, uint idx)
 {
+  if(idx >= n_objects)
+  {
+    PCL_WARN("Index %d not valid",idx);
+    return;
+  }
 
   if( (this->convex_hull_objects.size() >= (idx +1) ) && (this->convex_hull_vertices.size() >= (idx +1)) ) // check if the index is correct 
   {
@@ -2769,11 +2991,41 @@ void CTableClearingPlanning::buildFullObjectsCloud(std::vector<PointCloudT>& occ
 
 }
 
-void CTableClearingPlanning::setObjectsPointCloud(std::vector<PointCloudT> &objects)
+void CTableClearingPlanning::setObjectsPointCloud(std::vector<PointCloudT> &objects, bool convert_to_label)
 {
   this->objects = objects;
   this->n_objects = objects.size();
+  this->pushing_lengths.resize(this->n_objects);
   this->blocks_predicates.resize(this->n_objects);
+
+  if(convert_to_label)
+  {
+    this->objects_labeled_cloud.points.resize(0);
+    uint counter = 0;
+    for (std::vector<PointCloudT>::iterator i = objects.begin(); i != objects.end(); ++i, ++counter)
+    {
+        for (std::vector<PointT, Eigen::aligned_allocator< PointT> >::iterator p = i->points.begin(); p != i->points.end(); ++p)
+        {
+          pcl::PointXYZL tmp_point;
+          tmp_point.x = p->x;
+          tmp_point.y = p->y;
+          tmp_point.z = p->z;
+          tmp_point.label = counter;
+          this->objects_labeled_cloud.points.push_back(tmp_point);
+        }
+    }
+  }
+
+  // initialize EE distances
+  this->pushing_poses.resize(this->n_objects);
+  for (std::vector<PushingPose>::iterator i = this->pushing_poses.begin(); i != this->pushing_poses.end(); ++i)
+  {
+    i->dist_dir1 = 1000;
+    i->dist_dir2 = 1000;
+    i->dist_dir3 = 1000;
+    i->dist_dir4 = 1000;
+  }
+
 }
 void CTableClearingPlanning::setPlaneCoefficients(pcl::ModelCoefficients &plane_coefficients)
 {
@@ -2810,6 +3062,11 @@ void CTableClearingPlanning::setPlaneCoefficients(pcl::ModelCoefficients &plane_
 
 void CTableClearingPlanning::viewerAddPrincipalDirections(Visualizer viewer, uint i)
 {
+  if(i >= n_objects)
+  {
+    PCL_WARN("Index %d not valid",i);
+    return;
+  }
   
   double length = 0.2;
   viewer->addText(" dir1 : red \n dir2 : green \n dir3 : blue \n dir4 : cyan",1,1,1,0,100);
@@ -2893,6 +3150,12 @@ void CTableClearingPlanning::viewerAddPrincipalDirections(Visualizer viewer)
 
 void CTableClearingPlanning::viewerAddOriginalPrincipalDirections(Visualizer viewer, uint i)
 {
+  if(i >= n_objects)
+  {
+    PCL_WARN("Index %d not valid",i);
+    return;
+  }
+
   double length = 0.2;
   viewer->addText(" dir1 : red \n dir2 : green \n dir3 : blue \n dir4 : cyan",1,1,1,0,100);
   for (uint d = 1; d <= 4; ++d)
@@ -2967,6 +3230,12 @@ void CTableClearingPlanning::viewerAddOriginalPrincipalDirections(Visualizer vie
 
 void CTableClearingPlanning::cleanPrincipalDirections(Visualizer viewer, uint i)
 {
+  if(i >= n_objects)
+  {
+    PCL_WARN("Index %d not valid",i);
+    return;
+  }
+
   for (uint d = 1; d <= 4; ++d)
   { 
     PointT pd_1,pd_2;
@@ -3019,7 +3288,7 @@ void CTableClearingPlanning::cleanPolygonalMesh(Visualizer viewer)
 {
   viewer->removePolygonMesh("ee");
 
-  for (uint i = 0; i < 100; ++i) //high value -> ineficcient but fast to implement -> it is only for visualization
+  for (uint i = 0; i < 1000; ++i) //high value -> ineficcient but fast to implement -> it is only for visualization
   {
     std::string pol_name;
     std::ostringstream convert;   // stream used for the conversion
@@ -3027,6 +3296,18 @@ void CTableClearingPlanning::cleanPolygonalMesh(Visualizer viewer)
     convert << i;
     pol_name += convert.str();
     viewer->removePolygonMesh(pol_name);
+
+    std::string grasp_name;
+    
+    for (uint d=1; d <= 4; d++)
+    {
+        grasp_name = "grasp_";
+        convert.str("");
+        convert << i;
+        convert << d;
+        grasp_name += convert.str();        
+        viewer->removePolygonMesh(grasp_name);
+    }
     // pol_name = "convex_hull";
     // pol_name += convert.str();
     // viewer->removePolygonMesh(pol_name);
@@ -3193,13 +3474,55 @@ void CTableClearingPlanning::viewerAddGraspingPose(Visualizer viewer,uint idx)
   convert << idx;
   grasp_name += convert.str();
 
-  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl::PointCloud<pcl::PointXYZRGB> cloud;
   Eigen::Quaternionf quat(this->grasping_poses[idx].rotation);
   // Eigen::Quaternionf quat = Eigen::Quaternionf::Identity ();
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud, this->grasping_poses[idx].translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->grasping_poses[idx].translation , quat);
 
-  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->fingers_model.open_vertices, grasp_name );  
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
 }
+void CTableClearingPlanning::viewerAddPushingGraspingPose(Visualizer viewer, uint obj_idx, uint dir_idx)
+{
+  if(this->grasping_poses.size() == 0)
+  {
+    PCL_ERROR("Grasping Poses still not computed.");
+    return;
+  }
+  if(obj_idx >= this->n_objects)
+  {
+    PCL_ERROR("Error object index, input index is %d when there are %d objects",obj_idx,this->n_objects);
+    return; 
+  }
+  if(dir_idx > 4 or dir_idx < 1)
+  {
+    PCL_ERROR("Error direction index, dir index is %d but there are 4 directions [1,2,3,4]",dir_idx);
+    return;
+  }
+
+  std::string grasp_name;
+  std::ostringstream convert;   // stream used for the conversion
+  grasp_name = "grasp_";
+  convert << obj_idx;
+  convert << dir_idx;
+  grasp_name += convert.str();
+
+  pcl::PointCloud<pcl::PointXYZRGB> cloud;
+  Eigen::Quaternionf quat(this->grasping_poses[obj_idx].rotation);
+  switch(dir_idx){
+    case 1 :  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir1.translation , quat);
+              break;
+    case 2 :  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir2.translation , quat);
+              break;
+    case 3 :  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir3.translation , quat);
+              break;
+    case 4 :  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->pushing_grasping_poses[obj_idx].gp_dir4.translation , quat);
+              break;
+  }
+
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
+  
+}
+
 void CTableClearingPlanning::viewerAddApproachingPose(Visualizer viewer, uint idx)
 {
   if(this->grasping_poses.size() == 0)
@@ -3214,11 +3537,11 @@ void CTableClearingPlanning::viewerAddApproachingPose(Visualizer viewer, uint id
   convert << idx;
   grasp_name += convert.str();
 
-  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl::PointCloud<pcl::PointXYZRGB> cloud;
   Eigen::Quaternionf quat(this->approaching_poses[idx].rotation);
-  pcl::transformPointCloud<pcl::PointXYZ>(this->fingers_model.open_cloud, cloud, this->approaching_poses[idx].translation , quat);
+  pcl::transformPointCloud<pcl::PointXYZRGB>(this->gripper_model.open_cloud, cloud, this->approaching_poses[idx].translation , quat);
 
-  viewer->addPolygonMesh<pcl::PointXYZ>(cloud.makeShared(), this->fingers_model.open_vertices, grasp_name );  
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud.makeShared(), this->gripper_model.open_vertices, grasp_name );  
 }
 void CTableClearingPlanning::viewerAddGraspingPoses(Visualizer viewer)
 {
@@ -3245,9 +3568,9 @@ CTableClearingPlanning::getFullObjects()
   return this->objects_full;
 }
 
-std::vector<AABB> CTableClearingPlanning::getAABBObjects()
+std::vector<OBB> CTableClearingPlanning::getOBBObjects()
 {
-  return this->aabb_objects;
+  return this->obb_objects;
 }
 std::vector<BlocksPredicate> CTableClearingPlanning::getBlockPredicates()
 {
@@ -3289,20 +3612,45 @@ ExecutionTimes CTableClearingPlanning::getExecutionTimes()
 {
   return executionTimes;
 }
+std::vector<PushingLength> CTableClearingPlanning::getPushingLengths()
+{
+  return pushing_lengths;
+}
+std::vector<PushingGraspingPose> CTableClearingPlanning::getPushingGraspingPoses()
+{
 
-void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer,double r,double g,double b)
+  // we also compute now the relative approaching directions
+  for (uint i = 0; i < this->n_objects; ++i)
+  {
+    pushing_grasping_poses[i].app_dir1 = pushing_grasping_poses[i].gp_dir1;
+    pushing_grasping_poses[i].app_dir1.translation -= this->approaching_distance * pushing_grasping_poses[i].app_dir1.rotation.row(2);
+
+    pushing_grasping_poses[i].app_dir2 = pushing_grasping_poses[i].gp_dir2;
+    pushing_grasping_poses[i].app_dir2.translation -= this->approaching_distance * pushing_grasping_poses[i].app_dir2.rotation.row(2);
+
+    pushing_grasping_poses[i].app_dir3 = pushing_grasping_poses[i].gp_dir3;
+    pushing_grasping_poses[i].app_dir3.translation -= this->approaching_distance * pushing_grasping_poses[i].app_dir3.rotation.row(2);
+
+    pushing_grasping_poses[i].app_dir4 = pushing_grasping_poses[i].gp_dir4;
+    pushing_grasping_poses[i].app_dir4.translation -= this->approaching_distance * pushing_grasping_poses[i].app_dir4.rotation.row(2);
+  }
+
+  return pushing_grasping_poses;  
+}
+
+void CTableClearingPlanning::viewerShowGripperModel(Visualizer viewer,double r,double g,double b)
 {
   viewer->addCoordinateSystem (0.3);
 
   // plot the mesh colored by a color
   // create a new point cloud
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-  for (uint i = 0; i < this->fingers_model.open_cloud.points.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.open_cloud.points.size(); ++i)
   {
     pcl::PointXYZRGB p;
-    p.x = this->fingers_model.open_cloud.points[i].x;
-    p.y = this->fingers_model.open_cloud.points[i].y;
-    p.z = this->fingers_model.open_cloud.points[i].z;
+    p.x = this->gripper_model.open_cloud.points[i].x;
+    p.y = this->gripper_model.open_cloud.points[i].y;
+    p.z = this->gripper_model.open_cloud.points[i].z;
     p.r = r;
     p.g = g;
     p.b = b;
@@ -3310,24 +3658,24 @@ void CTableClearingPlanning::viewerShowFingersModel(Visualizer viewer,double r,d
   }
 
   viewer->addPointCloud(cloud,"open fingers model"); 
-  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud, this->fingers_model.open_vertices);  
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud, this->gripper_model.open_vertices);  
 
-  // viewer->addPointCloud(this->fingers_model.open_cloud.makeShared(),"fingers model"); 
-  // viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.open_cloud.makeShared(), this->fingers_model.open_vertices );  
+  // viewer->addPointCloud(this->gripper_model.open_cloud.makeShared(),"fingers model"); 
+  // viewer->addPolygonMesh<pcl::PointXYZ>(this->gripper_model.open_cloud.makeShared(), this->gripper_model.open_vertices );  
 }
-void CTableClearingPlanning::viewerShowClosedFingersModel(Visualizer viewer,double r,double g,double b)
+void CTableClearingPlanning::viewerShowClosedGripperModel(Visualizer viewer,double r,double g,double b)
 {
   viewer->addCoordinateSystem (0.3);
 
   // plot the mesh colored by a color
   // create a new point cloud
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-  for (uint i = 0; i < this->fingers_model.closed_cloud.points.size(); ++i)
+  for (uint i = 0; i < this->gripper_model.closed_cloud.points.size(); ++i)
   {
     pcl::PointXYZRGB p;
-    p.x = this->fingers_model.closed_cloud.points[i].x;
-    p.y = this->fingers_model.closed_cloud.points[i].y;
-    p.z = this->fingers_model.closed_cloud.points[i].z;
+    p.x = this->gripper_model.closed_cloud.points[i].x;
+    p.y = this->gripper_model.closed_cloud.points[i].y;
+    p.z = this->gripper_model.closed_cloud.points[i].z;
     p.r = r;
     p.g = g;
     p.b = b;
@@ -3335,10 +3683,10 @@ void CTableClearingPlanning::viewerShowClosedFingersModel(Visualizer viewer,doub
   }
 
   viewer->addPointCloud(cloud,"closed fingers model"); 
-  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud, this->fingers_model.closed_vertices);  
+  viewer->addPolygonMesh<pcl::PointXYZRGB>(cloud, this->gripper_model.closed_vertices);  
 
-  // viewer->addPointCloud(this->fingers_model.closed_cloud.makeShared(),"closed fingers model");
-  // viewer->addPolygonMesh<pcl::PointXYZ>(this->fingers_model.closed_cloud.makeShared(), this->fingers_model.closed_vertices );   
+  // viewer->addPointCloud(this->gripper_model.closed_cloud.makeShared(),"closed fingers model");
+  // viewer->addPolygonMesh<pcl::PointXYZ>(this->gripper_model.closed_cloud.makeShared(), this->gripper_model.closed_vertices );   
 }
 
 void CTableClearingPlanning::reset()
@@ -3354,7 +3702,7 @@ void CTableClearingPlanning::reset()
   this->principal_directions_objects.resize(0);
   this->original_principal_directions_objects.resize(0);
   this->convex_hull_vertices.resize(0);
-  this->aabb_objects.resize(0);
+  this->obb_objects.resize(0);
   this->grasping_poses.resize(0);
   this->concave_hull_projections.resize(0);
   this->concave_hull_vertices_projections.resize(0);
@@ -3414,6 +3762,12 @@ void CTableClearingPlanning::viewerAddProjections(Visualizer viewer)
 }
 void CTableClearingPlanning::viewerAddProjection(Visualizer viewer,uint idx)
 {
+  if(idx >= n_objects)
+  {
+    PCL_WARN("Index %d not valid",idx);
+    return;
+  }
+
   uint i = idx;
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
   //we now construct manually the point cloud
@@ -3518,4 +3872,26 @@ void CTableClearingPlanning::viewerAddProjectionConvexHull(Visualizer viewer,uin
   projection_name += convert.str();
   viewer->addPolygonMesh<pcl::PointXYZRGBA>(convex_hull_projections[i].makeShared(), convex_hull_vertices_projections[i]);  
   
+}
+void CTableClearingPlanning::printPushingLengths()
+{
+  for (uint i = 0; i < this->n_objects; ++i)
+  {
+    std::cout << "Pushing lengths object " << i 
+              << " dir1: " << this->pushing_lengths[i].dir1
+              << " dir2: " << this->pushing_lengths[i].dir2 
+              << " dir3: " << this->pushing_lengths[i].dir3 
+              << " dir4: " << this->pushing_lengths[i].dir4 << std::endl;
+  }
+}
+void CTableClearingPlanning::printPushingEEDistances()
+{
+  for (uint i = 0; i < this->n_objects; ++i)
+  {
+    std::cout << "Pushing EE distance object " << i 
+              << " dir1: " << this->pushing_poses[i].dist_dir1
+              << " dir2: " << this->pushing_poses[i].dist_dir2
+              << " dir3: " << this->pushing_poses[i].dist_dir3
+              << " dir4: " << this->pushing_poses[i].dist_dir4 << std::endl;
+  }
 }

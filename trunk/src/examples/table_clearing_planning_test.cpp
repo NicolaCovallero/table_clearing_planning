@@ -77,6 +77,8 @@ void help()
   "-zmin minimum distance orthogonal to the table plane to consider a point as valid\n"
   "-zmax maximum distance orthogonal to the table plane to consider a point as valid\n"
   "-th_points minimum amount of points to consider a cluster as an object\n"
+  "-- PCL viewer ---\n"
+  "-cp camera parameters file\n"
   "\n");
 }
 
@@ -172,6 +174,9 @@ int main(int argc, char *argv[])
 
   // minimum amount of points to consider a cluster as an object
   pcl::console::parse (argc, argv, "-th_points", opt.th_points);
+
+  char camera_params_file_name[100];
+  pcl::console::parse (argc, argv, "-cp", camera_params_file_name);
   // -------------------------------------------------------------------------------------------
   // print paramters (neglect the segmentation):
 
@@ -263,7 +268,7 @@ int main(int argc, char *argv[])
   //----------- VISUALIZATIONS ----------------------
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
   // set the camera parameters in order to have the same view always. You could need to change it, depends on the experiment
-  viewer->loadCameraParameters(camera_params); 
+  if(pcl::console::find_switch (argc, argv, "-cp"))viewer->loadCameraParameters(camera_params_file_name); 
   viewer->setSize(500,400); // set size of the window
 
   //tcp.viewerShowClosedFingersModel(viewer);
